@@ -2,6 +2,7 @@
 
 namespace Ps2alerts\Api\Repository;
 
+use Aura\SqlQuery\AbstractQuery;
 use Aura\SqlQuery\QueryFactory;
 use Ps2alerts\Api\Contract\DatabaseAwareInterface;
 use Ps2alerts\Api\Contract\DatabaseAwareTrait;
@@ -43,7 +44,7 @@ abstract class AbstractEndpointRepository implements
     /**
      * Builds a new query factory ready for use with the QueryObjects
      *
-     * @return \Aura\SqlQuery\QueryFactory
+     * @return \Aura\SqlQuery\AbstractQuery
      */
     public function newQuery()
     {
@@ -93,18 +94,18 @@ abstract class AbstractEndpointRepository implements
     /**
      * Sets up the PDO Object, then executes the query based on dimension.
      *
-     * @param  \Aura\SqlQuery\QueryFactory             $factory
+     * @param  \Aura\SqlQuery\AbstractQuery $query
      * @param  \Ps2alerts\Api\QueryObjects\QueryObject $queryObject Sent QueryObject to read dimension
      * @return array The final data
      */
-    public function prepareAndExecuteQuery(QueryFactory $factory, QueryObject $queryObject)
+    public function prepareAndExecuteQuery(AbstractQuery $query, QueryObject $queryObject)
     {
         $pdo = $this->getDatabaseDriver();
 
         if ($queryObject->getDimension() === 'multi') {
-            return $pdo->fetchAll($factory->getStatement());
+            return $pdo->fetchAll($query->getStatement());
         }
 
-        return $pdo->fetchOne($factory->getStatement());
+        return $pdo->fetchOne($query->getStatement());
     }
 }
