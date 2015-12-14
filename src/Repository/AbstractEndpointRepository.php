@@ -59,7 +59,8 @@ abstract class AbstractEndpointRepository implements
      * Sets up the resulting query based off properties present in the supplied object.
      *
      * @see \Ps2alerts\Api\QueryObjects\QueryObject
-     * @param  array $wheres The array of where statements to look for.
+     *
+     * @param  \Ps2alerts\Api\QueryObjects\QueryObject $queryObject
      * @return array
      */
     public function read(QueryObject $queryObject)
@@ -92,19 +93,18 @@ abstract class AbstractEndpointRepository implements
     /**
      * Sets up the PDO Object, then executes the query based on dimension.
      *
-     * @param  string                      $statement   SQL statement that was prepared by read()
-     * @param  \Aura\SqlQuery\QueryFactory $queryObject Sent QueryObject to read dimension
-     *
+     * @param  \Aura\SqlQuery\QueryFactory             $factory
+     * @param  \Ps2alerts\Api\QueryObjects\QueryObject $queryObject Sent QueryObject to read dimension
      * @return array The final data
      */
-    public function prepareAndExecuteQuery($statement, QueryObject $queryObject)
+    public function prepareAndExecuteQuery(QueryFactory $factory, QueryObject $queryObject)
     {
         $pdo = $this->getDatabaseDriver();
 
         if ($queryObject->getDimension() === 'multi') {
-            return $pdo->fetchAll($statement->getStatement());
+            return $pdo->fetchAll($factory->getStatement());
         }
 
-        return $pdo->fetchOne($statement->getStatement());
+        return $pdo->fetchOne($factory->getStatement());
     }
 }
