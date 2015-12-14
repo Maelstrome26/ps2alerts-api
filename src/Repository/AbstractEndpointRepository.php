@@ -40,39 +40,23 @@ abstract class AbstractEndpointRepository implements
      */
     abstract public function getPrimaryKey();
 
-    public function newQuery($type)
+    /**
+     * Builds a new query factory ready for use with the QueryObjects
+     *
+     * @return \Aura\SqlQuery\QueryFactory
+     */
+    public function newQuery()
     {
         $factory = new QueryFactory('mysql');
 
-        switch ($type) {
-            case 'select':
-                $query = $factory->newSelect();
-                break;
-            case 'where':
-                $query = $factory->newWhere();
-                break;
-            default:
-                break;
-        }
-
+        $query = $factory->newSelect(); // Suspect I'll only ever need this one
         $query->from($this->getTable());
 
         return $query;
     }
 
-    public function prepareAndExecuteQuery($statement, QueryObject $queryObject)
-    {
-        $pdo = $this->getDatabaseDriver();
-
-        if ($queryObject->getDimension() === 'multi') {
-            return $pdo->fetchAll($statement->getStatement());
-        }
-
-        return $pdo->fetchOne($statement->getStatement());
-    }
-
     /**
-     * Executes read statement
+     * Sets up the resulting query based off properties present in the supplied object.
      *
      * @see \Ps2alerts\Api\QueryObjects\QueryObject
      * @param  array $wheres The array of where statements to look for.
@@ -80,7 +64,7 @@ abstract class AbstractEndpointRepository implements
      */
     public function read(QueryObject $queryObject)
     {
-        $query = $this->newQuery('select');
+        $query = $this->newQuery();
         $query->cols(['*']);
 
         // Setup where statements
@@ -103,5 +87,24 @@ abstract class AbstractEndpointRepository implements
         }
 
         return $this->prepareAndExecuteQuery($query, $queryObject);
+    }
+
+    /**
+     * Sets up the PDO Object, then executes the query based on dimension.
+     *
+     * @param  string                      $statement   SQL statement that was prepared by read()
+     * @param  \Aura\SqlQuery\QueryFactory $queryObject Sent QueryObject to read dimension
+     *
+     * @return array The final data
+     */
+    public function prepareAndExecuteQuery($statement, QueryObject $queryObject)
+    {
+        $pdo = $this->getDatabaseDriver();
+
+        if ($queryObject->getDimension() === 'multi') {
+            return $pdo->fetchAll($statement->getStatement());
+        }
+
+        return $pdo->fetchOne($statement->getStatement());
     }
 }
