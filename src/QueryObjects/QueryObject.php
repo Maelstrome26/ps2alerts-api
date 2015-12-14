@@ -47,7 +47,7 @@ class QueryObject
     /**
      * Set order by column
      *
-     * @param [type] $string [description]
+     * @param string $string [description]
      */
     public function setOrderBy($string)
     {
