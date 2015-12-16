@@ -34,10 +34,22 @@ class ResultsEndpointController extends EndpointBaseController
         ]);
     }
 
+    /**
+     * Returns a single alert
+     *
+     * @param  Request $request
+     * @param  array   $args
+     *
+     * @return \League\Route\Http\JsonResponse
+     */
     public function readSingle(Request $request, array $args)
     {
-        return new Response\Ok([
-            $this->loader->readSingle($args['resultID'])
-        ]);
+        $alert = $this->loader->readSingle($args['resultID']);
+
+        if (empty($alert)) {
+            return new Response\NoContent();
+        }
+
+        return new Response\Ok([$alert]);
     }
 }
