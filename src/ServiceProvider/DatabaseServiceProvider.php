@@ -3,9 +3,9 @@
 namespace Ps2alerts\Api\ServiceProvider;
 
 use Aura\Sql\ExtendedPdo;
-use League\Container\ServiceProvider;
+use League\Container\ServiceProvider\AbstractServiceProvider;
 
-class DatabaseServiceProvider extends ServiceProvider
+class DatabaseServiceProvider extends AbstractServiceProvider
 {
     /**
      * @var array
@@ -19,7 +19,7 @@ class DatabaseServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->singleton('Aura\Sql', function () {
+        $this->getContainer()->share('Aura\Sql', function () {
             $config = $this->getContainer()->get('config')['database'];
 
             $pdo = new ExtendedPdo(

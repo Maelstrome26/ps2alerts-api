@@ -2,7 +2,7 @@
 
 namespace Ps2alerts\Api\ServiceProvider;
 
-use League\Container\ServiceProvider;
+use League\Container\ServiceProvider\AbstractServiceProvider;
 use Twig_Loader_Filesystem;
 use Twig_Environment;
 use Twig_Extension_Debug;
@@ -10,7 +10,7 @@ use Twig_SimpleFilter;
 use Cocur\Slugify\Bridge\Twig\SlugifyExtension;
 use Cocur\Slugify\Slugify;
 
-class TemplateServiceProvider extends ServiceProvider
+class TemplateServiceProvider extends AbstractServiceProvider
 {
     /**
      * @var array
@@ -32,7 +32,7 @@ class TemplateServiceProvider extends ServiceProvider
         ];
 
         // Register the singleton with the container
-        $this->getContainer()->singleton('Twig_Environment', function () use ($globals, $config) {
+        $this->getContainer()->share('Twig_Environment', function () use ($globals, $config) {
 
             $cache = false;
             $debug = true;
@@ -52,7 +52,7 @@ class TemplateServiceProvider extends ServiceProvider
             foreach ($globals as $key => $val) {
                 $twig->addGlobal($key, $val);
             }
-            
+
             // Add extensions
             if ($debug === true) {
                 $twig->addExtension(new Twig_Extension_Debug);

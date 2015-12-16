@@ -2,9 +2,9 @@
 
 namespace Ps2alerts\Api\ServiceProvider;
 
-use League\Container\ServiceProvider;
+use League\Container\ServiceProvider\AbstractServiceProvider;
 
-class ConfigServiceProvider extends ServiceProvider
+class ConfigServiceProvider extends AbstractServiceProvider
 {
     /**
      * @var array
@@ -18,7 +18,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->singleton('config', function () {
+        $this->getContainer()->share('config', function () {
             return include __DIR__ . '/../../config/config.php';
         });
     }
