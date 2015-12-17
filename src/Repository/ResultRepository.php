@@ -21,4 +21,9 @@ class ResultRepository extends AbstractEndpointRepository
     {
         return 'ResultID';
     }
+
+    public function getResultKey()
+    {
+        return $this->getPrimaryKey();
+    }
 }

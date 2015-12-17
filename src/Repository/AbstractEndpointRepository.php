@@ -42,6 +42,13 @@ abstract class AbstractEndpointRepository implements
     abstract public function getPrimaryKey();
 
     /**
+     * Determines the Result key of the table
+     *
+     * @return string
+     */
+    abstract public function getResultKey();
+
+    /**
      * Builds a new query factory ready for use with the QueryObjects
      *
      * @return \Aura\SqlQuery\AbstractQuery
@@ -72,7 +79,13 @@ abstract class AbstractEndpointRepository implements
         // Setup where statements
         if (! empty($queryObject->getWheres())) {
             foreach ($queryObject->getWheres() as $where) {
-                $col = ($where['col'] === 'primary') ? $this->getPrimaryKey() : $where['col'];
+                if ($where['col'] === 'primary') {
+                    $col = $this->getPrimaryKey();
+                } elseif ($where['col'] === 'result') {
+                    $col = $this->getResultKey();
+                } else {
+                    $col = $where['col'];
+                }
                 $op = (isset($where['op']) ? $where['op'] : '=');
                 $query->where("{$col} {$op} {$where['value']}");
             }
@@ -80,12 +93,10 @@ abstract class AbstractEndpointRepository implements
 
         // Set up order statement
         if (! empty($queryObject->getOrderBy())) {
-            $orderBy = $queryObject->getOrderBy();
-
-            $orderByString = ($orderBy === 'primary') ? $this->getPrimaryKey() : $orderBy;
-            $orderByString .= " {$queryObject->getOrderByDirection()}";
-
-            $query->orderBy([$orderByString]);
+            $query->orderBy([
+                $queryObject->getOrderBy(),
+                $queryObject->getOrderByDirection()
+            ]);
         }
 
         return $this->prepareAndExecuteQuery($query, $queryObject);
