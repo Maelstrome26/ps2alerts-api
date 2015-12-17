@@ -9,6 +9,18 @@ abstract class AbstractLoader implements RedisAwareInterface
 {
     use RedisAwareTrait;
 
+    protected $cacheLoaderNamespace;
+
+    public function setLoaderCacheNamespace($string)
+    {
+        $this->cacheLoaderNamespace = $string;
+    }
+
+    public function getLoaderCacheNamespace($string)
+    {
+        return $this->cacheLoaderNamespace;
+    }
+
     /**
      * Checks for a key within Redis and returns it's existance
      *
@@ -17,7 +29,7 @@ abstract class AbstractLoader implements RedisAwareInterface
      */
     public function checkRedis($key)
     {
-        return $this->getRedisDriver()->exists($key);
+        return $this->getRedisDriver()->exists("{$this->cacheLoaderNamespace}:{$key}");
     }
 
     /**
@@ -28,7 +40,7 @@ abstract class AbstractLoader implements RedisAwareInterface
      */
     public function getFromRedis($key)
     {
-        return json_decode($this->getRedisDriver()->get($key));
+        return json_decode($this->getRedisDriver()->get("{$this->cacheLoaderNamespace}:{$key}"));
     }
 
     /**
@@ -41,7 +53,7 @@ abstract class AbstractLoader implements RedisAwareInterface
     public function setExpireKey($key, $value, $expires = 3600)
     {
         $value = json_encode($value);
-        return $this->getRedisDriver()->setEx($key, $expires, $value);
+        return $this->getRedisDriver()->setEx("{$this->cacheLoaderNamespace}:{$key}", $expires, $value);
     }
 
     /**
@@ -54,7 +66,7 @@ abstract class AbstractLoader implements RedisAwareInterface
      */
     public function cacheAndReturn($data, $key)
     {
-        $this->setExpireKey($key, $data);
+        $this->setExpireKey("{$this->cacheLoaderNamespace}:{$key}", $data);
         $data['cached'] = 0;
         return $data;
     }
