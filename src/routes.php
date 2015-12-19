@@ -30,10 +30,16 @@ $route->get(
 );
 
 // Metrics Routes
-
+// - Map
 $route->get(
     '/v2/metrics/map/{resultID}',
     'Ps2alerts\Api\Controller\Metrics\MapMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+// - Outfits
+$route->get(
+    '/v2/metrics/outfits/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\OutfitMetricsEndpoint::readSingle',
     new RestfulStrategy
 );
 

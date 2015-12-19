@@ -27,8 +27,11 @@ $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')
 $container->add('Ps2alerts\Api\Repository\ResultRepository');
 // Metrics Repositories
 $container->add('Ps2alerts\Api\Repository\Metrics\MapRepository');
+$container->add('Ps2alerts\Api\Repository\Metrics\OutfitRepository');
 
 // Loaders
+$container->add('Ps2alerts\Api\Loader\Metrics\OutfitMetricsLoader')
+          ->withArgument('Ps2alerts\Api\Repository\Metrics\OutfitRepository');
 $container->add('Ps2alerts\Api\Loader\Metrics\MapMetricsLoader')
           ->withArgument('Ps2alerts\Api\Repository\Metrics\MapRepository');
 $container->add('Ps2alerts\Api\Loader\ResultLoader')
@@ -40,6 +43,8 @@ $container->add('Ps2alerts\Api\Controller\Alerts\ResultsEndpointController')
 // Metrics Endpoints
 $container->add('Ps2alerts\Api\Controller\Metrics\MapMetricsEndpoint')
           ->withArgument('Ps2alerts\Api\Loader\Metrics\MapMetricsLoader');
+$container->add('Ps2alerts\Api\Controller\Metrics\OutfitMetricsEndpoint')
+          ->withArgument('Ps2alerts\Api\Loader\Metrics\OutfitMetricsLoader');
 
 // Container Inflector
 $container->inflector('League\Container\ContainerAwareInterface')
