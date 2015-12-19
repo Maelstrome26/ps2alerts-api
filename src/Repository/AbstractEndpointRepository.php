@@ -89,6 +89,10 @@ abstract class AbstractEndpointRepository implements
             ]);
         }
 
+        if (! empty($queryObject->getLimit())) {
+            $query->limit($queryObject->getLimit());
+        }
+
         return $this->prepareAndExecuteQuery($query, $queryObject);
     }
 

@@ -7,22 +7,29 @@ class QueryObject
     /**
      * @var array
      */
-    public $wheres;
+    protected $wheres;
 
     /**
      * @var string
      */
-    public $orderBy;
+    protected $orderBy;
 
     /**
      * @var string
      */
-    public $orderByDirection = 'asc';
+    protected $orderByDirection = 'asc';
 
     /**
      * @var string
      */
-    public $dimension = 'multi';
+    protected $dimension = 'multi';
+
+    /**
+     * Limit of records to bring back
+     *
+     * @var integer
+     */
+    protected $limit = null;
 
     /**
      * Adds where statements to the object
@@ -85,7 +92,7 @@ class QueryObject
     }
 
     /**
-     * Set asc or desc
+     * Set array dimension level
      *
      * @param string $string
      */
@@ -95,12 +102,34 @@ class QueryObject
     }
 
     /**
-     * Gets order by direction
+     * Gets array dimension level
      *
      * @return string
      */
     public function getDimension()
     {
         return $this->dimension;
+    }
+
+    /**
+     * Sets the limit of records to bring back
+     *
+     * @param integer $limit
+     */
+    public function setLimit($limit)
+    {
+        if (is_numeric($limit)) {
+            $this->limit = $limit;
+        }
+    }
+
+    /**
+     * Gets the limit of records
+     *
+     * @return integer
+     */
+    public function getLimit()
+    {
+        return $this->limit;
     }
 }
