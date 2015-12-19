@@ -76,6 +76,7 @@ abstract class AbstractEndpointRepository implements
                 } else {
                     $col = $where['col'];
                 }
+
                 $op = (isset($where['op']) ? $where['op'] : '=');
                 $query->where("{$col} {$op} {$where['value']}");
             }
@@ -84,8 +85,7 @@ abstract class AbstractEndpointRepository implements
         // Set up order statement
         if (! empty($queryObject->getOrderBy())) {
             $query->orderBy([
-                $queryObject->getOrderBy(),
-                $queryObject->getOrderByDirection()
+                "{$queryObject->getOrderBy()} {$queryObject->getOrderByDirection()}"
             ]);
         }
 
