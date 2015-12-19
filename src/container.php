@@ -25,6 +25,8 @@ $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')
 
 // Repositories
 $container->add('Ps2alerts\Api\Repository\ResultRepository');
+// Metrics Repositories
+$container->add('Ps2alerts\Api\Repository\Metrics\MapRepository');
 
 // Loaders
 $container->add('Ps2alerts\Api\Loader\ResultLoader')
