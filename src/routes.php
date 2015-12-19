@@ -29,6 +29,14 @@ $route->get(
     new RestfulStrategy
 );
 
+// Metrics Routes
+
+$route->get(
+    '/v2/metrics/map/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\MapMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+
 /**
  * Return the dispatcher to the app loader
  */

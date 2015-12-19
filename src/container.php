@@ -29,12 +29,17 @@ $container->add('Ps2alerts\Api\Repository\ResultRepository');
 $container->add('Ps2alerts\Api\Repository\Metrics\MapRepository');
 
 // Loaders
+$container->add('Ps2alerts\Api\Loader\Metrics\MapMetricsLoader')
+          ->withArgument('Ps2alerts\Api\Repository\Metrics\MapRepository');
 $container->add('Ps2alerts\Api\Loader\ResultLoader')
           ->withArgument('Ps2alerts\Api\Repository\ResultRepository');
 
 // Endpoint Injectors
 $container->add('Ps2alerts\Api\Controller\Alerts\ResultsEndpointController')
           ->withArgument('Ps2alerts\Api\Loader\ResultLoader');
+// Metrics Endpoints
+$container->add('Ps2alerts\Api\Controller\Metrics\MapMetricsEndpoint')
+          ->withArgument('Ps2alerts\Api\Loader\Metrics\MapMetricsLoader');
 
 // Container Inflector
 $container->inflector('League\Container\ContainerAwareInterface')
