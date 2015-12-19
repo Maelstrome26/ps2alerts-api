@@ -9,16 +9,61 @@ abstract class AbstractLoader implements RedisAwareInterface
 {
     use RedisAwareTrait;
 
-    protected $cacheLoaderNamespace;
+    /**
+     * Redis key namespace
+     *
+     * @var string
+     */
+    protected $cacheNamespace;
 
-    public function setLoaderCacheNamespace($string)
+    /**
+     * Flag whether or not the result is allowed to be cached
+     *
+     * @var boolean
+     */
+    protected $cacheable = true;
+
+    /**
+     * Sets a flag whether or not the content should be cached
+     *
+     * @param boolean $toggle
+     */
+    public function setCacheable($toggle)
     {
-        $this->cacheLoaderNamespace = $string;
+        // If statement is here because can't figure out how to typehint a boolean...
+        if ($toggle === true || $toggle === false) {
+            $this->cacheable = $toggle;
+        }
     }
 
-    public function getLoaderCacheNamespace()
+    /**
+     * Returns cacheable property
+     *
+     * @return boolean
+     */
+    public function getCacheable()
     {
-        return $this->cacheLoaderNamespace;
+        return $this->cacheable;
+    }
+
+    /**
+     * Sets the Cache namespace key for Redis
+     *
+     * @param string $string
+     */
+    public function setCacheNamespace($string)
+    {
+        $this->cacheNamespace = $string;
+    }
+
+    /**
+     * Gets the Cache namespace key for Redis
+     *
+     * @param string $string
+     */
+    public function getCacheNamespace()
+    {
+        return $this->cacheNamespace;
     }
 
     /**
@@ -52,7 +97,6 @@ abstract class AbstractLoader implements RedisAwareInterface
      */
     public function setExpireKey($key, $value, $expires = 3600)
     {
-        $value = json_encode($value);
         return $this->getRedisDriver()->setEx($key, $expires, $value);
     }
 
@@ -66,8 +110,17 @@ abstract class AbstractLoader implements RedisAwareInterface
      */
     public function cacheAndReturn($data, $key)
     {
-        $this->setExpireKey($key, $data);
-        $data['cached'] = 0;
-        return $data;
+        // Encode here so that the numbers can be converted to ints
+        $data = json_encode($data, JSON_NUMERIC_CHECK);
+
+        // Only cache if we're allowed to cache it
+        if ($this->getCacheable() === true) {
+            $this->setExpireKey($key, $data);
+        }
+
+        // Decode again so it can be used again in the app.
+        // This may seem like a performance overhead, but it ensures consistency.
+        // The function is only going to be fired when cache is missing.
+        return json_decode($data);
     }
 }

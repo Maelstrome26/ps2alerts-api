@@ -18,6 +18,7 @@ class ResultLoader extends AbstractLoader
     public function __construct(ResultRepository $repository)
     {
         $this->repository = $repository;
+        $this->setCacheNamespace('Alerts:');
     }
 
     public function readRecent()
@@ -36,7 +37,7 @@ class ResultLoader extends AbstractLoader
 
     public function readSingle($id)
     {
-        $redisKey = "{$this->getLoaderCacheNamespace()}{$id}";
+        $redisKey = "{$this->getCacheNamespace()}{$id}";
 
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
@@ -49,9 +50,12 @@ class ResultLoader extends AbstractLoader
         ]);
         $queryObject->setDimension('single');
 
-        return $this->cacheAndReturn(
-            $this->repository->read($queryObject),
-            $redisKey
-        );
+        $result = $this->repository->read($queryObject);
+
+        if ($result['InProgress'] === '1') {
+            $this->setCacheable(false);
+        }
+
+        return $this->cacheAndReturn($result, $redisKey);
     }
 }

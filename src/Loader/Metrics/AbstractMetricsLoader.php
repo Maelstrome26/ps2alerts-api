@@ -34,7 +34,7 @@ abstract class AbstractMetricsLoader extends AbstractLoader
 
     public function __construct()
     {
-        $this->setLoaderCacheNamespace('Metrics:');
+        $this->setCacheNamespace('Metrics:');
     }
 
     /**
@@ -46,7 +46,7 @@ abstract class AbstractMetricsLoader extends AbstractLoader
      */
     public function readSingle($id)
     {
-        $redisKey = "{$this->getLoaderCacheNamespace()}{$id}:{$this->getType()}";
+        $redisKey = "{$this->getCacheNamespace()}{$id}:{$this->getType()}";
 
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
