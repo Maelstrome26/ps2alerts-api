@@ -14,7 +14,7 @@ abstract class AbstractLoader implements RedisAwareInterface
     *
     * @var boolean
     */
-   
+
     protected $cacheable = true;
     /**
      * Redis key namespace
@@ -24,6 +24,7 @@ abstract class AbstractLoader implements RedisAwareInterface
     protected $cacheNamespace;
 
     /**
+     * Type of statistics|metrics we're pulling. Used for building the Redis key
      * @var string
      */
     protected $type;
