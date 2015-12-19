@@ -20,7 +20,6 @@ class OutfitMetricsLoader extends AbstractMetricsLoader
     public function __construct(OutfitRepository $repository)
     {
         $this->repository = $repository;
-        $this->setCacheNamespace('Metrics:');
         $this->setType('Outfits');
     }
 }
