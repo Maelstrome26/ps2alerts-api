@@ -13,35 +13,10 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
     protected $type;
 
     /**
-     * Sets the type of statistics we're looking for
-     *
-     * @param string $type
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * Returns the type of statistics
-     *
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
      * Construct setting cache namespace
      */
     public function __construct()
     {
         $this->setCacheNamespace('Statistics:');
-    }
-
-    public function top()
-    {
-
     }
 }
