@@ -11,7 +11,7 @@ class MapInitialMetricsEndpoint extends EndpointBaseController
     /**
      * Construct
      *
-     * @param \Ps2alerts\Api\Loader\MetricsLoader $loader
+     * @param \Ps2alerts\Api\Loader\Metrics\MapInitialMetricsLoader $loader
      */
     public function __construct(MapInitialMetricsLoader $loader)
     {
