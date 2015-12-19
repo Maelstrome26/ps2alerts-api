@@ -8,31 +8,6 @@ use Ps2alerts\Api\QueryObjects\QueryObject;
 abstract class AbstractMetricsLoader extends AbstractLoader
 {
     /**
-     * @var string
-     */
-    protected $type;
-
-    /**
-     * Sets the type of metrics we're looking for
-     *
-     * @param string $type
-     */
-    public function setType($type)
-    {
-        $this->type = $type;
-    }
-
-    /**
-     * Returns the type of metrics
-     *
-     * @return string
-     */
-    public function getType()
-    {
-        return $this->type;
-    }
-
-    /**
      * Construct setting cache namespace
      */
     public function __construct()

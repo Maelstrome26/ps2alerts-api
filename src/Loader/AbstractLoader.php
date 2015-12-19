@@ -10,6 +10,13 @@ abstract class AbstractLoader implements RedisAwareInterface
     use RedisAwareTrait;
 
     /**
+    * Flag whether or not the result is allowed to be cached
+    *
+    * @var boolean
+    */
+   
+    protected $cacheable = true;
+    /**
      * Redis key namespace
      *
      * @var string
@@ -17,11 +24,9 @@ abstract class AbstractLoader implements RedisAwareInterface
     protected $cacheNamespace;
 
     /**
-     * Flag whether or not the result is allowed to be cached
-     *
-     * @var boolean
+     * @var string
      */
-    protected $cacheable = true;
+    protected $type;
 
     /**
      * Sets a flag whether or not the content should be cached
@@ -65,6 +70,27 @@ abstract class AbstractLoader implements RedisAwareInterface
     {
         return $this->cacheNamespace;
     }
+
+    /**
+     * Sets the type of statistics|metrics we're looking for
+     *
+     * @param string $type
+     */
+    public function setType($type)
+    {
+        $this->type = $type;
+    }
+
+    /**
+     * Returns the type of statistics|metrics
+     *
+     * @return string
+     */
+    public function getType()
+    {
+        return $this->type;
+    }
+
 
     /**
      * Checks for a key within Redis and returns it's existance
