@@ -49,6 +49,14 @@ $route->get(
     new RestfulStrategy
 );
 
+// Statistics routes
+// - Outfit Totals
+$route->get(
+    '/v2/statistics/outfitTotals/top/{length}',
+    'Ps2alerts\Api\Controller\Statistics\OutfitTotalsMetricsEndpoint::readTop',
+    new RestfulStrategy
+);
+
 /**
  * Return the dispatcher to the app loader
  */
