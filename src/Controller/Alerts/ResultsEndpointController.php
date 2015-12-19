@@ -10,8 +10,6 @@ use Symfony\Component\HttpFoundation\Request;
 
 class ResultsEndpointController extends EndpointBaseController
 {
-    protected $loader;
-
     /**
      * Construct
      *

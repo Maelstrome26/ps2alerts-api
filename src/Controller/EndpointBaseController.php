@@ -8,8 +8,8 @@ use Ps2alerts\Api\QueryObjects\QueryObject;
 
 abstract class EndpointBaseController
 {
-    protected $repository;
-
+    protected $loader;
+    
     /**
      * Returns a single entry
      *
