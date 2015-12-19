@@ -7,8 +7,16 @@ use Ps2alerts\Api\Repository\Metrics\OutfitRepository;
 
 class OutfitMetricsLoader extends AbstractMetricsLoader
 {
+    /**
+     * @var \Ps2alerts\Api\Repository\Metrics\OutfitRepository
+     */
     protected $repository;
 
+    /**
+     * Construct
+     *
+     * @param \Ps2alerts\Api\Repository\Metrics\OutfitRepository $repository [description]
+     */
     public function __construct(OutfitRepository $repository)
     {
         $this->repository = $repository;

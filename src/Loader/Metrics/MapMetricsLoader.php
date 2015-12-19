@@ -7,8 +7,16 @@ use Ps2alerts\Api\Repository\Metrics\MapRepository;
 
 class MapMetricsLoader extends AbstractMetricsLoader
 {
+    /**
+     * @var \Ps2alerts\Api\Repository\Metrics\MapRepository
+     */
     protected $repository;
 
+    /**
+     * Construct
+     *
+     * @param \Ps2alerts\Api\Repository\Metrics\MapRepository $repository
+     */
     public function __construct(MapRepository $repository)
     {
         $this->repository = $repository;
