@@ -20,8 +20,6 @@ class ResultsEndpointController extends EndpointBaseController
     public function __construct(ResultLoader $loader)
     {
         $this->loader = $loader;
-        $this->setCacheNamespace('Alerts:');
-        $this->loader->setLoaderCacheNamespace($this->getCacheNamespace());
     }
 
     /**

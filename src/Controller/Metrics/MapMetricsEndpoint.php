@@ -16,7 +16,5 @@ class MapMetricsEndpoint extends EndpointBaseController
     public function __construct(MapMetricsLoader $loader)
     {
         $this->loader = $loader;
-        $this->setCacheNamespace('Metrics:');
-        $this->loader->setLoaderCacheNamespace($this->getCacheNamespace());
     }
 }
