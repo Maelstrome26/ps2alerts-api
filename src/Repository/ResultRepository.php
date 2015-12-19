@@ -22,6 +22,9 @@ class ResultRepository extends AbstractEndpointRepository
         return 'ResultID';
     }
 
+    /**
+     * {@inheritdoc}
+     */
     public function getResultKey()
     {
         return $this->getPrimaryKey();
