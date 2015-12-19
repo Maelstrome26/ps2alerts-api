@@ -28,9 +28,44 @@ abstract class EndpointBaseController
     }
 
     /**
+     * Returns cacheable property
+     *
+     * @return boolean
+     */
+    public function getCacheable()
+    {
+        return $this->cacheable;
+    }
+
+    /**
      * Require that the endpoints define a cache key namespace
      */
-    abstract public function setCacheNamespace();
+    public function setCacheNamespace($namespace)
+    {
+        $this->cacheNamespace = $namespace;
+    }
 
-    abstract public function readSingle(Request $request, array $args);
+    public function getCacheNamespace()
+    {
+        return $this->cacheNamespace;
+    }
+
+    /**
+     * Returns a single entry
+     *
+     * @param  Request $request
+     * @param  array   $args
+     *
+     * @return \League\Route\Http\JsonResponse
+     */
+    public function readSingle(Request $request, array $args)
+    {
+        $return = $this->loader->readSingle($args['resultID']);
+        
+        if (empty($return)) {
+            return new Response\NoContent();
+        }
+
+        return new Response\Ok($return);
+    }
 }

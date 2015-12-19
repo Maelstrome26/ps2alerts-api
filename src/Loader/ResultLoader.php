@@ -36,7 +36,7 @@ class ResultLoader extends AbstractLoader
 
     public function readSingle($id)
     {
-        $redisKey = "Alerts:{$id}";
+        $redisKey = "{$this->getLoaderCacheNamespace()}{$id}";
 
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
@@ -49,6 +49,9 @@ class ResultLoader extends AbstractLoader
         ]);
         $queryObject->setDimension('single');
 
-        return $this->cacheAndReturn($this->repository->read($queryObject), $redisKey);
+        return $this->cacheAndReturn(
+            $this->repository->read($queryObject),
+            $redisKey
+        );
     }
 }

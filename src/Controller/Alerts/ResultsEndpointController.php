@@ -12,11 +12,6 @@ class ResultsEndpointController extends EndpointBaseController
 {
     protected $loader;
 
-    public function setCacheNamespace()
-    {
-        $this->cacheNamespace = 'Alerts:';
-    }
-
     /**
      * Construct
      *
@@ -25,7 +20,8 @@ class ResultsEndpointController extends EndpointBaseController
     public function __construct(ResultLoader $loader)
     {
         $this->loader = $loader;
-        $this->loader->setLoaderCacheNamespace($this->cacheNamespace);
+        $this->setCacheNamespace('Alerts:');
+        $this->loader->setLoaderCacheNamespace($this->getCacheNamespace());
     }
 
     /**
@@ -38,24 +34,5 @@ class ResultsEndpointController extends EndpointBaseController
         return new Response\Ok([
             'results' => $this->loader->readRecent()
         ]);
-    }
-
-    /**
-     * Returns a single alert
-     *
-     * @param  Request $request
-     * @param  array   $args
-     *
-     * @return \League\Route\Http\JsonResponse
-     */
-    public function readSingle(Request $request, array $args)
-    {
-        $alert = $this->loader->readSingle($args['resultID']);
-
-        if (empty($alert)) {
-            return new Response\NoContent();
-        }
-
-        return new Response\Ok([$alert]);
     }
 }

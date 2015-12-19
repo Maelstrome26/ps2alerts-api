@@ -18,16 +18,6 @@ abstract class AbstractEndpointRepository implements
     use RedisAwareTrait;
 
     /**
-     * @var string
-     */
-    protected $table;
-
-    /**
-     * @var string
-     */
-    protected $primary;
-
-    /**
      * Determines the table that the DB is interfacing with
      *
      * @return string
@@ -103,7 +93,7 @@ abstract class AbstractEndpointRepository implements
     }
 
     /**
-     * Sets up the PDO Object, then executes the query based on dimension.
+     * Sets up the PDO Driver, then executes the query based on dimension.
      *
      * @param  \Aura\SqlQuery\AbstractQuery $query
      * @param  \Ps2alerts\Api\QueryObjects\QueryObject $queryObject Sent QueryObject to read dimension
