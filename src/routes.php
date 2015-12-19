@@ -51,9 +51,9 @@ $route->get(
 
 // Statistics routes
 // - Outfit Totals
-$route->get(
-    '/v2/statistics/outfitTotals/top/{length}',
-    'Ps2alerts\Api\Controller\Statistics\OutfitTotalsMetricsEndpoint::readTop',
+$route->post(
+    '/v2/statistics/outfitTotals',
+    'Ps2alerts\Api\Controller\Statistics\OutfitTotalsMetricsEndpoint::readStatistics',
     new RestfulStrategy
 );
 

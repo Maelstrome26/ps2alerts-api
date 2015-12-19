@@ -21,6 +21,7 @@ class OutfitTotalsMetricsLoader extends AbstractStatisticsLoader
     public function __construct(OutfitTotalsRepository $repository)
     {
         $this->repository = $repository;
+        $this->setCacheNamespace('Statistics');
         $this->setType('OutfitTotals');
     }
 
@@ -29,14 +30,11 @@ class OutfitTotalsMetricsLoader extends AbstractStatisticsLoader
      *
      * @return array
      */
-    public function readTop($limit = 10, $metric = 'outfitKills')
+    public function readStatistics($post)
     {
-        $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:{$metric}:{$limit}";
-
-        // Enforce a max limit
-        if ($limit > 50) {
-            $limit = 50;
-        }
+        $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}";
+        $redisKey = $this->appendRedisKey($post, $redisKey);
+        $post = $this->processPostVars($post);
 
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
@@ -49,9 +47,20 @@ class OutfitTotalsMetricsLoader extends AbstractStatisticsLoader
             'op' => '>',
             'value' => 0
         ]);
-        $queryObject->setOrderBy($metric);
-        $queryObject->setOrderByDirection('desc');
-        $queryObject->setLimit($limit);
+
+        foreach ($post['wheres'] as $key => $value) {
+            $queryObject->addWhere([
+                'col' => array_keys($value)[0],
+                'value' => array_values($value)[0]
+            ]);
+        }
+
+        if (! empty($post['orderBy'])) {
+            $queryObject->setOrderBy(array_keys($post['orderBy'])[0]);
+            $queryObject->setOrderByDirection(array_values($post['orderBy'])[0]);
+        }
+
+        $queryObject->setLimit($post['limit']);
 
         return $this->cacheAndReturn(
             $this->repository->read($queryObject),

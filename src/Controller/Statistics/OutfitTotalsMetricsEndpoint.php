@@ -20,16 +20,19 @@ class OutfitTotalsMetricsEndpoint extends EndpointBaseController
     }
 
     /**
-     * Returns a single entry
+     * Returns top X entries
      *
      * @param  \Symfony\Component\HttpFoundation\Request $request
-     * @param  array   $args
+     * @param  array                                     $args
      *
      * @return \League\Route\Http\JsonResponse
      */
-    public function readTop(Request $request, array $args)
+    public function readStatistics(Request $request, array $args)
     {
-        $return = $this->loader->readTop($args['length']);
+        // Collect any POST variables
+        $post = $request->request->all();
+
+        $return = $this->loader->readStatistics($post);
 
         if (empty($return)) {
             return new Response\NoContent();
