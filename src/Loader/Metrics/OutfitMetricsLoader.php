@@ -15,7 +15,7 @@ class OutfitMetricsLoader extends AbstractMetricsLoader
     /**
      * Construct
      *
-     * @param \Ps2alerts\Api\Repository\Metrics\OutfitRepository $repository [description]
+     * @param \Ps2alerts\Api\Repository\Metrics\OutfitRepository $repository
      */
     public function __construct(OutfitRepository $repository)
     {

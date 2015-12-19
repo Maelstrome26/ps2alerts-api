@@ -32,6 +32,9 @@ abstract class AbstractMetricsLoader extends AbstractLoader
         return $this->type;
     }
 
+    /**
+     * Construct setting cache namespace
+     */
     public function __construct()
     {
         $this->setCacheNamespace('Metrics:');

@@ -9,11 +9,11 @@ use Ps2alerts\Api\QueryObjects\QueryObject;
 abstract class EndpointBaseController
 {
     protected $loader;
-    
+
     /**
      * Returns a single entry
      *
-     * @param  Request $request
+     * @param  Symfony\Component\HttpFoundation\Request $request
      * @param  array   $args
      *
      * @return \League\Route\Http\JsonResponse
