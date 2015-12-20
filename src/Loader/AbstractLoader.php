@@ -138,7 +138,7 @@ abstract class AbstractLoader implements RedisAwareInterface
      */
     public function getFromRedis($key)
     {
-        return json_decode($this->getRedisDriver()->get($key));
+        return json_decode($this->getRedisDriver()->get($key), JSON_BIGINT_AS_STRING);
     }
 
     /**
