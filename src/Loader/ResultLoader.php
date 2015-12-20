@@ -18,23 +18,84 @@ class ResultLoader extends AbstractLoader
     public function __construct(ResultRepository $repository)
     {
         $this->repository = $repository;
-        $this->setCacheNamespace('Alerts:');
+        $this->setCacheNamespace('Alerts');
     }
 
-    public function readRecent()
+    /**
+     * Returns recent alerts
+     *
+     * @param  array $args Path Arguments
+     *
+     * @return array
+     */
+    public function readRecent(array $args)
     {
+        $redisKey = "{$this->getCacheNamespace()}:Recent";
+
         $queryObject = new QueryObject;
         $queryObject->addWhere([
             'col'   => 'ResultStartTime',
             'op'    => '>',
             'value' => date('U', strtotime('-7 days'))
         ]);
-        $queryObject->setOrderBy('primary');
+
+        if (! empty($args['serverID'])) {
+            $redisKey .= ":{$args['serverID']}";
+            $queryObject->addWhere([
+                'col'   => 'ResultServer',
+                'value' => $args['serverID']
+            ]);
+        }
+
+        if (! empty($args['limit'])) {
+            if ($args['limit'] > 50) {
+                $args['limit'] = 50;
+            }
+            $redisKey .= "/{$args['limit']}";
+            $queryObject->setLimit($args['limit']);
+        }
+
+        $queryObject->setOrderBy('ResultStartTime');
         $queryObject->setOrderByDirection('desc');
+
+        return $this->cacheAndReturn(
+            $this->repository->read($queryObject),
+            $redisKey
+        );
+    }
+
+    /**
+     * Reads all currently active alerts
+     *
+     * @param  array $args
+     *
+     * @return array
+     */
+    public function readActive($args)
+    {
+        $queryObject = new QueryObject;
+        $queryObject->addWhere([
+            'col'   => 'InProgress',
+            'value' => 1
+        ]);
+
+        if (! empty($args['serverID'])) {
+            $queryObject->addWhere([
+                'col'   => 'ResultServer',
+                'value' => $args['serverID']
+            ]);
+        }
 
         return $this->repository->read($queryObject);
     }
 
+    /**
+     * Reads a single Alert
+     *
+     * @param  integer|string $id
+     *
+     * @return array
+     */
     public function readSingle($id)
     {
         $redisKey = "{$this->getCacheNamespace()}{$id}";
