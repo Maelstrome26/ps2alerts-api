@@ -58,7 +58,7 @@ include(__DIR__ . '/routes-metrics.php');
 // - Outfit Totals
 $route->post(
     '/v2/statistics/outfitTotals',
-    'Ps2alerts\Api\Controller\Statistics\OutfitTotalsMetricsEndpoint::readStatistics',
+    'Ps2alerts\Api\Controller\Statistics\OutfitTotalsStatisticsEndpoint::readStatistics',
     new RestfulStrategy
 );
 
