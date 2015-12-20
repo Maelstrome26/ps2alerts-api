@@ -141,6 +141,13 @@ $route->get(
     new RestfulStrategy
 );
 
+// - Routes
+$route->get(
+    '/v2/metrics/xp/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\XpMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+
 // Statistics routes
 // - Outfit Totals
 $route->post(
