@@ -14,7 +14,7 @@ abstract class EndpointBaseController
      * Returns a single entry
      *
      * @param  Symfony\Component\HttpFoundation\Request $request
-     * @param  array   $args
+     * @param  array                                    $args
      *
      * @return \League\Route\Http\JsonResponse
      */

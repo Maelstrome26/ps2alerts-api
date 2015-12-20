@@ -102,7 +102,7 @@ abstract class AbstractEndpointRepository implements
             } elseif ($orderBy === 'result') {
                 $orderBy = $this->getResultKey();
             }
-            
+
             $query->orderBy([
                 "`{$orderBy}` {$queryObject->getOrderByDirection()}"
             ]);
