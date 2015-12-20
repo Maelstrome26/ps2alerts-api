@@ -44,13 +44,11 @@ $route->get(
     new RestfulStrategy
 );
 
-
 $route->get(
     '/v2/alert/{resultID}',
     'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::readSingle',
     new RestfulStrategy
 );
-
 
 // Metrics Routes
 // - Map
@@ -71,10 +69,18 @@ $route->get(
     'Ps2alerts\Api\Controller\Metrics\MapInitialMetricsEndpoint::readSingle',
     new RestfulStrategy
 );
+
 // - Outfits
 $route->get(
     '/v2/metrics/outfits/{resultID}',
     'Ps2alerts\Api\Controller\Metrics\OutfitMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+
+// - Populations
+$route->get(
+    '/v2/metrics/populations/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\PopulationMetricsEndpoint::readSingle',
     new RestfulStrategy
 );
 
