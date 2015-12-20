@@ -6,7 +6,7 @@ use Ps2alerts\Api\Loader\Statistics\AbstractStatisticsLoader;
 use Ps2alerts\Api\QueryObjects\QueryObject;
 use Ps2alerts\Api\Repository\Statistics\OutfitTotalsRepository;
 
-class OutfitTotalsMetricsLoader extends AbstractStatisticsLoader
+class OutfitTotalsStatisticsLoader extends AbstractStatisticsLoader
 {
     /**
      * @var \Ps2alerts\Api\Repository\Metrics\OutfitTotalsRepository

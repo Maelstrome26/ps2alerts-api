@@ -4,7 +4,7 @@ namespace Ps2alerts\Api\Controller\Statistics;
 
 use League\Route\Http\JsonResponse as Response;
 use Ps2alerts\Api\Controller\EndpointBaseController;
-use Ps2alerts\Api\Loader\Statistics\OutfitTotalsMetricsLoader;
+use Ps2alerts\Api\Loader\Statistics\OutfitTotalsStatisticsLoader;
 use Symfony\Component\HttpFoundation\Request;
 
 class OutfitTotalsMetricsEndpoint extends EndpointBaseController
@@ -12,9 +12,9 @@ class OutfitTotalsMetricsEndpoint extends EndpointBaseController
     /**
      * Construct
      *
-     * @param \Ps2alerts\Api\Loader\Metrics\OutfitTotalsMetricsLoader $loader
+     * @param \Ps2alerts\Api\Loader\Metrics\OutfitTotalsStatisticsLoader $loader
      */
-    public function __construct(OutfitTotalsMetricsLoader $loader)
+    public function __construct(OutfitTotalsStatisticsLoader $loader)
     {
         $this->loader = $loader;
     }
