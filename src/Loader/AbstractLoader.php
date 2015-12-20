@@ -30,6 +30,13 @@ abstract class AbstractLoader implements RedisAwareInterface
     protected $type;
 
     /**
+     * Cache timer
+     *
+     * @var integer
+     */
+    protected $cacheExpireTime = 10800; // 3 hours
+
+    /**
      * Sets a flag whether or not the content should be cached
      *
      * @param boolean $toggle
@@ -92,6 +99,25 @@ abstract class AbstractLoader implements RedisAwareInterface
         return $this->type;
     }
 
+    /**
+     * Sets the cache expire time
+     *
+     * @param integer $secs
+     */
+    public function setCacheExpireTime($secs)
+    {
+        $this->cacheExpireTime = $secs;
+    }
+
+    /**
+     * Gets the cache expire time
+     *
+     * @return integer
+     */
+    public function getCacheExpireTime()
+    {
+        return $this->cacheExpireTime;
+    }
 
     /**
      * Checks for a key within Redis and returns it's existance
@@ -122,7 +148,7 @@ abstract class AbstractLoader implements RedisAwareInterface
      * @param mixed   $value   Data to encode into JSON and store
      * @param integer $expires Cache expiry time in seconds
      */
-    public function setExpireKey($key, $value, $expires = 3600)
+    public function setExpireKey($key, $value, $expires)
     {
         return $this->getRedisDriver()->setEx($key, $expires, $value);
     }
@@ -142,7 +168,7 @@ abstract class AbstractLoader implements RedisAwareInterface
 
         // Only cache if we're allowed to cache it
         if ($this->getCacheable() === true) {
-            $this->setExpireKey($key, $data);
+            $this->setExpireKey($key, $data, $this->getCacheExpireTime());
         }
 
         // Decode again so it can be used again in the app.
