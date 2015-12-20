@@ -105,6 +105,12 @@ $route->get(
     new RestfulStrategy
 );
 
+// - Vehicles
+$route->get(
+    '/v2/metrics/vehicle/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\VehicleMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
 // Statistics routes
 // - Outfit Totals
 $route->post(
