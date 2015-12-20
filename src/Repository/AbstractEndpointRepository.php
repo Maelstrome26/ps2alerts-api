@@ -66,6 +66,18 @@ abstract class AbstractEndpointRepository implements
         $query = $this->newQuery();
         $query->cols(['*']);
 
+        // Workarounds :-/
+        if (! empty($queryObject->getFlags())) {
+            if ($queryObject->getFlags() === 'outfitIDs') {
+                // Prevent the VS, NC and TR "no outfit" workaround
+                $queryObject->addWhere([
+                    'col' => 'outfitID',
+                    'op' => '>',
+                    'value' => 0
+                ]);
+            }
+        }
+
         // Setup where statements
         if (! empty($queryObject->getWheres())) {
             foreach ($queryObject->getWheres() as $where) {

@@ -32,6 +32,13 @@ class QueryObject
     protected $limit = null;
 
     /**
+     * Place to set special workaround flags
+     *
+     * @var string|array
+     */
+    protected $flags;
+
+    /**
      * Adds where statements to the object
      *
      * @param array $array
@@ -131,5 +138,25 @@ class QueryObject
     public function getLimit()
     {
         return $this->limit;
+    }
+
+    /**
+     * Allows setting of workaround flags
+     *
+     * @param array|string $flags
+     */
+    public function setFlags($flags)
+    {
+        $this->flags = $flags;
+    }
+
+    /**
+     * Retreives workaround flags
+     *
+     * @return array|string
+     */
+    public function getFlags()
+    {
+        return $this->flags;
     }
 }
