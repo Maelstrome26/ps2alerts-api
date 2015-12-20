@@ -7,7 +7,7 @@ use Ps2alerts\Api\Controller\EndpointBaseController;
 use Ps2alerts\Api\Loader\Statistics\OutfitTotalsStatisticsLoader;
 use Symfony\Component\HttpFoundation\Request;
 
-class OutfitTotalsMetricsEndpoint extends EndpointBaseController
+class OutfitTotalsStatisticsEndpoint extends EndpointBaseController
 {
     /**
      * Construct
