@@ -8,6 +8,9 @@ use Ps2alerts\Api\Repository\ResultRepository;
 
 class ResultLoader extends AbstractLoader
 {
+    /**
+     * @var \Ps2alerts\Api\Repository\ResultRepository
+     */
     protected $repository;
 
     /**

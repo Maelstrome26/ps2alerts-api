@@ -7,13 +7,28 @@ use Ps2alerts\Api\QueryObjects\QueryObject;
 
 abstract class AbstractStatisticsLoader extends AbstractLoader
 {
+    /**
+     * Flags set for workarounds
+     *
+     * @var string
+     */
     protected $flags;
 
+    /**
+     * Allows setting of workaround flags
+     *
+     * @param string $flag
+     */
     public function setFlags($flag)
     {
         $this->flags = $flag;
     }
 
+    /**
+     * Retrieves workaround flags
+     *
+     * @return string
+     */
     public function getFlags()
     {
         return $this->flags;
@@ -75,6 +90,8 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
 
     /**
      * Returns the top X of a particular statistic
+     *
+     * @param array $post POST variables from the request
      *
      * @return array
      */
