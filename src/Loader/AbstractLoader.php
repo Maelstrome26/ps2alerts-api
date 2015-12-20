@@ -161,7 +161,7 @@ abstract class AbstractLoader implements RedisAwareInterface
      *
      * @return mixed  $data
      */
-    public function cacheAndReturn($data, $key)
+    public function cacheAndReturn($data, $key = null)
     {
         // Encode here so that the numbers can be converted to ints
         $data = json_encode($data, JSON_NUMERIC_CHECK);
