@@ -32,11 +32,13 @@ class ResultLoader extends AbstractLoader
     {
         $redisKey = "{$this->getCacheNamespace()}:Recent";
 
+        $this->setCacheExpireTime(3600); // 1 hour
+
         $queryObject = new QueryObject;
         $queryObject->addWhere([
             'col'   => 'ResultStartTime',
             'op'    => '>',
-            'value' => date('U', strtotime('-7 days'))
+            'value' => date('U', strtotime('-48 hours'))
         ]);
 
         if (! empty($args['serverID'])) {
