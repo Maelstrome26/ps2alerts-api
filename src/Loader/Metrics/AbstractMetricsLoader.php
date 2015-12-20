@@ -18,7 +18,7 @@ abstract class AbstractMetricsLoader extends AbstractLoader
     /**
      * Returns metrics for a particular result
      *
-     * @param string
+     * @param string $id
      *
      * @return array
      */
