@@ -25,6 +25,12 @@ abstract class AbstractMetricsLoader extends AbstractLoader
     {
         $redisKey = "{$this->getCacheNamespace()}{$id}:{$this->getType()}";
 
+        if (! empty($this->getMetrics())) {
+            foreach ($this->getMetrics() as $metric) {
+                $redisKey .= ":{$metric['col']}{$op}{$metric['value']}";
+            }
+        }
+
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
         }
@@ -37,12 +43,10 @@ abstract class AbstractMetricsLoader extends AbstractLoader
 
         if (! empty($this->getMetrics())) {
             foreach ($this->getMetrics() as $metric) {
-                $hash = md5($metric['col'] . $metric['value']);
-                $redisKey .= ":{$hash}";
-
+                $op = (isset($metric['op']) ? $metric['op'] : '=');
                 $queryObject->addWhere([
                     'col'   => $metric['col'],
-                    'op'    => (isset($metric['op']) ? $metric['op'] : '='),
+                    'op'    => $op,
                     'value' => $metric['value']
                 ]);
             }
@@ -59,9 +63,15 @@ abstract class AbstractMetricsLoader extends AbstractLoader
      *
      * @param array
      */
-    public function setMetrics($metrics)
+    public function setMetrics($metric)
     {
-        $this->metrics[] = $metrics;
+        if (! empty($metric)) {
+            // Don't allow setting if the proper data isn't there.
+            // Prevents and kind of errors later on.
+            if (! empty($metric['col']) && ! empty($metric['value'])) {
+                $this->metrics[] = $metric;
+            }
+        }
     }
 
     /**
