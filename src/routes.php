@@ -72,14 +72,14 @@ $route->get(
 
 // - Outfits
 $route->get(
-    '/v2/metrics/outfits/{resultID}',
+    '/v2/metrics/outfit/{resultID}',
     'Ps2alerts\Api\Controller\Metrics\OutfitMetricsEndpoint::readSingle',
     new RestfulStrategy
 );
 
 // - Populations
 $route->get(
-    '/v2/metrics/populations/{resultID}',
+    '/v2/metrics/population/{resultID}',
     'Ps2alerts\Api\Controller\Metrics\PopulationMetricsEndpoint::readSingle',
     new RestfulStrategy
 );
@@ -93,7 +93,7 @@ $route->get(
 
 // - Factions
 $route->get(
-    '/v2/metrics/factions/{resultID}',
+    '/v2/metrics/faction/{resultID}',
     'Ps2alerts\Api\Controller\Metrics\FactionMetricsEndpoint::readSingle',
     new RestfulStrategy
 );
