@@ -98,6 +98,13 @@ $route->get(
     new RestfulStrategy
 );
 
+// - Players
+$route->get(
+    '/v2/metrics/player/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\PlayerMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+
 // Statistics routes
 // - Outfit Totals
 $route->post(
