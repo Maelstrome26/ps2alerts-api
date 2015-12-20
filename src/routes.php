@@ -52,8 +52,18 @@ $route->get(
 include(__DIR__ . '/routes-metrics.php');
 
 // Statistics routes
-
 // - Alert Statistics
+$route->get(
+    '/v2/statistics/alert/total',
+    'Ps2alerts\Api\Controller\Statistics\AlertStatisticsEndpoint::readTotals',
+    new RestfulStrategy
+);
+
+$route->get(
+    '/v2/statistics/alert/total/{faction}',
+    'Ps2alerts\Api\Controller\Statistics\AlertStatisticsEndpoint::readTotals',
+    new RestfulStrategy
+);
 
 // - Outfit Totals
 $route->post(
