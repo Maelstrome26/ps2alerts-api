@@ -90,14 +90,14 @@ abstract class AbstractEndpointRepository implements
                 }
 
                 $op = (isset($where['op']) ? $where['op'] : '=');
-                $query->where("{$col} {$op} {$where['value']}");
+                $query->where("`{$col}` {$op} {$where['value']}");
             }
         }
 
         // Set up order statement
         if (! empty($queryObject->getOrderBy())) {
             $query->orderBy([
-                "{$queryObject->getOrderBy()} {$queryObject->getOrderByDirection()}"
+                "`{$queryObject->getOrderBy()}` {$queryObject->getOrderByDirection()}"
             ]);
         }
 
