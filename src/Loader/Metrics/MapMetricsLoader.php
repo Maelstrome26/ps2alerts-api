@@ -4,6 +4,7 @@ namespace Ps2alerts\Api\Loader\Metrics;
 
 use Ps2alerts\Api\Loader\Metrics\AbstractMetricsLoader;
 use Ps2alerts\Api\Repository\Metrics\MapRepository;
+use Ps2alerts\Api\QueryObjects\QueryObject;
 
 class MapMetricsLoader extends AbstractMetricsLoader
 {
@@ -21,5 +22,34 @@ class MapMetricsLoader extends AbstractMetricsLoader
     {
         $this->repository = $repository;
         $this->setType('Map');
+    }
+
+    /**
+     * Reads latest map result from an alert
+     *
+     * @param  string $id
+     *
+     * @return array
+     */
+    public function readLatest($id)
+    {
+        $redisKey = "{$this->getCacheNamespace()}{$id}:{$this->getType()}:latest";
+
+        $queryObject = new QueryObject;
+        $queryObject->addWhere([
+            'col'   => 'result',
+            'value' => $id
+        ]);
+
+        $queryObject->setOrderBy('result');
+        $queryObject->setOrderByDirection('desc');
+        $queryObject->setLimit(1);
+
+        $this->setCacheExpireTime(60);
+
+        return $this->cacheAndReturn(
+            $this->repository->read($queryObject),
+            $redisKey
+        );
     }
 }

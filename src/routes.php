@@ -61,6 +61,12 @@ $route->get(
 );
 
 $route->get(
+    '/v2/metrics/map/{resultID}/latest',
+    'Ps2alerts\Api\Controller\Metrics\MapMetricsEndpoint::readLatest',
+    new RestfulStrategy
+);
+
+$route->get(
     '/v2/metrics/mapInitial/{resultID}',
     'Ps2alerts\Api\Controller\Metrics\MapInitialMetricsEndpoint::readSingle',
     new RestfulStrategy
