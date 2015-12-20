@@ -7,6 +7,11 @@ class QueryObject
     /**
      * @var array
      */
+    protected $selects;
+
+    /**
+     * @var array
+     */
     protected $wheres;
 
     /**
@@ -37,6 +42,29 @@ class QueryObject
      * @var string|array
      */
     protected $flags;
+
+    /**
+     * Adds select statement parameters to the object
+     * Expects a string column name, which is then looped through
+     * in the array and added to.
+     * e.g. $queryObject->addSelect('COUNT(ResultID) AS COUNT');
+     *
+     * @param string $string
+     */
+    public function addSelect($array)
+    {
+        $this->selects[] = $array;
+    }
+
+    /**
+     * Gets the select statement parameters out of the object
+     *
+     * @return array
+     */
+    public function getSelects()
+    {
+        return $this->selects;
+    }
 
     /**
      * Adds where statements to the object
