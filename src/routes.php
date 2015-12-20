@@ -84,6 +84,13 @@ $route->get(
     new RestfulStrategy
 );
 
+// - Combat History
+$route->get(
+    '/v2/metrics/combathistory/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\CombatHistoryMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+
 // Statistics routes
 // - Outfit Totals
 $route->post(
