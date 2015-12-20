@@ -39,15 +39,27 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
      */
     protected $type;
 
+    /**
+     * Build a redis key based off inputs provided by the POST request
+     *
+     * @param  array  $post
+     * @param  string $redisKey Redis Key to append to
+     *
+     * @return string
+     */
     public function appendRedisKey($post, $redisKey)
     {
+        if (! empty($post['selects'])) {
+            $whereMD5 = md5($post['selects']);
+            $redisKey .= "/select{$whereMD5}";
+        }
         if (! empty($post['wheres'])) {
             $whereMD5 = md5($post['wheres']);
-            $redisKey .= "/{$whereMD5}";
+            $redisKey .= "/where{$whereMD5}";
         }
         if (! empty($post['orderBy'])) {
             $orderMD5 = md5($post['orderBy']);
-            $redisKey .= "/{$orderMD5}";
+            $redisKey .= "/order{$orderMD5}";
         }
         if (! empty($post['limit'])) {
             // Enforce a max limit
@@ -60,11 +72,18 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
             $post['limit'] = 10;
         }
 
-        $redisKey .= "/{$post['limit']}";
+        $redisKey .= "/limit{$post['limit']}";
 
         return $redisKey;
     }
 
+    /**
+     * De-encode the POST vars for use
+     *
+     * @param  array $post
+     *
+     * @return array
+     */
     public function processPostVars($post)
     {
         if (! empty($post['wheres'])) {
