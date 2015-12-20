@@ -111,10 +111,21 @@ $route->get(
     'Ps2alerts\Api\Controller\Metrics\VehicleMetricsEndpoint::readSingle',
     new RestfulStrategy
 );
-
 $route->get(
     '/v2/metrics/vehicle/{resultID}/{vehicleID}',
     'Ps2alerts\Api\Controller\Metrics\VehicleMetricsEndpoint::readSingleByMetric',
+    new RestfulStrategy
+);
+
+// - Weapons
+$route->get(
+    '/v2/metrics/weapon/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\WeaponMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+$route->get(
+    '/v2/metrics/weapon/{resultID}/{weaponID}',
+    'Ps2alerts\Api\Controller\Metrics\WeaponMetricsEndpoint::readSingleByMetric',
     new RestfulStrategy
 );
 
