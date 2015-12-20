@@ -19,32 +19,32 @@ $route->get('/', 'Ps2alerts\Api\Controller\MainController::index');
 // Alert Endpoint
 $route->get(
     '/v2/alert/latest',
-    'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::listLatest',
+    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listLatest',
     new RestfulStrategy
 );
 $route->get(
     '/v2/alert/latest/{serverID}',
-    'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::listLatest',
+    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listLatest',
     new RestfulStrategy
 );
 $route->get(
     '/v2/alert/latest/{serverID}/{limit}',
-    'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::listLatest',
+    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listLatest',
     new RestfulStrategy
 );
 $route->get(
     '/v2/alert/active',
-    'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::listActive',
+    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listActive',
     new RestfulStrategy
 );
 $route->get(
     '/v2/alert/active/{serverID}',
-    'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::listActive',
+    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listActive',
     new RestfulStrategy
 );
 $route->get(
     '/v2/alert/{resultID}',
-    'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::readSingle',
+    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::readSingle',
     new RestfulStrategy
 );
 
@@ -52,6 +52,9 @@ $route->get(
 include(__DIR__ . '/routes-metrics.php');
 
 // Statistics routes
+
+// - Alert Statistics
+
 // - Outfit Totals
 $route->post(
     '/v2/statistics/outfitTotals',

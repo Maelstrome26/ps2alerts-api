@@ -4,7 +4,7 @@ namespace Ps2alerts\Api\Repository;
 
 use Ps2alerts\Api\Repository\AbstractEndpointRepository;
 
-class ResultRepository extends AbstractEndpointRepository
+class AlertRepository extends AbstractEndpointRepository
 {
     /**
      * {@inheritdoc}

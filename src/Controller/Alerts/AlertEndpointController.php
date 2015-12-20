@@ -5,17 +5,17 @@ namespace Ps2alerts\Api\Controller\Alerts;
 use League\Route\Http\JsonResponse as Response;
 use Ps2alerts\Api\Controller\EndpointBaseController;
 use Ps2alerts\Api\QueryObjects\QueryObject;
-use Ps2alerts\Api\Loader\ResultLoader;
+use Ps2alerts\Api\Loader\AlertLoader;
 use Symfony\Component\HttpFoundation\Request;
 
-class ResultsEndpointController extends EndpointBaseController
+class AlertEndpointController extends EndpointBaseController
 {
     /**
      * Construct
      *
-     * @param \Ps2alerts\Api\Loader\ResultLoader $loader
+     * @param \Ps2alerts\Api\Loader\AlertLoader $loader
      */
-    public function __construct(ResultLoader $loader)
+    public function __construct(AlertLoader $loader)
     {
         $this->loader = $loader;
     }

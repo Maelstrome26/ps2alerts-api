@@ -4,21 +4,21 @@ namespace Ps2alerts\Api\Loader;
 
 use Ps2alerts\Api\QueryObjects\QueryObject;
 use Ps2alerts\Api\Loader\AbstractLoader;
-use Ps2alerts\Api\Repository\ResultRepository;
+use Ps2alerts\Api\Repository\AlertRepository;
 
-class ResultLoader extends AbstractLoader
+class AlertLoader extends AbstractLoader
 {
     /**
-     * @var \Ps2alerts\Api\Repository\ResultRepository
+     * @var \Ps2alerts\Api\Repository\AlertRepository
      */
     protected $repository;
 
     /**
      * Construct
      *
-     * @param \Ps2alerts\Api\Repository\ResultRepository $repository
+     * @param \Ps2alerts\Api\Repository\AlertRepository $repository
      */
-    public function __construct(ResultRepository $repository)
+    public function __construct(AlertRepository $repository)
     {
         $this->repository = $repository;
         $this->setCacheNamespace('Alerts');
