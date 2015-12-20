@@ -88,7 +88,11 @@ class ResultLoader extends AbstractLoader
             ]);
         }
 
-        return $this->repository->read($queryObject);
+        $this->setCacheable(false);
+
+        return $this->cacheAndReturn(
+            $this->repository->read($queryObject)
+        );
     }
 
     /**
