@@ -21,5 +21,6 @@ class OutfitMetricsLoader extends AbstractMetricsLoader
     {
         $this->repository = $repository;
         $this->setType('Outfits');
+        $this->setCacheNamespace('Metrics:');
     }
 }

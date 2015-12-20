@@ -21,5 +21,6 @@ class PopulationMetricsLoader extends AbstractMetricsLoader
     {
         $this->repository = $repository;
         $this->setType('Population');
+        $this->setCacheNamespace('Metrics:');
     }
 }

@@ -8,14 +8,6 @@ use Ps2alerts\Api\QueryObjects\QueryObject;
 abstract class AbstractMetricsLoader extends AbstractLoader
 {
     /**
-     * Construct setting cache namespace
-     */
-    public function __construct()
-    {
-        $this->setCacheNamespace('Metrics:');
-    }
-
-    /**
      * Returns metrics for a particular result
      *
      * @param string $id

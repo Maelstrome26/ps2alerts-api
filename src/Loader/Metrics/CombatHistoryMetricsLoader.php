@@ -21,5 +21,6 @@ class CombatHistoryMetricsLoader extends AbstractMetricsLoader
     {
         $this->repository = $repository;
         $this->setType('CombatHistory');
+        $this->setCacheNamespace('Metrics:');
     }
 }

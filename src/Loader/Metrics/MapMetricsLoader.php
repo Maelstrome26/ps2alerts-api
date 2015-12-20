@@ -22,6 +22,7 @@ class MapMetricsLoader extends AbstractMetricsLoader
     {
         $this->repository = $repository;
         $this->setType('Map');
+        $this->setCacheNamespace('Metrics:');
     }
 
     /**
