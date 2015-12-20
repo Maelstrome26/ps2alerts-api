@@ -2,8 +2,8 @@
 
 namespace Ps2alerts\Api\Loader;
 
-use Ps2Alerts\Api\Contract\RedisAwareInterface;
-use Ps2Alerts\Api\Contract\RedisAwareTrait;
+use Ps2alerts\Api\Contract\RedisAwareInterface;
+use Ps2alerts\Api\Contract\RedisAwareTrait;
 
 abstract class AbstractLoader implements RedisAwareInterface
 {
