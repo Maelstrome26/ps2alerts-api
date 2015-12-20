@@ -3,7 +3,6 @@
 namespace Ps2alerts\Api\Repository\Metrics;
 
 use Ps2alerts\Api\Repository\AbstractEndpointRepository;
-use Ps2alerts\Api\QueryObjects\QueryObject;
 
 class CombatHistoryRepository extends AbstractEndpointRepository
 {
