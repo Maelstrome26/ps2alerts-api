@@ -32,7 +32,6 @@ $route->get(
     'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::listLatest',
     new RestfulStrategy
 );
-
 $route->get(
     '/v2/alert/active',
     'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::listActive',
@@ -43,7 +42,6 @@ $route->get(
     'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::listActive',
     new RestfulStrategy
 );
-
 $route->get(
     '/v2/alert/{resultID}',
     'Ps2alerts\Api\Controller\Alerts\ResultsEndpointController::readSingle',
