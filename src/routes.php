@@ -129,6 +129,18 @@ $route->get(
     new RestfulStrategy
 );
 
+// - Classes
+$route->get(
+    '/v2/metrics/class/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\ClassMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+$route->get(
+    '/v2/metrics/class/{resultID}/{classID}',
+    'Ps2alerts\Api\Controller\Metrics\ClassMetricsEndpoint::readSingleByMetric',
+    new RestfulStrategy
+);
+
 // Statistics routes
 // - Outfit Totals
 $route->post(
