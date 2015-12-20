@@ -91,6 +91,13 @@ $route->get(
     new RestfulStrategy
 );
 
+// - Factions
+$route->get(
+    '/v2/metrics/factions/{resultID}',
+    'Ps2alerts\Api\Controller\Metrics\FactionMetricsEndpoint::readSingle',
+    new RestfulStrategy
+);
+
 // Statistics routes
 // - Outfit Totals
 $route->post(
