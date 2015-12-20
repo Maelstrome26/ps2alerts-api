@@ -64,7 +64,13 @@ abstract class AbstractEndpointRepository implements
     public function read(QueryObject $queryObject)
     {
         $query = $this->newQuery();
-        $query->cols(['*']);
+
+        // Setup select statements
+        if (! empty($queryObject->getSelects())) {
+            $query->cols($queryObject->getSelects());
+        } else {
+            $query->cols(['*']);
+        }
 
         // Workarounds :-/
         if (! empty($queryObject->getFlags())) {
