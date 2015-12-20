@@ -96,8 +96,15 @@ abstract class AbstractEndpointRepository implements
 
         // Set up order statement
         if (! empty($queryObject->getOrderBy())) {
+            $orderBy = $queryObject->getOrderBy();
+            if ($orderBy === 'primary') {
+                $orderBy = $this->getPrimaryKey();
+            } elseif ($orderBy === 'result') {
+                $orderBy = $this->getResultKey();
+            }
+            
             $query->orderBy([
-                "`{$queryObject->getOrderBy()}` {$queryObject->getOrderByDirection()}"
+                "`{$orderBy}` {$queryObject->getOrderByDirection()}"
             ]);
         }
 
