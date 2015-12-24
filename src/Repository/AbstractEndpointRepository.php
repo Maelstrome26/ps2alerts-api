@@ -87,16 +87,19 @@ abstract class AbstractEndpointRepository implements
         // Setup where statements
         if (! empty($queryObject->getWheres())) {
             foreach ($queryObject->getWheres() as $where) {
+                $col = $where['col'];
+
                 if ($where['col'] === 'primary') {
                     $col = $this->getPrimaryKey();
-                } elseif ($where['col'] === 'result') {
+                }
+                if ($where['col'] === 'result') {
                     $col = $this->getResultKey();
-                } else {
-                    $col = $where['col'];
                 }
 
                 $op = (isset($where['op']) ? $where['op'] : '=');
-                $query->where("`{$col}` {$op} {$where['value']}");
+
+                $query->where("{$col} {$op} :{$col}");
+                $query->bindValue($col, $where['value']);
             }
         }
 
@@ -105,7 +108,8 @@ abstract class AbstractEndpointRepository implements
             $orderBy = $queryObject->getOrderBy();
             if ($orderBy === 'primary') {
                 $orderBy = $this->getPrimaryKey();
-            } elseif ($orderBy === 'result') {
+            }
+            if ($orderBy === 'result') {
                 $orderBy = $this->getResultKey();
             }
 
@@ -133,9 +137,9 @@ abstract class AbstractEndpointRepository implements
         $pdo = $this->getDatabaseDriver();
 
         if ($queryObject->getDimension() === 'multi') {
-            return $pdo->fetchAll($query->getStatement());
+            return $pdo->fetchAll($query->getStatement(), $query->getBindValues());
         }
 
-        return $pdo->fetchOne($query->getStatement());
+        return $pdo->fetchOne($query->getStatement(), $query->getBindValues());
     }
 }
