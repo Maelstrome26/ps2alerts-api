@@ -12,7 +12,7 @@ class AlertStatisticsEndpoint extends EndpointBaseController
     /**
      * Construct
      *
-     * @param \Ps2alerts\Api\Loader\Metrics\AlertStatisticsLoader $loader
+     * @param \Ps2alerts\Api\Loader\Statistics\AlertStatisticsLoader $loader
      */
     public function __construct(AlertStatisticsLoader $loader)
     {
