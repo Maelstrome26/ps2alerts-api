@@ -22,7 +22,15 @@ $container->inflector('Ps2alerts\Api\Contract\TemplateAwareInterface')
           ->invokeMethod('setTemplateDriver', ['Twig_Environment']);
 $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')
           ->invokeMethod('setRedisDriver', ['redis']);
-          
+
+$container->add('Ps2alerts\Api\Validator\AlertInputValidator');
+
+$container->add('Ps2alerts\Api\Repository\AlertRepository');
+
+$container->add('Ps2alerts\Api\Loader\Statistics\AlertStatisticsLoader')
+          ->withArgument('Ps2alerts\Api\Repository\AlertRepository')
+          ->withArgument('Ps2alerts\Api\Validator\AlertInputValidator');
+
 // Container Inflector
 $container->inflector('League\Container\ContainerAwareInterface')
           ->invokeMethod('setContainer', [$container]);

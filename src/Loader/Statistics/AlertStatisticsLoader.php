@@ -5,6 +5,7 @@ namespace Ps2alerts\Api\Loader\Statistics;
 use Ps2alerts\Api\Loader\Statistics\AbstractStatisticsLoader;
 use Ps2alerts\Api\QueryObjects\QueryObject;
 use Ps2alerts\Api\Repository\AlertRepository;
+use Ps2alerts\Api\Validator\AlertInputValidator;
 
 class AlertStatisticsLoader extends AbstractStatisticsLoader
 {
@@ -14,13 +15,23 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
     protected $repository;
 
     /**
+     * @var \Ps2alerts\Api\Validator\AlertInputValidator
+     */
+    protected $inputValidator;
+
+    /**
      * Construct
      *
-     * @param \Ps2alerts\Api\Repository\AlertRepository $repository
+     * @param \Ps2alerts\Api\Repository\AlertRepository    $repository
+     * @param \Ps2alerts\Api\Validator\AlertInputValidator $inputValidator
      */
-    public function __construct(AlertRepository $repository)
-    {
-        $this->repository = $repository;
+    public function __construct(
+        AlertRepository     $repository,
+        AlertInputValidator $inputValidator
+    ) {
+        $this->repository     = $repository;
+        $this->inputValidator = $inputValidator;
+        
         $this->setCacheNamespace('Statistics');
         $this->setType('Alerts');
     }
@@ -44,7 +55,10 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         ]);
 
         if (! empty($post['ResultServer'])) {
-            if ($this->validatePostVars('ResultServer', $post['ResultServer']) === true) {
+            if ($this->inputValidator->validatePostVars(
+                'ResultServer',
+                $post['ResultServer']
+            ) === true) {
                 $queryObject->addWhere([
                     'col'   => 'ResultServer',
                     'value' => $post['ResultServer']
@@ -54,7 +68,10 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         }
 
         if (! empty($post['ResultWinner'])) {
-            if ($this->validatePostVars('ResultWinner', $post['ResultWinner']) === true) {
+            if ($this->inputValidator->validatePostVars(
+                'ResultWinner',
+                $post['ResultWinner']
+            ) === true) {
                 $queryObject->addWhere([
                     'col'   => 'ResultWinner',
                     'value' => $post['ResultWinner']
@@ -64,7 +81,10 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         }
 
         if (! empty($post['ResultAlertCont'])) {
-            if ($this->validatePostVars('ResultAlertCont', $post['ResultAlertCont']) === true) {
+            if ($this->inputValidator->validatePostVars(
+                'ResultAlertCont',
+                $post['ResultAlertCont']
+            ) === true) {
                 $queryObject->addWhere([
                     'col'   => 'ResultAlertCont',
                     'value' => $post['ResultAlertCont']
@@ -74,7 +94,10 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         }
 
         if (! empty($post['ResultDomination'])) {
-            if ($this->validatePostVars('ResultDomination', $post['ResultDomination']) === true) {
+            if ($this->inputValidator->validatePostVars(
+                'ResultDomination',
+                $post['ResultDomination']
+            ) === true) {
                 $queryObject->addWhere([
                     'col'   => 'ResultDomination',
                     'value' => $post['ResultDomination']
