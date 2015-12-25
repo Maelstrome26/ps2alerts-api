@@ -27,7 +27,7 @@ class OutfitTotalsStatisticsEndpoint extends EndpointBaseController
      *
      * @return \League\Route\Http\JsonResponse
      */
-    public function readStatistics(Request $request, array $args)
+    public function readStatistics(Request $request)
     {
         // Collect any POST variables
         $post = $request->request->all();

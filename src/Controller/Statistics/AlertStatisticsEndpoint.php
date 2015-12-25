@@ -19,9 +19,18 @@ class AlertStatisticsEndpoint extends EndpointBaseController
         $this->loader = $loader;
     }
 
-    public function readTotals(Request $request, array $args)
+    /**
+     * Gets total alerts based on provided parameters
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \League\Route\Http\JsonResponse
+     */
+    public function readTotals(Request $request)
     {
-        $return = $this->loader->readTotals($args);
+        $post = $request->request->all();
+
+        $return = $this->loader->readTotals($post);
 
         if (empty($return)) {
             return new Response\NoContent();
