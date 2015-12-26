@@ -31,7 +31,7 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
     ) {
         $this->repository     = $repository;
         $this->inputValidator = $inputValidator;
-        
+
         $this->setCacheNamespace('Statistics');
         $this->setType('Alerts');
     }
@@ -43,7 +43,7 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
      *
      * @return array
      */
-    public function readTotals($post)
+    public function readTotals(array $post)
     {
         $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals";
 
