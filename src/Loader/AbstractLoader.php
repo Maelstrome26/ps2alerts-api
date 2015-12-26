@@ -2,11 +2,16 @@
 
 namespace Ps2alerts\Api\Loader;
 
+use Ps2alerts\Api\Contract\ConfigAwareInterface;
+use Ps2alerts\Api\Contract\ConfigAwareTrait;
 use Ps2alerts\Api\Contract\RedisAwareInterface;
 use Ps2alerts\Api\Contract\RedisAwareTrait;
 
-abstract class AbstractLoader implements RedisAwareInterface
+abstract class AbstractLoader implements
+    ConfigAwareInterface,
+    RedisAwareInterface
 {
+    use ConfigAwareTrait;
     use RedisAwareTrait;
 
     /**
@@ -127,7 +132,12 @@ abstract class AbstractLoader implements RedisAwareInterface
      */
     public function checkRedis($key)
     {
-        return $this->getRedisDriver()->exists($key);
+        // Always return false if Redis is disabled
+        if ($this->getConfigItem('redis')['enabled'] === false) {
+            return false;
+        }
+
+        $this->getRedisDriver()->exists($key);
     }
 
     /**
@@ -167,7 +177,7 @@ abstract class AbstractLoader implements RedisAwareInterface
         $data = json_encode($data, JSON_NUMERIC_CHECK);
 
         // Only cache if we're allowed to cache it
-        if ($this->getCacheable() === true) {
+        if ($this->getCacheable() === true && $this->getConfigItem('redis')['enabled'] === true) {
             $this->setExpireKey($key, $data, $this->getCacheExpireTime());
         }
 
