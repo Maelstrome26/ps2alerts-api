@@ -59,6 +59,12 @@ $route->post(
     new RestfulStrategy
 );
 
+$route->post(
+    '/v2/statistics/player/leaderboard',
+    'Ps2alerts\Api\Controller\Statistics\PlayerStatisticsEndpoint::readLeaderboard',
+    new RestfulStrategy
+);
+
 // - Outfit Totals
 $route->post(
     '/v2/statistics/outfitTotals',
