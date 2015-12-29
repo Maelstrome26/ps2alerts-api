@@ -16,6 +16,8 @@ $route = new RouteCollection(
  */
 $route->get('/', 'Ps2alerts\Api\Controller\MainController::index');
 
+$route->get('/test', 'Ps2alerts\Api\Controller\MainController::index');
+
 // Alert Endpoint
 $route->get(
     '/v2/alert/latest',
