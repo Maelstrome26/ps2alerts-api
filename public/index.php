@@ -16,13 +16,6 @@ $container = include __DIR__ . '/../src/container.php';
 // Routes
 $router = include __DIR__ . '/../src/routes.php';
 
-// Add headers to the response object so CORS can suck a big fat dick
-$response = $container->get('Symfony\Component\HttpFoundation\Response');
-$response->headers->set('Access-Control-Allow-Origin', '*');
-$response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-$response->headers->set('Access-Control-Max-Age', '1000');
-$response->headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With');
-
 // FIRE!!!
 try {
     $response = $router->dispatch(
