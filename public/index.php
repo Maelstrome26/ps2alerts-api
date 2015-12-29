@@ -16,6 +16,8 @@ $container = include __DIR__ . '/../src/container.php';
 // Routes
 $router = include __DIR__ . '/../src/routes.php';
 
+$response = $container->get('Symfony\Component\HttpFoundation\Response');
+
 // FIRE!!!
 try {
     $response = $router->dispatch(
