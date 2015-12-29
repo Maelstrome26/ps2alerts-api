@@ -25,7 +25,7 @@ try {
         $container->get('Symfony\Component\HttpFoundation\Request')->getPathInfo()
     );
 } catch (NotFoundException $e) {
-    $response->setResponseCode(404)->setContent(
+    $response->setStatusCode(404)->setContent(
         $container->get('Twig_Environment')->render('404.html')
     );
 }
