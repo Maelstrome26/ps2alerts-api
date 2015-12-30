@@ -46,6 +46,14 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
     public function readTotals(array $post)
     {
         $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals";
+        $redisKey = $this->appendRedisKey($post, $redisKey);
+        $post = $this->processPostVars($post);
+
+        if ($this->checkRedis($redisKey)) {
+            return $this->getFromRedis($redisKey);
+        }
+
+        $queryObject = $this->setupQueryObject($queryObject, $post);
 
         $queryObject = new QueryObject;
         $queryObject->addSelect('COUNT(ResultID) AS COUNT');
@@ -53,58 +61,6 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
             'col'   => 'Valid',
             'value' => '1'
         ]);
-
-        if (! empty($post['ResultServer'])) {
-            if ($this->inputValidator->validatePostVars(
-                'ResultServer',
-                $post['ResultServer']
-            ) === true) {
-                $queryObject->addWhere([
-                    'col'   => 'ResultServer',
-                    'value' => $post['ResultServer']
-                ]);
-                $redisKey .= ":Server-{$post['ResultServer']}";
-            }
-        }
-
-        if (! empty($post['ResultWinner'])) {
-            if ($this->inputValidator->validatePostVars(
-                'ResultWinner',
-                $post['ResultWinner']
-            ) === true) {
-                $queryObject->addWhere([
-                    'col'   => 'ResultWinner',
-                    'value' => $post['ResultWinner']
-                ]);
-                $redisKey .= ":Winner-{$post['ResultWinner']}";
-            }
-        }
-
-        if (! empty($post['ResultAlertCont'])) {
-            if ($this->inputValidator->validatePostVars(
-                'ResultAlertCont',
-                $post['ResultAlertCont']
-            ) === true) {
-                $queryObject->addWhere([
-                    'col'   => 'ResultAlertCont',
-                    'value' => $post['ResultAlertCont']
-                ]);
-                $redisKey .= ":Cont-{$post['ResultAlertCont']}";
-            }
-        }
-
-        if (! empty($post['ResultDomination'])) {
-            if ($this->inputValidator->validatePostVars(
-                'ResultDomination',
-                $post['ResultDomination']
-            ) === true) {
-                $queryObject->addWhere([
-                    'col'   => 'ResultDomination',
-                    'value' => $post['ResultDomination']
-                ]);
-                $redisKey .= ":Domination-{$post['ResultDomination']}";
-            }
-        }
 
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
