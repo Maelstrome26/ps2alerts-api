@@ -71,4 +71,97 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
             $redisKey
         );
     }
+
+    /**
+     * Retrieves all zone totals and caches as required
+     *
+     * @return array
+     */
+    public function readZoneTotals()
+    {
+        $masterRedisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals:Zones";
+
+        $this->getLogDriver()->addDebug($masterRedisKey);
+
+        if ($this->checkRedis($masterRedisKey)) {
+            $this->getLogDriver()->addDebug("Pulled the lot from Redis");
+            return $this->getFromRedis($masterRedisKey);
+        }
+
+        $servers = [1,10,13,17,25,1000,1001,1002,1003,2000,2001,2002];
+        $zones = [2,4,6,8];
+        $factions = ['vs','nc','tr','draw'];
+
+        $results = [];
+        $this->setCacheExpireTime(3600); // 1 Hour
+
+        // Dat loop yo
+        foreach ($servers as $server) {
+            foreach ($zones as $zone) {
+                foreach ($factions as $faction) {
+                    $results[$server][$zone][$faction] = $this->getZoneStats($server, $zone, $faction);
+                }
+            }
+        }
+
+        // Commit to Redis
+        return $this->cacheAndReturn(
+            $results,
+            $masterRedisKey
+        );
+    }
+
+    /**
+     * Gets all information regarding zone victories out of the DB and caches as
+     * required
+     *
+     * @see readZoneTotals()
+     *
+     * @param  integer $server
+     * @param  integer $zone
+     * @param  integer $faction
+     *
+     * @return array
+     */
+    public function getZoneStats($server, $zone, $faction = null)
+    {
+        $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals:Zones";
+
+        if ($faction === null) {
+            $redisKey .= ":{$server}:{$zone}";
+        } else {
+            $redisKey .= ":{$server}:{$zone}:{$faction}";
+        }
+
+        $this->getLogDriver()->addDebug($redisKey);
+
+        if ($this->checkRedis($redisKey)) {
+            $this->getLogDriver()->addDebug("CACHE PULL");
+            return $this->getFromRedis($redisKey);
+        }
+
+        // Fire a set of queries to build the object required
+        $queryObject = new QueryObject;
+        $queryObject->addSelect('COUNT(ResultID) AS COUNT');
+        $queryObject->addWhere([
+            'col'   => 'ResultServer',
+            'value' => $server
+        ]);
+        $queryObject->addWhere([
+            'col'   => 'ResultAlertCont',
+            'value' => $zone
+        ]);
+        if (! empty($faction)) {
+            $queryObject->addWhere([
+                'col'   => 'ResultWinner',
+                'value' => $faction
+            ]);
+        }
+
+        // Commit to Redis
+        return $this->cacheAndReturn(
+            $this->repository->read($queryObject)[0]["COUNT"],
+            $redisKey
+        );
+    }
 }

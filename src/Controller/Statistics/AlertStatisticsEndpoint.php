@@ -30,7 +30,27 @@ class AlertStatisticsEndpoint extends EndpointBaseController
     {
         $post = $request->request->all();
 
+        $this->getLogDriver()->addDebug(json_encode($post));
+
         $return = $this->loader->readTotals($post);
+
+        if (empty($return)) {
+            return new Response\NoContent();
+        }
+
+        return new Response\Ok($return);
+    }
+
+    /**
+     * Retrieves the zones totals
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \League\Route\Http\JsonResponse
+     */
+    public function readZoneTotals(Request $request)
+    {
+        $return = $this->loader->readZoneTotals();
 
         if (empty($return)) {
             return new Response\NoContent();

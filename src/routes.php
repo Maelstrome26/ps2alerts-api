@@ -59,6 +59,12 @@ $route->post(
     new RestfulStrategy
 );
 
+$route->get(
+    '/v2/statistics/alert/zone',
+    'Ps2alerts\Api\Controller\Statistics\AlertStatisticsEndpoint::readZoneTotals',
+    new RestfulStrategy
+);
+
 $route->post(
     '/v2/statistics/player/leaderboard',
     'Ps2alerts\Api\Controller\Statistics\PlayerStatisticsEndpoint::readLeaderboard',
