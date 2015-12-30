@@ -125,10 +125,28 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
         }
 
         $queryObject = new QueryObject;
+        $queryObject = $this->setupQueryObject($queryObject, $post);
 
+        return $this->cacheAndReturn(
+            $this->repository->read($queryObject),
+            $redisKey
+        );
+    }
+
+    /**
+     * Takes common requests and appends them to the query object. Any other
+     * special requirements will be handled after
+     *
+     * @param  Ps2alerts\Api\QueryObjects\QueryObject $queryObject
+     * @param  array                                  $post
+     *
+     * @return Ps2alerts\Api\QueryObjects\QueryObject
+     */
+    public function setupQueryObject($queryObject, $post)
+    {
         foreach ($post['wheres'] as $key => $value) {
             $queryObject->addWhere([
-                'col' => array_keys($value)[0],
+                'col'   => array_keys($value)[0],
                 'value' => array_values($value)[0]
             ]);
         }
@@ -138,16 +156,21 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
             $queryObject->setOrderByDirection(array_values($post['orderBy'])[0]);
         }
 
-        $queryObject->setLimit($post['limit']);
+        if (! empty($post['limit'])) {
+            $queryObject->setLimit($post['limit']);
+        }
 
         if (! empty($this->getFlags())) {
             // If there are some funky things we have to do, set them.
             $queryObject->setFlags($this->getFlags());
         }
 
-        return $this->cacheAndReturn(
-            $this->repository->read($queryObject),
-            $redisKey
-        );
+        // This should always be set
+        $queryObject->addWhere([
+            'col'   => 'Valid',
+            'value' => '1'
+        ]);
+
+        return $queryObject;
     }
 }
