@@ -40,6 +40,73 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
     protected $type;
 
     /**
+     * Returns the top X of a particular statistic
+     *
+     * @param array $post POST variables from the request
+     *
+     * @return array
+     */
+    public function readStatistics($post)
+    {
+        $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}";
+        $redisKey = $this->appendRedisKey($post, $redisKey);
+        $post = $this->processPostVars($post);
+
+        if ($this->checkRedis($redisKey)) {
+            return $this->getFromRedis($redisKey);
+        }
+
+        $queryObject = new QueryObject;
+        $queryObject = $this->setupQueryObject($queryObject, $post);
+
+        return $this->cacheAndReturn(
+            $this->repository->read($queryObject),
+            $redisKey
+        );
+    }
+
+    /**
+     * Takes common requests and appends them to the query object. Any other
+     * special requirements will be handled after
+     *
+     * @param  Ps2alerts\Api\QueryObjects\QueryObject $queryObject
+     * @param  array                                  $post
+     *
+     * @return Ps2alerts\Api\QueryObjects\QueryObject
+     */
+    public function setupQueryObject($queryObject, $post)
+    {
+        foreach ($post['wheres'] as $key => $value) {
+            $queryObject->addWhere([
+                'col'   => array_keys($value)[0],
+                'value' => array_values($value)[0]
+            ]);
+        }
+
+        if (! empty($post['orderBy'])) {
+            $queryObject->setOrderBy(array_keys($post['orderBy'])[0]);
+            $queryObject->setOrderByDirection(array_values($post['orderBy'])[0]);
+        }
+
+        if (! empty($post['limit'])) {
+            $queryObject->setLimit($post['limit']);
+        }
+
+        if (! empty($this->getFlags())) {
+            // If there are some funky things we have to do, set them.
+            $queryObject->setFlags($this->getFlags());
+        }
+
+        // This should always be set
+        $queryObject->addWhere([
+            'col'   => 'Valid',
+            'value' => '1'
+        ]);
+
+        return $queryObject;
+    }
+
+    /**
      * Build a redis key based off inputs provided by the POST request
      *
      * @param  array  $post
@@ -107,70 +174,4 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
         return $return;
     }
 
-    /**
-     * Returns the top X of a particular statistic
-     *
-     * @param array $post POST variables from the request
-     *
-     * @return array
-     */
-    public function readStatistics($post)
-    {
-        $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}";
-        $redisKey = $this->appendRedisKey($post, $redisKey);
-        $post = $this->processPostVars($post);
-
-        if ($this->checkRedis($redisKey)) {
-            return $this->getFromRedis($redisKey);
-        }
-
-        $queryObject = new QueryObject;
-        $queryObject = $this->setupQueryObject($queryObject, $post);
-
-        return $this->cacheAndReturn(
-            $this->repository->read($queryObject),
-            $redisKey
-        );
-    }
-
-    /**
-     * Takes common requests and appends them to the query object. Any other
-     * special requirements will be handled after
-     *
-     * @param  Ps2alerts\Api\QueryObjects\QueryObject $queryObject
-     * @param  array                                  $post
-     *
-     * @return Ps2alerts\Api\QueryObjects\QueryObject
-     */
-    public function setupQueryObject($queryObject, $post)
-    {
-        foreach ($post['wheres'] as $key => $value) {
-            $queryObject->addWhere([
-                'col'   => array_keys($value)[0],
-                'value' => array_values($value)[0]
-            ]);
-        }
-
-        if (! empty($post['orderBy'])) {
-            $queryObject->setOrderBy(array_keys($post['orderBy'])[0]);
-            $queryObject->setOrderByDirection(array_values($post['orderBy'])[0]);
-        }
-
-        if (! empty($post['limit'])) {
-            $queryObject->setLimit($post['limit']);
-        }
-
-        if (! empty($this->getFlags())) {
-            // If there are some funky things we have to do, set them.
-            $queryObject->setFlags($this->getFlags());
-        }
-
-        // This should always be set
-        $queryObject->addWhere([
-            'col'   => 'Valid',
-            'value' => '1'
-        ]);
-
-        return $queryObject;
-    }
 }
