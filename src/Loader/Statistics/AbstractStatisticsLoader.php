@@ -79,10 +79,17 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
             $whereMD5 = md5($post['selects']);
             $redisKey .= "/select{$whereMD5}";
         }
+
         if (! empty($post['wheres'])) {
             $whereMD5 = md5($post['wheres']);
             $redisKey .= "/where{$whereMD5}";
         }
+
+        if (! empty($post['whereIns'])) {
+            $whereInMD5 = md5($post['whereIns']);
+            $redisKey .= "/whereIn{$whereInMD5}";
+        }
+
         if (! empty($post['orderBy'])) {
             $orderMD5 = md5($post['orderBy']);
             $redisKey .= "/order{$orderMD5}";
@@ -114,6 +121,7 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
     {
         if (! empty($post['wheres'])) {
             $return['wheres'] = json_decode($post['wheres'], true);
+            $this->getLogDriver()->addDebug(json_encode($return['wheres']));
         }
 
         if (! empty($post['whereIns'])) {
@@ -148,25 +156,29 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
      */
     public function setupQueryObject($queryObject, $post)
     {
-        foreach ($post['wheres'] as $key => $value) {
-            $queryObject->addWhere([
-                'col'   => $key,
-                'value' => $value
-            ]);
-        }
-        
-        foreach ($post['whereIns'] as $key => $value) {
-            // Escape strings manually, incase of player IDs etc
-            foreach ($value as $i => $val) {
-                if (is_string($val)) {
-                    $value[$i] = "'{$val}'";
-                }
+        if (! empty($post['wheres'])) {
+            foreach ($post['wheres'] as $key => $value) {
+                $queryObject->addWhere([
+                    'col'   => $key,
+                    'value' => $value
+                ]);
             }
+        }
 
-            $queryObject->addWhereIn([
-                'col'   => $key,
-                'value' => implode(',', $value) // use implode for WHERE IN (x,x)
-            ]);
+        if (! empty($post['whereIns'])) {
+            foreach ($post['whereIns'] as $key => $value) {
+                // Escape strings manually, incase of player IDs etc
+                foreach ($value as $i => $val) {
+                    if (is_string($val)) {
+                        $value[$i] = "'{$val}'";
+                    }
+                }
+
+                $queryObject->addWhereIn([
+                    'col'   => $key,
+                    'value' => implode(',', $value) // use implode for WHERE IN (x,x)
+                ]);
+            }
         }
 
         if (! empty($post['orderBy'])) {
