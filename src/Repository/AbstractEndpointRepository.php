@@ -103,6 +103,24 @@ abstract class AbstractEndpointRepository implements
             }
         }
 
+        // Setup where statements
+        if (! empty($queryObject->getWhereIns())) {
+            foreach ($queryObject->getWhereIns() as $whereIn) {
+                $col = $whereIn['col'];
+
+                if ($whereIn['col'] === 'primary') {
+                    $col = $this->getPrimaryKey();
+                }
+                if ($whereIn['col'] === 'result') {
+                    $col = $this->getResultKey();
+                }
+
+                var_dump($whereIn['value']);
+
+                $query->where("{$col} IN ({$whereIn['value']})");
+            }
+        }
+
         // Set up order statement
         if (! empty($queryObject->getOrderBy())) {
             $orderBy = $queryObject->getOrderBy();
@@ -135,6 +153,7 @@ abstract class AbstractEndpointRepository implements
     public function prepareAndExecuteQuery(AbstractQuery $query, QueryObject $queryObject)
     {
         $pdo = $this->getDatabaseDriver();
+        var_dump($query->getStatement());
 
         if ($queryObject->getDimension() === 'multi') {
             return $pdo->fetchAll($query->getStatement(), $query->getBindValues());

@@ -15,6 +15,11 @@ class QueryObject
     protected $wheres;
 
     /**
+     * @var array
+     */
+    protected $whereIns;
+
+    /**
      * @var string
      */
     protected $orderBy;
@@ -71,7 +76,7 @@ class QueryObject
      *
      * @param array $array
      */
-    public function addWhere($array)
+    public function addWhere(array $array)
     {
         $this->wheres[] = $array;
     }
@@ -87,13 +92,35 @@ class QueryObject
     }
 
     /**
+     * Adds where statements to the object
+     *
+     * @param array $array
+     */
+    public function addWhereIn(array $array)
+    {
+        $this->wheresIns[] = $array;
+    }
+
+    /**
+     * Pulls out the array for the where statements
+     *
+     * @return array
+     */
+    public function getWhereIns()
+    {
+        return $this->wheresIns;
+    }
+
+    /**
      * Set order by column
      *
      * @param string $string [description]
      */
     public function setOrderBy($string)
     {
-        $this->orderBy = $string;
+        if (! empty($string)) {
+            $this->orderBy = $string;
+        }
     }
 
     /**
@@ -113,7 +140,9 @@ class QueryObject
      */
     public function setOrderByDirection($string)
     {
-        $this->orderByDirection = $string;
+        if (! empty($string)) {
+            $this->orderByDirection = $string;
+        }
     }
 
     /**
@@ -133,7 +162,9 @@ class QueryObject
      */
     public function setDimension($string)
     {
-        $this->dimension = $string;
+        if (! empty($string)) {
+            $this->dimension = $string;
+        }
     }
 
     /**
@@ -153,7 +184,7 @@ class QueryObject
      */
     public function setLimit($limit)
     {
-        if (is_numeric($limit)) {
+        if (! empty($limit) && is_numeric($limit)) {
             $this->limit = $limit;
         }
     }
@@ -175,7 +206,9 @@ class QueryObject
      */
     public function setFlags($flags)
     {
-        $this->flags = $flags;
+        if (! empty($flags)) {
+            $this->flags = $flags;
+        }
     }
 
     /**

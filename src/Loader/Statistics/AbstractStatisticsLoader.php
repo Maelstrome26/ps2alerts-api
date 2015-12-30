@@ -116,6 +116,10 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
             $return['wheres'] = json_decode($post['wheres'], true);
         }
 
+        if (! empty($post['whereIns'])) {
+            $return['whereIns'] = json_decode($post['whereIns'], true);
+        }
+
         if (! empty($post['orderBy'])) {
             $return['orderBy'] = json_decode($post['orderBy'], true);
         }
@@ -146,8 +150,24 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
     {
         foreach ($post['wheres'] as $key => $value) {
             $queryObject->addWhere([
-                'col'   => array_keys($value)[0],
-                'value' => array_values($value)[0]
+                'col'   => $key,
+                'value' => $value
+            ]);
+        }
+
+        var_dump($post['whereIns']);
+
+        foreach ($post['whereIns'] as $key => $value) {
+            // Escape strings manually, incase of player IDs etc
+            foreach ($value as $i => $val) {
+                if (is_string($val)) {
+                    $value[$i] = "'{$val}'";
+                }
+            }
+
+            $queryObject->addWhereIn([
+                'col'   => $key,
+                'value' => implode(',', $value) // use implode for WHERE IN (x,x)
             ]);
         }
 
