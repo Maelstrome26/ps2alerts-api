@@ -154,9 +154,7 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
                 'value' => $value
             ]);
         }
-
-        var_dump($post['whereIns']);
-
+        
         foreach ($post['whereIns'] as $key => $value) {
             // Escape strings manually, incase of player IDs etc
             foreach ($value as $i => $val) {

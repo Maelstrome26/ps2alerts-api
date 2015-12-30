@@ -115,8 +115,6 @@ abstract class AbstractEndpointRepository implements
                     $col = $this->getResultKey();
                 }
 
-                var_dump($whereIn['value']);
-
                 $query->where("{$col} IN ({$whereIn['value']})");
             }
         }
@@ -153,7 +151,6 @@ abstract class AbstractEndpointRepository implements
     public function prepareAndExecuteQuery(AbstractQuery $query, QueryObject $queryObject)
     {
         $pdo = $this->getDatabaseDriver();
-        var_dump($query->getStatement());
 
         if ($queryObject->getDimension() === 'multi') {
             return $pdo->fetchAll($query->getStatement(), $query->getBindValues());
