@@ -10,6 +10,7 @@ $container->singleton('Symfony\Component\HttpFoundation\Request', function () {
 // Service Providers
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\ConfigServiceProvider');
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\DatabaseServiceProvider');
+$container->addServiceProvider('Ps2alerts\Api\ServiceProvider\LogServiceProvider');
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\TemplateServiceProvider');
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\RedisServiceProvider');
 
@@ -18,6 +19,8 @@ $container->inflector('Ps2alerts\Api\Contract\ConfigAwareInterface')
           ->invokeMethod('setConfig', ['config']);
 $container->inflector('Ps2alerts\Api\Contract\DatabaseAwareInterface')
           ->invokeMethod('setDatabaseDriver', ['Aura\Sql']);
+$container->inflector('Ps2alerts\Api\Contract\LogAwareInterface')
+          ->invokeMethod('setLogDriver', ['Monolog\Logger']);
 $container->inflector('Ps2alerts\Api\Contract\TemplateAwareInterface')
           ->invokeMethod('setTemplateDriver', ['Twig_Environment']);
 $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')

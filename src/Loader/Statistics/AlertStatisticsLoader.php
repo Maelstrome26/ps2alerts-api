@@ -49,6 +49,8 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         $redisKey = $this->appendRedisKey($post, $redisKey);
         $post = $this->processPostVars($post);
 
+        $this->getLogDriver()->addDebug($redisKey);
+
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
         }

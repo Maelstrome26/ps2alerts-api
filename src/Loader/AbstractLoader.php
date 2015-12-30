@@ -4,14 +4,18 @@ namespace Ps2alerts\Api\Loader;
 
 use Ps2alerts\Api\Contract\ConfigAwareInterface;
 use Ps2alerts\Api\Contract\ConfigAwareTrait;
+use Ps2alerts\Api\Contract\LogAwareInterface;
+use Ps2alerts\Api\Contract\LogAwareTrait;
 use Ps2alerts\Api\Contract\RedisAwareInterface;
 use Ps2alerts\Api\Contract\RedisAwareTrait;
 
 abstract class AbstractLoader implements
     ConfigAwareInterface,
+    LogAwareInterface,
     RedisAwareInterface
 {
     use ConfigAwareTrait;
+    use LogAwareTrait;
     use RedisAwareTrait;
 
     /**

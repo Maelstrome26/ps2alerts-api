@@ -5,9 +5,14 @@ namespace Ps2alerts\Api\Controller;
 use Symfony\Component\HttpFoundation\Request;
 use League\Route\Http\JsonResponse as Response;
 use Ps2alerts\Api\QueryObjects\QueryObject;
+use Ps2alerts\Api\Contract\LogAwareInterface;
+use Ps2alerts\Api\Contract\LogAwareTrait;
 
-abstract class EndpointBaseController
+abstract class EndpointBaseController implements
+    LogAwareInterface
 {
+    use LogAwareTrait;
+
     protected $loader;
 
     /**

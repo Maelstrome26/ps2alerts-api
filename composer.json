@@ -15,7 +15,8 @@
         "twig/twig": "^1.20",
         "predis/predis": "^1.0",
         "aura/sql": "^2.4",
-        "aura/sqlquery": "^2.6"
+        "aura/sqlquery": "^2.6",
+        "monolog/monolog": "^1.17"
     },
     "autoload": {
         "psr-4": {
