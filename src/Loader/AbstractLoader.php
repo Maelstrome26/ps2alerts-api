@@ -141,7 +141,7 @@ abstract class AbstractLoader implements
             return false;
         }
 
-        $this->getRedisDriver()->exists($key);
+        return $this->getRedisDriver()->exists($key);
     }
 
     /**
