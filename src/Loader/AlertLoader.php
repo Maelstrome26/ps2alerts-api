@@ -108,7 +108,7 @@ class AlertLoader extends AbstractLoader
     public function readSingle($id)
     {
         $redisKey = "{$this->getCacheNamespace()}:{$id}";
-
+        
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
         }
