@@ -123,15 +123,10 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
      *
      * @return array
      */
-    public function getZoneStats($server, $zone, $faction = null)
+    public function getZoneStats($server, $zone, $faction)
     {
         $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals:Zones";
-
-        if ($faction === null) {
-            $redisKey .= ":{$server}:{$zone}";
-        } else {
-            $redisKey .= ":{$server}:{$zone}:{$faction}";
-        }
+        $redisKey .= ":{$server}:{$zone}:{$faction}";
 
         $this->getLogDriver()->addDebug($redisKey);
 
@@ -151,12 +146,10 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
             'col'   => 'ResultAlertCont',
             'value' => $zone
         ]);
-        if (! empty($faction)) {
-            $queryObject->addWhere([
-                'col'   => 'ResultWinner',
-                'value' => $faction
-            ]);
-        }
+        $queryObject->addWhere([
+            'col'   => 'ResultWinner',
+            'value' => $faction
+        ]);
 
         // Commit to Redis
         return $this->cacheAndReturn(
