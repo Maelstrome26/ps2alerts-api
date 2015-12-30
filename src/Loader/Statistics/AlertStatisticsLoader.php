@@ -53,14 +53,10 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
             return $this->getFromRedis($redisKey);
         }
 
-        $queryObject = $this->setupQueryObject($queryObject, $post);
-
         $queryObject = new QueryObject;
+
+        $queryObject = $this->setupQueryObject($queryObject, $post);
         $queryObject->addSelect('COUNT(ResultID) AS COUNT');
-        $queryObject->addWhere([
-            'col'   => 'Valid',
-            'value' => '1'
-        ]);
 
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
