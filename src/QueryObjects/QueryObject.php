@@ -98,7 +98,7 @@ class QueryObject
      */
     public function addWhereIn(array $array)
     {
-        $this->wheresIns[] = $array;
+        $this->whereIns[] = $array;
     }
 
     /**
@@ -108,7 +108,7 @@ class QueryObject
      */
     public function getWhereIns()
     {
-        return $this->wheresIns;
+        return $this->whereIns;
     }
 
     /**
