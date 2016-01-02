@@ -13,6 +13,7 @@ $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\DatabaseServicePro
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\LogServiceProvider');
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\TemplateServiceProvider');
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\RedisServiceProvider');
+$container->addServiceProvider('Ps2alerts\Api\ServiceProvider\UuidServiceProvider');
 
 // Inflectors
 $container->inflector('Ps2alerts\Api\Contract\ConfigAwareInterface')
@@ -25,6 +26,8 @@ $container->inflector('Ps2alerts\Api\Contract\TemplateAwareInterface')
           ->invokeMethod('setTemplateDriver', ['Twig_Environment']);
 $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')
           ->invokeMethod('setRedisDriver', ['redis']);
+$container->inflector('Ps2alerts\Api\Contract\UuidAwareInterface')
+          ->invokeMethod('setUuidDriver', ['Ramsey\Uuid\Uuid']);
 
 $container->add('Ps2alerts\Api\Validator\AlertInputValidator');
 
