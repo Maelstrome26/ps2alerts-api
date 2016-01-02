@@ -178,12 +178,13 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         $queryObject = $this->setupQueryObject($queryObject, $post);
         $queryObject->addSelect('FROM_UNIXTIME(ResultEndTime) AS ResultEndTime');
         $queryObject->addSelect('ResultWinner');
+        $queryObject->addWhere([
+            'col' => 'InProgress',
+            'value' => 0
+        ]);
         $queryObject->setLimit('unlimited');
 
-        // Get the data to parse
-        $alerts = $this->repository->read($queryObject);
-
-        $minDate = '2014-10-28'; // Beginning of tracking
+        $minDate = '2014-10-29'; // Beginning of tracking
         $maxDate = date('Y-m-d'); // Today unless set
 
         // If there is a minimum date set
@@ -206,7 +207,13 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
 
         $redisKey .= "/min-{$minDate}/max-{$maxDate}";
 
-        var_dump($redisKey);
+        if ($this->checkRedis($redisKey)) {
+            $this->getLogDriver()->addDebug("CACHE PULL");
+            return $this->getFromRedis($redisKey);
+        }
+
+        // Get the data to parse
+        $alerts = $this->repository->read($queryObject);
 
         // Generate the range of dates
         $dates = $this->dataFormatter->createDateRangeArray($minDate, $maxDate);
