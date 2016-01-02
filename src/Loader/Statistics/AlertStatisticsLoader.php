@@ -159,6 +159,13 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         );
     }
 
+    /**
+     * Generates the data required for History Summaries
+     *
+     * @param  array $post
+     *
+     * @return array
+     */
     public function readHistorySummary(array $post)
     {
         $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:History";
