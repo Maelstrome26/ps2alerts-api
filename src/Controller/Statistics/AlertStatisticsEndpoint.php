@@ -58,4 +58,24 @@ class AlertStatisticsEndpoint extends EndpointBaseController
 
         return new Response\Ok($return);
     }
+
+    /**
+     * Retrieves the victory summary (daily or monthly)
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \League\Route\Http\JsonResponse
+     */
+    public function readHistorySummary(Request $request)
+    {
+        $post = $request->request->all();
+
+        $return = $this->loader->readHistorySummary($post);
+
+        if (empty($return)) {
+            return new Response\NoContent();
+        }
+
+        return new Response\Ok($return);
+    }
 }

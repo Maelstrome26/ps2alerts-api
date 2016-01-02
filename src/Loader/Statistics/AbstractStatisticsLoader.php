@@ -155,14 +155,36 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
      *
      * @return Ps2alerts\Api\QueryObjects\QueryObject
      */
-    public function setupQueryObject($queryObject, $post)
+    public function setupQueryObject(QueryObject $queryObject, array $post)
     {
         if (! empty($post['wheres'])) {
             foreach ($post['wheres'] as $key => $value) {
-                $queryObject->addWhere([
-                    'col'   => $key,
-                    'value' => $value
-                ]);
+                if ($key !== 'lessthan' && $key !== 'morethan') {
+                    $queryObject->addWhere([
+                        'col'   => $key,
+                        'value' => $value
+                    ]);
+                }
+            }
+
+            if (! empty($post['wheres']['lessthan'])) {
+                foreach ($post['wheres']['lessthan'] as $key => $value) {
+                    $queryObject->addWhere([
+                        'col'   => $key,
+                        'op'    => '<',
+                        'value' => $value
+                    ]);
+                }
+            }
+
+            if (! empty($post['wheres']['morethan'])) {
+                foreach ($post['wheres']['morethan'] as $key => $value) {
+                    $queryObject->addWhere([
+                        'col'   => $key,
+                        'op'    => '>',
+                        'value' => $value
+                    ]);
+                }
             }
         }
 

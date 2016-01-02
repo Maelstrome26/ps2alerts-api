@@ -42,6 +42,7 @@ $route->get(
     'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listActive',
     new RestfulStrategy
 );
+
 $route->get(
     '/v2/alert/{resultID}',
     'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::readSingle',
@@ -68,6 +69,12 @@ $route->get(
 $route->post(
     '/v2/statistics/player/leaderboard',
     'Ps2alerts\Api\Controller\Statistics\PlayerStatisticsEndpoint::readLeaderboard',
+    new RestfulStrategy
+);
+
+$route->post(
+    '/v2/statistics/alert/history/summary',
+    'Ps2alerts\Api\Controller\Statistics\AlertStatisticsEndpoint::readHistorySummary',
     new RestfulStrategy
 );
 

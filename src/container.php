@@ -29,15 +29,14 @@ $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')
 $container->inflector('Ps2alerts\Api\Contract\UuidAwareInterface')
           ->invokeMethod('setUuidDriver', ['Ramsey\Uuid\Uuid']);
 
-$container->add('Ps2alerts\Api\Validator\AlertInputValidator');
-
+// Repositories
 $container->add('Ps2alerts\Api\Repository\AlertRepository');
 
 $container->add('Ps2alerts\Api\Helper\DataFormatterHelper');
 
 $container->add('Ps2alerts\Api\Loader\Statistics\AlertStatisticsLoader')
           ->withArgument('Ps2alerts\Api\Repository\AlertRepository')
-          ->withArgument('Ps2alerts\Api\Validator\AlertInputValidator');
+          ->withArgument('Ps2alerts\Api\Helper\DataFormatterHelper');
 
 // Container Inflector
 $container->inflector('League\Container\ContainerAwareInterface')

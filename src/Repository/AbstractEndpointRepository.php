@@ -144,7 +144,10 @@ abstract class AbstractEndpointRepository implements
         }
 
         if (! empty($queryObject->getLimit())) {
-            $query->limit($queryObject->getLimit());
+            // Only set a limit if it's required
+            if ($queryObject->getLimit() !== 'unlimited') {
+                $query->limit($queryObject->getLimit());
+            }
         }
 
         return $this->prepareAndExecuteQuery($query, $queryObject);
@@ -161,9 +164,12 @@ abstract class AbstractEndpointRepository implements
     {
         $pdo = $this->getDatabaseDriver();
 
+        //var_dump($query->getStatement());die;
+
         if ($queryObject->getDimension() === 'multi') {
             return $pdo->fetchAll($query->getStatement(), $query->getBindValues());
         }
+
 
         return $pdo->fetchOne($query->getStatement(), $query->getBindValues());
     }
