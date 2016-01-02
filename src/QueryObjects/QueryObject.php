@@ -184,7 +184,7 @@ class QueryObject
      */
     public function setLimit($limit)
     {
-        if (! empty($limit) && is_numeric($limit)) {
+        if (! empty($limit)) {
             $this->limit = $limit;
         }
     }
