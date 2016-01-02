@@ -103,10 +103,10 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
         }
 
         if (empty($post['limit']) || ! isset($post['limit'])) {
-            $post['limit'] = 10;
+            $post['limit'] = 50;
         }
 
-        $redisKey .= "/limit{$post['limit']}";
+        $redisKey .= "/limit:{$post['limit']}";
 
         return $redisKey;
     }
