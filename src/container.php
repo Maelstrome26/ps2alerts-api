@@ -33,6 +33,8 @@ $container->add('Ps2alerts\Api\Validator\AlertInputValidator');
 
 $container->add('Ps2alerts\Api\Repository\AlertRepository');
 
+$container->add('Ps2alerts\Api\Helper\DataFormatterHelper');
+
 $container->add('Ps2alerts\Api\Loader\Statistics\AlertStatisticsLoader')
           ->withArgument('Ps2alerts\Api\Repository\AlertRepository')
           ->withArgument('Ps2alerts\Api\Validator\AlertInputValidator');
