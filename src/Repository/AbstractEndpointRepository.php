@@ -8,14 +8,18 @@ use Ps2alerts\Api\Contract\DatabaseAwareInterface;
 use Ps2alerts\Api\Contract\DatabaseAwareTrait;
 use Ps2alerts\Api\Contract\RedisAwareInterface;
 use Ps2alerts\Api\Contract\RedisAwareTrait;
+use Ps2alerts\Api\Contract\UuidAwareInterface;
+use Ps2alerts\Api\Contract\UuidAwareTrait;
 use Ps2alerts\Api\QueryObjects\QueryObject;
 
 abstract class AbstractEndpointRepository implements
     DatabaseAwareInterface,
-    RedisAwareInterface
+    RedisAwareInterface,
+    UuidAwareInterface
 {
     use DatabaseAwareTrait;
     use RedisAwareTrait;
+    use UuidAwareTrait;
 
     /**
      * Determines the table that the DB is interfacing with
@@ -96,10 +100,15 @@ abstract class AbstractEndpointRepository implements
                     $col = $this->getResultKey();
                 }
 
+                // Generate a UUID so that any columns that are used multiple
+                // times always have unique values. Tiny overhead for the benefit
+                $uuid = $this->getUuidDriver()->uuid4()->toString();
+                $bind = str_replace('-', '', $col.$uuid);
+
                 $op = (isset($where['op']) ? $where['op'] : '=');
 
-                $query->where("{$col} {$op} :{$col}");
-                $query->bindValue($col, $where['value']);
+                $query->where("{$col} {$op} :$bind");
+                $query->bindValue($bind, $where['value']);
             }
         }
 
