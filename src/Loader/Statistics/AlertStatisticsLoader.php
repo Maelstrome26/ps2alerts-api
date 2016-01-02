@@ -88,8 +88,8 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
             return $this->getFromRedis($masterRedisKey);
         }
 
-        $servers = [1,10,13,17,25,1000,1001,1002,1003,2000,2001,2002];
-        $zones = [2,4,6,8];
+        $servers  = [1,10,13,17,25,1000,2000];
+        $zones    = [2,4,6,8];
         $factions = ['vs','nc','tr','draw'];
 
         $results = [];
