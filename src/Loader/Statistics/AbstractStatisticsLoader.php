@@ -77,23 +77,24 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
     {
         if (! empty($post['selects'])) {
             $whereMD5 = md5($post['selects']);
-            $redisKey .= "/select{$whereMD5}";
+            $redisKey .= "/select:{$whereMD5}";
         }
 
         if (! empty($post['wheres'])) {
             $whereMD5 = md5($post['wheres']);
-            $redisKey .= "/where{$whereMD5}";
+            $redisKey .= "/where:{$whereMD5}";
         }
 
         if (! empty($post['whereIns'])) {
             $whereInMD5 = md5($post['whereIns']);
-            $redisKey .= "/whereIn{$whereInMD5}";
+            $redisKey .= "/whereIn:{$whereInMD5}";
         }
 
         if (! empty($post['orderBy'])) {
             $orderMD5 = md5($post['orderBy']);
-            $redisKey .= "/order{$orderMD5}";
+            $redisKey .= "/order:{$orderMD5}";
         }
+
         if (! empty($post['limit'])) {
             // Enforce a max limit
             if ($post['limit'] > 50) {
