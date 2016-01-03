@@ -5,7 +5,7 @@ namespace Ps2alerts\Api\Loader\Statistics;
 use Ps2alerts\Api\Loader\Statistics\AbstractStatisticsLoader;
 use Ps2alerts\Api\QueryObjects\QueryObject;
 use Ps2alerts\Api\Repository\AlertRepository;
-use Ps2alerts\Api\Repository\Metrics\MapRepository;
+use Ps2alerts\Api\Loader\Metrics\MapMetricsLoader;
 use Ps2alerts\Api\Validator\AlertInputValidator;
 use Ps2alerts\Api\Helper\DataFormatterHelper;
 
@@ -17,9 +17,9 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
     protected $repository;
 
     /**
-     * @var \Ps2alerts\Api\Repository\Metrics\MapRepository
+     * @var \Ps2alerts\Api\Loader\Metrics\MapMetricsLoader
      */
-    protected $mapRepository;
+    protected $mapLoader;
 
     /**
      * @var \Ps2alerts\Api\Helper\DataFormatterHelper
@@ -30,17 +30,17 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
      * Construct
      *
      * @param \Ps2alerts\Api\Repository\AlertRepository       $repository
-     * @param \Ps2alerts\Api\Repository\Metrics\MapRepository $mapRepository
+     * @param \Ps2alerts\Api\Loader\Metrics\MapMetricsLoader  $mapLoader
      * @param \Ps2alerts\Api\Helper\DataFormatter             $dataFormatter
      */
     public function __construct(
         AlertRepository     $repository,
-        MapRepository       $mapRepository,
+        MapMetricsLoader    $mapLoader,
         DataFormatterHelper $dataFormatter
     ) {
-        $this->repository     = $repository;
-        $this->mapRepository  = $mapRepository;
-        $this->dataFormatter  = $dataFormatter;
+        $this->repository    = $repository;
+        $this->mapLoader     = $mapLoader;
+        $this->dataFormatter = $dataFormatter;
 
         $this->setCacheNamespace('Statistics');
         $this->setType('Alerts');
@@ -288,33 +288,22 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
             ]);
         }
 
+        // Enforce a limit of 50 returns to prevent overload
+        $queryObject->setLimit(50);
+
         $alerts = $this->repository->read($queryObject);
 
         // Grab the map information for each alert returned
         foreach ($alerts as $key => $alert) {
-            $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:History";
-            $redisKey .= ":LastMap:{$alert['ResultID']}";
+            $alertKey = "Alert:{$alert['ResultID']}";
 
-            if ($this->checkRedis($redisKey)) {
-                $alerts[$key]['map'] = $this->getFromRedis($redisKey);
-                continue;
+            // Cache the alert if it's not been seen before
+            if ($this->checkRedis($alertKey) === false) {
+                $this->cacheAndReturn($alert, $alertKey);
             }
 
-            $queryObject = new QueryObject;
-            $queryObject->addWhere([
-                'col' => 'result',
-                'value' => $alert['ResultID']
-            ]);
-            $queryObject->setOrderBy('timestamp');
-            $queryObject->setOrderByDirection('desc');
-            $queryObject->setLimit(1);
-            $queryObject->setDimension('single');
-
             // Cache the map result so we don't have to get it every time and set
-            $alerts[$key]['map'] = $this->cacheAndReturn(
-                $this->mapRepository->read($queryObject),
-                $redisKey
-            );
+            $alerts[$key]['map'] = $this->mapLoader->readLatest($alert['ResultID']);
         }
 
         return $alerts;
