@@ -50,8 +50,6 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         $redisKey = $this->appendRedisKey($post, $redisKey);
         $post = $this->processPostVars($post);
 
-        $this->getLogDriver()->addDebug($redisKey);
-
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
         }
@@ -82,10 +80,7 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
     {
         $masterRedisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals:Zones";
 
-        $this->getLogDriver()->addDebug($masterRedisKey);
-
         if ($this->checkRedis($masterRedisKey)) {
-            $this->getLogDriver()->addDebug("Pulled the lot from Redis");
             return $this->getFromRedis($masterRedisKey);
         }
 
@@ -129,10 +124,7 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals:Zones";
         $redisKey .= ":{$server}:{$zone}:{$faction}";
 
-        $this->getLogDriver()->addDebug($redisKey);
-
         if ($this->checkRedis($redisKey)) {
-            $this->getLogDriver()->addDebug("CACHE PULL");
             return $this->getFromRedis($redisKey);
         }
 
@@ -172,8 +164,6 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         $redisKey = $this->appendRedisKey($post, $redisKey);
         $post = $this->processPostVars($post);
 
-        $this->getLogDriver()->addDebug($redisKey);
-
         $queryObject = new QueryObject;
         $queryObject = $this->setupQueryObject($queryObject, $post);
         $queryObject->addSelect('FROM_UNIXTIME(ResultEndTime) AS ResultEndTime');
@@ -208,7 +198,6 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         $redisKey .= "/min-{$minDate}/max-{$maxDate}";
 
         if ($this->checkRedis($redisKey)) {
-            $this->getLogDriver()->addDebug("CACHE PULL");
             return $this->getFromRedis($redisKey);
         }
 

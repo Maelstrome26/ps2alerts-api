@@ -122,7 +122,6 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
     {
         if (! empty($post['wheres'])) {
             $return['wheres'] = json_decode($post['wheres'], true);
-            $this->getLogDriver()->addDebug(json_encode($return['wheres']));
         }
 
         if (! empty($post['whereIns'])) {

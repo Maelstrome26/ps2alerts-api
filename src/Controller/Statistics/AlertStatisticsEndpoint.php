@@ -30,8 +30,6 @@ class AlertStatisticsEndpoint extends EndpointBaseController
     {
         $post = $request->request->all();
 
-        $this->getLogDriver()->addDebug(json_encode($post));
-
         $return = $this->loader->readTotals($post);
 
         if (empty($return)) {

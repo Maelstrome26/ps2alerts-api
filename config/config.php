@@ -1,8 +1,12 @@
 <?php
 
 return [
-    'environment'  => $_ENV['ENV'],
-    'base_url'     => $_ENV['BASE_URL'],
+    'environment'    => $_ENV['ENV'],
+    'base_url'       => $_ENV['BASE_URL'],
+    'logger'         => $_ENV['LOGGER'],
+    'slack_api'      => $_ENV['SLACK_API'],
+    'slack_channel'  => $_ENV['SLACK_CHANNEL'],
+    'slack_bot_name' => $_ENV['SLACK_BOT_NAME'],
     'database'     => [
         'host'     => $_ENV['DB_HOST'],
         'user'     => $_ENV['DB_USER'],
@@ -10,8 +14,8 @@ return [
         'schema'   => $_ENV['DB_NAME']
     ],
     'redis'        => [
-        'enabled'  => $_ENV['REDIS_ENABLED'],
-        'host'     => $_ENV['REDIS_HOST'],
-        'db'       => $_ENV['REDIS_DB']
+        'enabled' => $_ENV['REDIS_ENABLED'],
+        'host'    => $_ENV['REDIS_HOST'],
+        'db'      => $_ENV['REDIS_DB']
     ]
 ];
