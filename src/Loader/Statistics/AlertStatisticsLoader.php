@@ -290,6 +290,14 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
 
         // Enforce a limit of 50 returns to prevent overload
         $queryObject->setLimit(50);
+        $queryObject->setOrderBy('result');
+        $queryObject->setOrderByDirection('desc');
+
+        if (! empty($post['orderBy'])) {
+            if ($post['orderBy'] === 'asc' || $post['orderBy'] === 'desc') {
+                $queryObject->setOrderByDirection($post['orderBy']);
+            }
+        }
 
         $alerts = $this->repository->read($queryObject);
 
