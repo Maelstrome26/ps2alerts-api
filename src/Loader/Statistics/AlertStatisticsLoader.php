@@ -5,6 +5,7 @@ namespace Ps2alerts\Api\Loader\Statistics;
 use Ps2alerts\Api\Loader\Statistics\AbstractStatisticsLoader;
 use Ps2alerts\Api\QueryObjects\QueryObject;
 use Ps2alerts\Api\Repository\AlertRepository;
+use Ps2alerts\Api\Repository\Metrics\MapRepository;
 use Ps2alerts\Api\Validator\AlertInputValidator;
 use Ps2alerts\Api\Helper\DataFormatterHelper;
 
@@ -16,6 +17,11 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
     protected $repository;
 
     /**
+     * @var \Ps2alerts\Api\Repository\Metrics\MapRepository
+     */
+    protected $mapRepository;
+
+    /**
      * @var \Ps2alerts\Api\Helper\DataFormatterHelper
      */
     protected $dataFormatter;
@@ -23,14 +29,17 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
     /**
      * Construct
      *
-     * @param \Ps2alerts\Api\Repository\AlertRepository    $repository
-     * @param \Ps2alerts\Api\Helper\DataFormatter          $dataFormatter
+     * @param \Ps2alerts\Api\Repository\AlertRepository       $repository
+     * @param \Ps2alerts\Api\Repository\Metrics\MapRepository $mapRepository
+     * @param \Ps2alerts\Api\Helper\DataFormatter             $dataFormatter
      */
     public function __construct(
         AlertRepository     $repository,
+        MapRepository       $mapRepository,
         DataFormatterHelper $dataFormatter
     ) {
         $this->repository     = $repository;
+        $this->mapRepository  = $mapRepository;
         $this->dataFormatter  = $dataFormatter;
 
         $this->setCacheNamespace('Statistics');
@@ -48,7 +57,7 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
     {
         $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals";
         $redisKey = $this->appendRedisKey($post, $redisKey);
-        $post = $this->processPostVars($post);
+        $post     = $this->processPostVars($post);
 
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
@@ -160,9 +169,9 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
      */
     public function readHistorySummary(array $post)
     {
-        $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:History";
+        $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:HistorySummary";
         $redisKey = $this->appendRedisKey($post, $redisKey);
-        $post = $this->processPostVars($post);
+        $post     = $this->processPostVars($post);
 
         $queryObject = new QueryObject;
         $queryObject = $this->setupQueryObject($queryObject, $post);
@@ -231,5 +240,83 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
             $dateRange,
             $redisKey
         );
+    }
+
+    /**
+     * Reds the alert history based off two dates and other filters
+     *
+     * @param  array  $post [description]
+     *
+     * @return [type]       [description]
+     */
+    public function readAlertHistory(array $post)
+    {
+        $minDate = date('U', strtotime("-24 hours"));
+        $maxDate = date('U');
+
+        if (! empty($post['minDate'])) {
+            $minDate = date('U', $post['minDate']);
+        }
+
+        if (! empty($post['maxDate'])) {
+            $maxDate = date('U', $post['maxDate']);
+        }
+
+        $queryObject = new QueryObject;
+        $queryObject->addWhere([
+            'col'   => 'ResultEndTime',
+            'op'    => '>',
+            'value' => $minDate
+        ]);
+        $queryObject->addWhere([
+            'col'   => 'ResultEndTime',
+            'op'    => '<',
+            'value' => $maxDate
+        ]);
+
+        if (! empty($post['server'])) {
+            $queryObject->addWhere([
+                'col'   => 'ResultServer',
+                'value' => $post['server']
+            ]);
+        }
+
+        if (! empty($post['faction'])) {
+            $queryObject->addWhere([
+                'col'   => 'ResultWinner',
+                'value' => $post['faction']
+            ]);
+        }
+
+        $alerts = $this->repository->read($queryObject);
+
+        // Grab the map information for each alert returned
+        foreach ($alerts as $key => $alert) {
+            $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:History";
+            $redisKey .= ":LastMap:{$alert['ResultID']}";
+
+            if ($this->checkRedis($redisKey)) {
+                $alerts[$key]['map'] = $this->getFromRedis($redisKey);
+                continue;
+            }
+
+            $queryObject = new QueryObject;
+            $queryObject->addWhere([
+                'col' => 'result',
+                'value' => $alert['ResultID']
+            ]);
+            $queryObject->setOrderBy('timestamp');
+            $queryObject->setOrderByDirection('desc');
+            $queryObject->setLimit(1);
+            $queryObject->setDimension('single');
+
+            // Cache the map result so we don't have to get it every time and set
+            $alerts[$key]['map'] = $this->cacheAndReturn(
+                $this->mapRepository->read($queryObject),
+                $redisKey
+            );
+        }
+
+        return $alerts;
     }
 }

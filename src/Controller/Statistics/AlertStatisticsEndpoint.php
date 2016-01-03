@@ -76,4 +76,24 @@ class AlertStatisticsEndpoint extends EndpointBaseController
 
         return new Response\Ok($return);
     }
+
+    /**
+     * Retrives a list of alerts based off filters
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request $request
+     *
+     * @return \League\Route\Http\JsonResponse
+     */
+    public function readAlertHistory(Request $request)
+    {
+        $post = $request->request->all();
+
+        $return = $this->loader->readAlertHistory($post);
+
+        if (empty($return)) {
+            return new Response\NoContent();
+        }
+
+        return new Response\Ok($return);
+    }
 }

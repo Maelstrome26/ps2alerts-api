@@ -81,8 +81,8 @@ abstract class AbstractEndpointRepository implements
             if ($queryObject->getFlags() === 'outfitIDs') {
                 // Prevent the VS, NC and TR "no outfit" workaround
                 $queryObject->addWhere([
-                    'col' => 'outfitID',
-                    'op' => '>',
+                    'col'   => 'outfitID',
+                    'op'    => '>',
                     'value' => 0
                 ]);
             }
@@ -169,7 +169,6 @@ abstract class AbstractEndpointRepository implements
         if ($queryObject->getDimension() === 'multi') {
             return $pdo->fetchAll($query->getStatement(), $query->getBindValues());
         }
-
 
         return $pdo->fetchOne($query->getStatement(), $query->getBindValues());
     }
