@@ -314,6 +314,6 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
             $alerts[$key]['map'] = $this->mapLoader->readLatest($alert['ResultID']);
         }
 
-        return $alerts;
+        return $this->cacheAndReturn($alerts);
     }
 }
