@@ -178,7 +178,7 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         $queryObject->addSelect('FROM_UNIXTIME(ResultEndTime) AS ResultEndTime');
         $queryObject->addSelect('ResultWinner');
         $queryObject->addWhere([
-            'col' => 'InProgress',
+            'col'   => 'InProgress',
             'value' => 0
         ]);
         $queryObject->setLimit('unlimited');
@@ -247,7 +247,7 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
      *
      * @param  array  $post [description]
      *
-     * @return [type]       [description]
+     * @return array
      */
     public function readAlertHistory(array $post)
     {
