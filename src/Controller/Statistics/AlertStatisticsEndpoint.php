@@ -28,9 +28,7 @@ class AlertStatisticsEndpoint extends EndpointBaseController
      */
     public function readTotals(Request $request)
     {
-        $post = $request->request->all();
-
-        $return = $this->loader->readTotals($post);
+        $return = $this->loader->readTotals();
 
         if (empty($return)) {
             return new Response\NoContent();

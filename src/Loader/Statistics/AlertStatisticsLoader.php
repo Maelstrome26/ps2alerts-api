@@ -53,11 +53,12 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
      *
      * @return array
      */
-    public function readTotals(array $post)
+    public function readTotals()
     {
         $redisKey = "{$this->getCacheNamespace()}:{$this->getType()}:Totals";
+        $post     = $this->processPost();
+
         $redisKey = $this->appendRedisKey($post, $redisKey);
-        $post     = $this->processPostVars($post);
 
         if ($this->checkRedis($redisKey)) {
             return $this->getFromRedis($redisKey);
@@ -67,10 +68,6 @@ class AlertStatisticsLoader extends AbstractStatisticsLoader
         $queryObject = $this->setupQueryObject($queryObject, $post);
 
         $queryObject->addSelect('COUNT(ResultID) AS COUNT');
-
-        if ($this->checkRedis($redisKey)) {
-            return $this->getFromRedis($redisKey);
-        }
 
         $this->setCacheExpireTime(900); // 15 mins
 
