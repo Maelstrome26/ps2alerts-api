@@ -76,61 +76,46 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
     public function appendRedisKey($post, $redisKey)
     {
         if (! empty($post['selects'])) {
-            $whereMD5 = md5($post['selects']);
+            $whereMD5 = md5(json_encode($post['selects']));
             $redisKey .= "/select:{$whereMD5}";
         }
 
         if (! empty($post['wheres'])) {
-            $whereMD5 = md5($post['wheres']);
+            $whereMD5 = md5(json_encode($post['wheres']));
             $redisKey .= "/where:{$whereMD5}";
         }
 
         if (! empty($post['whereIns'])) {
-            $whereInMD5 = md5($post['whereIns']);
+            $whereInMD5 = md5(json_encode($post['whereIns']));
             $redisKey .= "/whereIn:{$whereInMD5}";
         }
 
         if (! empty($post['orderBy'])) {
-            $orderMD5 = md5($post['orderBy']);
+            $orderMD5 = md5(json_encode($post['orderBy']));
             $redisKey .= "/order:{$orderMD5}";
         }
 
-        if (! empty($post['limit'])) {
-            // Enforce a max limit
-            if ($post['limit'] > 50) {
-                $post['limit'] = 50;
-            }
-        }
-
         if (empty($post['limit']) || ! isset($post['limit'])) {
-            $post['limit'] = 50;
+            $redisKey .= "/limit:{$post['limit']}";
         }
-
-        $redisKey .= "/limit:{$post['limit']}";
 
         return $redisKey;
     }
 
     /**
-     * De-encode the POST vars for use
+     * De-encode the POST from application/json vars for use
      *
      * @param  array $post
      *
      * @return array
      */
-    public function processPostVars($post)
+    public function processPost()
     {
-        if (! empty($post['wheres'])) {
-            $return['wheres'] = json_decode($post['wheres'], true);
-        }
+        $json = file_get_contents('php://input');
+        $post = json_decode($json);
 
-        if (! empty($post['whereIns'])) {
-            $return['whereIns'] = json_decode($post['whereIns'], true);
-        }
-
-        if (! empty($post['orderBy'])) {
-            $return['orderBy'] = json_decode($post['orderBy'], true);
-        }
+        // Cheat, dirty hack to get everything out as an array
+        $post = json_decode(json_encode($post), true);
 
         if (empty($post['limit']) || ! isset($post['limit'])) {
             $post['limit'] = 10;
@@ -140,9 +125,7 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
             $post['limit'] = 50;
         }
 
-        $return['limit'] = $post['limit'];
-
-        return $return;
+        return $post;
     }
 
     /**
