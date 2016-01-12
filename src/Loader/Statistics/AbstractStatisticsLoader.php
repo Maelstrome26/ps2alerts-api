@@ -112,7 +112,7 @@ abstract class AbstractStatisticsLoader extends AbstractLoader
     public function processPost()
     {
         $json = file_get_contents('php://input');
-        $this->getLogDriver()->addError($json);
+        $this->getLogDriver()->addDebug($json);
         $post = json_decode($json);
 
         // Cheat, dirty hack to get everything out as an array
