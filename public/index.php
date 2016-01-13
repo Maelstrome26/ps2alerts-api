@@ -29,7 +29,7 @@ try {
         $container->get('Twig_Environment')->render('404.html')
     );
 } catch(\Exception $e) {
-    $response->setStatusCode(500)->setContent(
+    $response->setContent(
         'An error occured! ' . $e->getMessage()
     );
 
