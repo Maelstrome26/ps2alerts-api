@@ -34,7 +34,8 @@ try {
     );
 
     $logger = $container->get('Monolog\Logger');
-    $logger->addError($e->getMessage());
+    $logger->addDebug('Exception: ');
+    $logger->addDebug($e->getMessage());
 
     $response->headers->set('Access-Control-Allow-Origin', '*');
     $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
