@@ -33,6 +33,9 @@ try {
         'An error occured! ' . $e->getMessage()
     );
 
+    $logger = $container->get('Monolog\Logger');
+    $logger->addError($e->getMessage());
+
     $response->headers->set('Access-Control-Allow-Origin', '*');
     $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
     $response->headers->set('Access-Control-Max-Age', '1000');
