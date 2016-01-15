@@ -28,6 +28,21 @@ try {
     $response->setStatusCode(404)->setContent(
         $container->get('Twig_Environment')->render('404.html')
     );
+} catch(\Exception $e) {
+    $response->setContent(
+        'An error occured! ' . $e->getMessage()
+    );
+
+    $logger = $container->get('Monolog\Logger');
+    $logger->addDebug('Exception: ');
+    $logger->addDebug($e->getMessage());
+
+    $response->headers->set('Access-Control-Allow-Origin', '*');
+    $response->headers->set('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
+    $response->headers->set('Access-Control-Max-Age', '1000');
+    $response->headers->set('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With');
+
+    $response->send();
 }
 
 // Add headers to the response object so CORS is allowed
