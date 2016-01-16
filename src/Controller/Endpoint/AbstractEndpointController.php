@@ -20,10 +20,25 @@ abstract class AbstractEndpointController implements
      */
     protected $repository;
 
+    /**
+     * Stores the status code
+     *
+     * @var integer
+     */
     protected $statusCode = 200;
 
+    /**
+     * Holds Fractal
+     *
+     * @var \League\Fractal
+     */
     protected $fractal;
 
+    /**
+     * Holds the transformer we're going to use
+     *
+     * @var mixed|\Leage\Fractal\TransformerAbstract
+     */
     protected $transformer;
 
     const CODE_WRONG_ARGS     = 'API-MALFORMED-REQUEST';
@@ -143,7 +158,7 @@ abstract class AbstractEndpointController implements
      * @param  Response $response
      * @param  string   $message
      *
-     * @return Void
+     * @return void
      */
     public function errorEmpty(Response $response, $message = 'No data / Empty')
     {
@@ -157,7 +172,7 @@ abstract class AbstractEndpointController implements
      * @param  Response $response
      * @param  string   $message
      *
-     * @return Void
+     * @return void
      */
     public function errorForbidden(Response $response, $message = 'Forbidden')
     {
@@ -171,7 +186,7 @@ abstract class AbstractEndpointController implements
      * @param  Response $response
      * @param  string   $message
      *
-     * @return Void
+     * @return void
      */
     public function errorInternalError(Response $response, $message = 'Internal Error')
     {
@@ -185,7 +200,7 @@ abstract class AbstractEndpointController implements
      * @param  Response $response
      * @param  string   $message
      *
-     * @return Void
+     * @return void
      */
     public function errorNotFound(Response $response, $message = 'Resource Not Found')
     {
@@ -199,7 +214,7 @@ abstract class AbstractEndpointController implements
      * @param  Response $response
      * @param  string   $message
      *
-     * @return Void
+     * @return void
      */
     public function errorUnauthorized(Response $response, $message = 'Unauthorized')
     {
