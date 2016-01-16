@@ -7,7 +7,7 @@ use League\Fractal\TransformerAbstract;
 class MapInitialTransformer extends TransformerAbstract
 {
     /**
-     * The tranform method required by Fractal to parse the data and return proper typing and fields.
+     * The transform method required by Fractal to parse the data and return proper typing and fields.
      *
      * @param  array $data Data to transform
      *
