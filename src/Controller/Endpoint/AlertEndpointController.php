@@ -40,6 +40,6 @@ class AlertEndpointController extends AbstractEndpointController
             return $this->errorEmpty($response);
         }
 
-        return $this->respondWithItem($alert, $this->transformer, $response);
+        return $this->respond('item', $alert, $this->transformer, $request, $response);
     }
 }

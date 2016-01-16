@@ -27,7 +27,7 @@ class DatabaseServiceProvider extends ServiceProvider
                 $config['user'],
                 $config['password']
             );
-
+            
             return $pdo;
         });
     }

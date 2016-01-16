@@ -6,6 +6,7 @@ use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use Ps2alerts\Api\Contract\DatabaseAwareInterface;
 use Ps2alerts\Api\Contract\DatabaseAwareTrait;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractEndpointController implements
@@ -72,18 +73,45 @@ abstract class AbstractEndpointController implements
     }
 
     /**
+     * Master function to split out appropiate calls
+     *
+     * @param  string                                     $kind     The kind of data we wish to return
+     * @param  array                                      $data     The data itself
+     * @param  \League\Fractal\TransformerAbstract        $callback The transformer class to call
+     * @param  \Symfony\Component\HttpFoundation\Request  $request  The request itself
+     * @param  \Symfony\Component\HttpFoundation\Response $response The response object to eventually call
+     *
+     * @return \Symfony\Component\HttpFoundation\Response           Eventually
+     */
+    protected function respond($kind, $data, $callback, Request $request, Response $response)
+    {
+        // Detect what embeds we need
+        $this->getIncludesFromRequest($request);
+        switch ($kind) {
+            case 'item':
+                return $this->respondWithItem($data, $callback, $response);
+                break;
+            case 'collection':
+                return $this->respondWithCollection($data, $callback, $response);
+                break;
+            default:
+                return $this->errorInternalError('No Response was defined. Please report this.');
+                break;
+        }
+    }
+
+    /**
      * Builds an item response in Fractal then hands off to the responder
      *
-     * @param  array $item                               The item to transform
-     * @param  mixed $callback                           The Transformer to pass through to Fractal
-     * @param  Symfony\Component\HttpFoundation\Response The client's response
+     * @param  array $item                                The item to transform
+     * @param  mixed $callback                            The Transformer to pass through to Fractal
+     * @param  \Symfony\Component\HttpFoundation\Response The client's response
      *
      * @return array                                     The formatted array
      */
     protected function respondWithItem($item, $callback, Response $response)
     {
         $resource = new Item($item, $callback);
-
         $rootScope = $this->fractal->createData($resource);
 
         return $this->respondWithArray($response, $rootScope->toArray());
@@ -94,7 +122,7 @@ abstract class AbstractEndpointController implements
      *
      * @param  array $collection                         The collection to transform
      * @param  mixed $callback                           The Transformer to pass through to Fractal
-     * @param  Symfony\Component\HttpFoundation\Response The client's response
+     * @param  \Symfony\Component\HttpFoundation\Response The client's response
      *
      * @return array                                     The formatted array
      */
@@ -109,10 +137,10 @@ abstract class AbstractEndpointController implements
     /**
      * The final step where the formatted array is now sent back as a response in JSON form
      *
-     * @param  Symfony\Component\HttpFoundation\Response $response
-     * @param  array                                     $array    The formatted array
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  array                                     $array     The formatted array
      *
-     * @return Symfony\Component\HttpFoundation\Response           The final response
+     * @return \Symfony\Component\HttpFoundation\Response           The final response
      */
     protected function respondWithArray(Response $response, array $array)
     {
@@ -127,9 +155,9 @@ abstract class AbstractEndpointController implements
     /**
      * Responds gracefully with an error.
      *
-     * @param  Response $response
-     * @param  string   $message   Response message to put in the error
-     * @param  int      $errorCode Error code to set
+     * @param  \Symfony\Component\HttpFoundation\Response  $response
+     * @param  string                                      $message   Response message to put in the error
+     * @param  int                                         $errorCode Error code to set
      *
      * @return array
      */
@@ -155,8 +183,8 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a response with a 404 HTTP error and a given message.
      *
-     * @param  Response $response
-     * @param  string   $message
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  string                                     $message
      *
      * @return void
      */
@@ -169,8 +197,8 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 403 HTTP header and a given message.
      *
-     * @param  Response $response
-     * @param  string   $message
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  string                                     $message
      *
      * @return void
      */
@@ -183,8 +211,8 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 500 HTTP header and a given message.
      *
-     * @param  Response $response
-     * @param  string   $message
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  string                                     $message
      *
      * @return void
      */
@@ -197,8 +225,8 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 404 HTTP header and a given message.
      *
-     * @param  Response $response
-     * @param  string   $message
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  string                                     $message
      *
      * @return void
      */
@@ -211,8 +239,8 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 401 HTTP header and a given message.
      *
-     * @param  Response $response
-     * @param  string   $message
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  string                                     $message
      *
      * @return void
      */
@@ -225,11 +253,27 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 400 HTTP header and a given message.
      *
-     * @return Response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     public function errorWrongArgs(Response $response, $message = 'Wrong Arguments')
     {
         return $this->setStatusCode(400)
                     ->respondWithError($response, $message, self::CODE_WRONG_ARGS);
+    }
+
+    /**
+     * Reads any requested includes and adds them to the item / collection
+     *
+     * @param  Symfony\Component\HttpFoundation\Request
+     *
+     * @return void
+     */
+    public function getIncludesFromRequest(Request $request)
+    {
+        $queryString = $request->query->get('embed');
+
+        if (! empty($queryString)) {
+            $this->fractal->parseIncludes($request->query->get('embed'));
+        }
     }
 }

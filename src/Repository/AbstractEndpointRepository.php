@@ -75,13 +75,45 @@ abstract class AbstractEndpointRepository implements
      *
      * @return array
      */
-    public function readSingle($id)
+    public function readSingle($id, $keyType = 'primary')
     {
         $query = $this->newQuery();
+        $key = $this->returnKeyType($keyType);
 
         $query->cols(['*'])
-              ->where("{$this->getPrimaryKey()} = {$id}");
+              ->where("{$key} = {$id}");
 
         return $this->fireStatementAndReturn($query, true);
+    }
+
+    /**
+     * Reads all related records from the database
+     *
+     * @param  string $id
+     *
+     * @return array
+     */
+    public function readAll($id, $keyType = 'primary')
+    {
+        $query = $this->newQuery();
+        $key = $this->returnKeyType($keyType);
+
+        $query->cols(['*'])
+              ->where("{$key} = {$id}");
+
+        return $this->fireStatementAndReturn($query);
+    }
+
+    public function returnKeyType($key)
+    {
+        switch ($key) {
+            case 'primary':
+            default:
+                return $this->getPrimaryKey();
+                break;
+            case 'result':
+                return $this->getResultKey();
+                break;
+        }
     }
 }
