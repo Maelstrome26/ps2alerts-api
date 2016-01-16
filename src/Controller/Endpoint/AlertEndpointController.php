@@ -34,7 +34,11 @@ class AlertEndpointController extends AbstractEndpointController
      */
     public function getSingle(Request $request, Response $response, array $args)
     {
-        $alert = $this->getSingleFromDb($args['id']);
+        $alert = $this->repository->readSingle($args['id']);
+
+        if (empty($alert)) {
+            return $this->errorEmpty($response);
+        }
 
         return $this->respondWithItem($alert, $this->transformer, $response);
     }

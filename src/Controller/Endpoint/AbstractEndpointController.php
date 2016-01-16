@@ -2,7 +2,6 @@
 
 namespace Ps2alerts\Api\Controller\Endpoint;
 
-
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
 use Ps2alerts\Api\Contract\DatabaseAwareInterface;
@@ -68,10 +67,6 @@ abstract class AbstractEndpointController implements
      */
     protected function respondWithItem($item, $callback, Response $response)
     {
-        if (empty($item)) {
-            return $this->errorEmpty($response);
-        }
-
         $resource = new Item($item, $callback);
 
         $rootScope = $this->fractal->createData($resource);
@@ -143,7 +138,7 @@ abstract class AbstractEndpointController implements
     }
 
     /**
-     * Generates a response with a 203 HTTP error and a given message.
+     * Generates a response with a 404 HTTP error and a given message.
      *
      * @param  Response $response
      * @param  string   $message
@@ -152,7 +147,7 @@ abstract class AbstractEndpointController implements
      */
     public function errorEmpty(Response $response, $message = 'No data / Empty')
     {
-        return $this->setStatusCode(203)
+        return $this->setStatusCode(404)
                     ->respondWithError($response, $message, self::CODE_EMPTY);
     }
 
@@ -221,17 +216,5 @@ abstract class AbstractEndpointController implements
     {
         return $this->setStatusCode(400)
                     ->respondWithError($response, $message, self::CODE_WRONG_ARGS);
-    }
-
-    /**
-     * Reads a single record from the database then returns
-     *
-     * @param  string $id Primary key ID of record to return
-     *
-     * @return array
-     */
-    public function getSingleFromDb($id)
-    {
-        return $this->repository->readSingle($id);
     }
 }
