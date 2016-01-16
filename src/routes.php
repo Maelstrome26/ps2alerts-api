@@ -18,79 +18,13 @@ $route->get('/', 'Ps2alerts\Api\Controller\MainController::index');
 
 // Alert Endpoint
 $route->get(
-    '/v2/alert/latest',
-    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listLatest',
-    new RestfulStrategy
-);
-$route->get(
-    '/v2/alert/latest/{serverID}',
-    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listLatest',
-    new RestfulStrategy
-);
-$route->get(
-    '/v2/alert/latest/{serverID}/{limit}',
-    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listLatest',
-    new RestfulStrategy
-);
-$route->get(
-    '/v2/alert/active',
-    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listActive',
-    new RestfulStrategy
-);
-$route->get(
-    '/v2/alert/active/{serverID}',
-    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::listActive',
-    new RestfulStrategy
-);
-
-$route->get(
-    '/v2/alert/{resultID}',
-    'Ps2alerts\Api\Controller\Alerts\AlertEndpointController::readSingle',
-    new RestfulStrategy
-);
-
-// Metrics Routes
-include(__DIR__ . '/routes-metrics.php');
-
-// Statistics routes
-// - Alert Statistics
-$route->post(
-    '/v2/statistics/alert/total',
-    'Ps2alerts\Api\Controller\Statistics\AlertStatisticsEndpoint::readTotals',
-    new RestfulStrategy
-);
-
-$route->get(
-    '/v2/statistics/alert/zone',
-    'Ps2alerts\Api\Controller\Statistics\AlertStatisticsEndpoint::readZoneTotals',
-    new RestfulStrategy
+    '/v2/alerts/{id}',
+    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getSingle'
 );
 
 $route->post(
-    '/v2/statistics/alert/history',
-    'Ps2alerts\Api\Controller\Statistics\AlertStatisticsEndpoint::readAlertHistory',
-    new RestfulStrategy
-);
-
-$route->post(
-    '/v2/statistics/alert/history/summary',
-    'Ps2alerts\Api\Controller\Statistics\AlertStatisticsEndpoint::readHistorySummary',
-    new RestfulStrategy
-);
-
-$route->post(
-    '/v2/statistics/player/leaderboard',
-    'Ps2alerts\Api\Controller\Statistics\PlayerStatisticsEndpoint::readLeaderboard',
-    new RestfulStrategy
-);
-
-
-
-// - Outfit Totals
-$route->post(
-    '/v2/statistics/outfitTotals',
-    'Ps2alerts\Api\Controller\Statistics\OutfitTotalsStatisticsEndpoint::readStatistics',
-    new RestfulStrategy
+    '/v2/alerts/{id}/metric',
+    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getSingleWithMetrics'
 );
 
 /**
