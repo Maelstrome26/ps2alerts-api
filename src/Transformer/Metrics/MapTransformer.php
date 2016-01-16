@@ -16,7 +16,6 @@ class MapTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'id'                 => (int) $data['dataID'],
             'alertID'            => (int) $data['resultID'],
             'timestamp'          => (int) $data['timestamp'],
             'facilityID'         => (int) $data['facilityID'],
