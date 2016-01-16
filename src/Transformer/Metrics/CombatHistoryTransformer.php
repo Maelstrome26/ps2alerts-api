@@ -16,12 +16,11 @@ class CombatHistoryTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'id'        => (int) $data['dataID'],
             'alertID'   => (int) $data['resultID'],
             'timestamp' => (int) $data['timestamp'],
-            'killsVS'   => (int) $data['killsVS'],
-            'killsNC'   => (int) $data['killsVS'],
-            'killsTR'   => (int) $data['killsTR']
+            'vs'   => (int) $data['killsVS'],
+            'nc'   => (int) $data['killsVS'],
+            'tr'   => (int) $data['killsTR']
         ];
     }
 }
