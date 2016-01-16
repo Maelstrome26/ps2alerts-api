@@ -16,7 +16,6 @@ class FactionTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'alertID'   => (int) $data['resultID'],
             'kills' => [
                 'vs' => (int) $data['killsVS'],
                 'nc' => (int) $data['killsNC'],

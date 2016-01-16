@@ -17,7 +17,6 @@ class ClassTransformer extends TransformerAbstract
     {
         return [
             'id'        => (int) $data['classID'],
-            'alertID'   => (int) $data['resultID'],
             'kills'     => (int) $data['kills'],
             'deaths'    => (int) $data['deaths'],
             'teamkills' => (int) $data['teamkills'],

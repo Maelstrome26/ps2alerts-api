@@ -16,7 +16,6 @@ class CombatHistoryTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'alertID'   => (int) $data['resultID'],
             'timestamp' => (int) $data['timestamp'],
             'vs'   => (int) $data['killsVS'],
             'nc'   => (int) $data['killsVS'],
