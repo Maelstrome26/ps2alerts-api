@@ -1,6 +1,6 @@
 <?php
 
-namespace Ps2alerts\Api\Transformer\Metric;
+namespace Ps2alerts\Api\Transformer\Metrics;
 
 use League\Fractal\TransformerAbstract;
 
