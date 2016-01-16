@@ -16,12 +16,12 @@ class ClassTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'id'        => (int) $data['dataID'],
+            'id'        => (int) $data['classID'],
             'alertID'   => (int) $data['resultID'],
-            'timestamp' => (int) $data['timestamp'],
-            'killsVS'   => (int) $data['killsVS'],
-            'killsNC'   => (int) $data['killsVS'],
-            'killsTR'   => (int) $data['killsTR']
+            'kills'     => (int) $data['kills'],
+            'deaths'    => (int) $data['deaths'],
+            'teamkills' => (int) $data['teamkills'],
+            'suicides'  => (int) $data['suicides']
         ];
     }
 }
