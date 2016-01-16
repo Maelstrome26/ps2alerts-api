@@ -20,9 +20,16 @@
         "ramsey/uuid": "^3.1",
         "league/fractal": "^0.13.0"
     },
+    "require-dev": {
+        "guzzlehttp/guzzle": "^6.1",
+        "phpunit/phpunit": "^5.1"
+    },
     "autoload": {
         "psr-4": {
             "Ps2alerts\\Api\\": "src"
+        },
+        "psr-0": {
+            "": "tests/"
         }
     }
 }
