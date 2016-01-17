@@ -3,8 +3,6 @@
 use League\Container\Container;
 use League\Container\ContainerInterface;
 use League\Route\RouteCollection;
-use League\Route\Strategy\RequestResponseStrategy;
-use League\Route\Strategy\RestfulStrategy;
 
 // Load the route collection. If container is not ready, generate one here now.
 $route = new RouteCollection(
@@ -18,13 +16,13 @@ $route->get('/', 'Ps2alerts\Api\Controller\MainController::index');
 
 // Alert Endpoint
 $route->get(
-    '/v2/alerts/{id}',
-    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getSingle'
+    '/v2/alerts/active',
+    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getActives'
 );
 
-$route->post(
-    '/v2/alerts/{id}/metric',
-    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getSingleWithMetrics'
+$route->get(
+    '/v2/alerts/{id}',
+    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getSingle'
 );
 
 /**

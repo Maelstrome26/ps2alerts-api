@@ -41,12 +41,23 @@ class AlertEndpointController extends AbstractEndpointController
      */
     public function getSingle(Request $request, Response $response, array $args)
     {
-        $alert = $this->repository->readSingle($args['id']);
+        $alert = $this->repository->readSingleById($args['id']);
 
         if (empty($alert)) {
             return $this->errorEmpty($response);
         }
 
         return $this->respond('item', $alert, $this->transformer, $request, $response);
+    }
+
+    public function getActives(Request $request, Response $response)
+    {
+        $actives = $this->repository->readAllByField('InProgress', 1);
+
+        if (empty($actives)) {
+            return $this->errorEmpty($response);
+        }
+
+        return $this->respond('collection', $actives, $this->transformer, $request, $response);
     }
 }
