@@ -16,8 +16,7 @@ class MapInitialTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'server'          => (int) $data['worldID'],
-            'zone'            => (int) $data['zoneID'],
+            'facilityID'      => (int) $data['facilityID'],
             'facilityType'    => (int) $data['facilityTypeID'],
             'facilityFaction' => (int) $data['facilityOwner']
         ];
