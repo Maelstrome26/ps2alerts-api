@@ -4,7 +4,7 @@ namespace Ps2alerts\Api\Repository\Metrics;
 
 use Ps2alerts\Api\Repository\AbstractEndpointRepository;
 
-class FactionRepository extends AbstractEndpointRepository
+class CombatRepository extends AbstractEndpointRepository
 {
     /**
      * {@inheritdoc}

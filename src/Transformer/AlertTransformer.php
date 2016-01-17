@@ -5,7 +5,7 @@ namespace Ps2alerts\Api\Transformer;
 use League\Fractal\TransformerAbstract;
 use Ps2alerts\Api\Repository\Metrics\ClassRepository;
 use Ps2alerts\Api\Repository\Metrics\CombatHistoryRepository;
-use Ps2alerts\Api\Repository\Metrics\FactionRepository;
+use Ps2alerts\Api\Repository\Metrics\CombatRepository;
 use Ps2alerts\Api\Repository\Metrics\MapInitialRepository;
 use Ps2alerts\Api\Repository\Metrics\MapRepository;
 use Ps2alerts\Api\Repository\Metrics\OutfitRepository;
@@ -17,7 +17,7 @@ use Ps2alerts\Api\Repository\Metrics\XpRepository;
 use Ps2alerts\Api\Transformer\AlertTransformer;
 use Ps2alerts\Api\Transformer\Metrics\ClassTransformer;
 use Ps2alerts\Api\Transformer\Metrics\CombatHistoryTransformer;
-use Ps2alerts\Api\Transformer\Metrics\FactionTransformer;
+use Ps2alerts\Api\Transformer\Metrics\CombatTransformer;
 use Ps2alerts\Api\Transformer\Metrics\MapInitialTransformer;
 use Ps2alerts\Api\Transformer\Metrics\MapTransformer;
 use Ps2alerts\Api\Transformer\Metrics\OutfitTransformer;
@@ -37,7 +37,7 @@ class AlertTransformer extends TransformerAbstract
     protected $availableIncludes = [
         'classes',
         'combatHistorys',
-        'factions',
+        'combats',
         'mapInitials',
         'maps',
         'outfits',
@@ -53,7 +53,7 @@ class AlertTransformer extends TransformerAbstract
      */
     protected $classRepo;
     protected $combatHistoryRepo;
-    protected $factionRepo;
+    protected $combatRepo;
     protected $mapInitialRepo;
     protected $mapRepo;
     protected $outfitRepo;
@@ -68,7 +68,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param ClassRepository         $classRepo
      * @param CombatHistoryRepository $combatHistoryRepo
-     * @param FactionRepository       $factionRepo
+     * @param CombatRepository        $combatRepo
      * @param MapInitialRepository    $mapInitialRepo
      * @param MapRepository           $mapRepo
      * @param OutfitRepository        $outfitRepo
@@ -81,7 +81,7 @@ class AlertTransformer extends TransformerAbstract
     public function __construct(
         ClassRepository         $classRepo,
         CombatHistoryRepository $combatHistoryRepo,
-        FactionRepository       $factionRepo,
+        CombatRepository        $combatRepo,
         MapInitialRepository    $mapInitialRepo,
         MapRepository           $mapRepo,
         OutfitRepository        $outfitRepo,
@@ -93,7 +93,7 @@ class AlertTransformer extends TransformerAbstract
     ) {
         $this->classRepo         = $classRepo;
         $this->combatHistoryRepo = $combatHistoryRepo;
-        $this->factionRepo       = $factionRepo;
+        $this->combatRepo        = $combatRepo;
         $this->mapInitialRepo    = $mapInitialRepo;
         $this->mapRepo           = $mapRepo;
         $this->outfitRepo        = $outfitRepo;
@@ -154,16 +154,16 @@ class AlertTransformer extends TransformerAbstract
     }
 
     /**
-     * Gets the Faction data and then adds it to the result
+     * Gets the Combat data and then adds it to the result
      *
      * @param  array $data
      *
      * @return League\Fractal\Resource\Collection
      */
-    public function includeFactions($data)
+    public function includeCombats($data)
     {
-        $data = $this->factionRepo->readSingleById($data['ResultID'], 'result');
-        return $this->item($data, new FactionTransformer);
+        $data = $this->combatRepo->readSingleById($data['ResultID'], 'result');
+        return $this->item($data, new CombatTransformer);
     }
 
     /**

@@ -4,7 +4,7 @@ namespace Ps2alerts\Api\Transformer\Metrics;
 
 use League\Fractal\TransformerAbstract;
 
-class FactionTransformer extends TransformerAbstract
+class CombatTransformer extends TransformerAbstract
 {
     /**
      * The transform method required by Fractal to parse the data and return proper typing and fields.
