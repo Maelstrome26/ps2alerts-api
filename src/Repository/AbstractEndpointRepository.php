@@ -131,6 +131,27 @@ abstract class AbstractEndpointRepository implements
     }
 
     /**
+     * Reads the count of records based off a where statement
+     *
+     * @param  string $field
+     * @param  string $value
+     *
+     * @return array
+     */
+    public function readCountByField($field, $value)
+    {
+        $query = $this->newQuery();
+
+        $query->cols(["COUNT({$field}) as COUNT"])
+              ->where("`{$field}` = '{$value}'");
+
+        $result = $this->fireStatementAndReturn($query);
+
+        // Done this to prevent the need for clients to also do this. Returns a single number this way.
+        return $result[0]["COUNT"];
+    }
+
+    /**
      * Sets the proper key to search on based off a string
      *
      * @param  string $key
