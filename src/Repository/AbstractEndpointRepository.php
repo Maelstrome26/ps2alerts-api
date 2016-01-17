@@ -76,16 +76,22 @@ abstract class AbstractEndpointRepository implements
     }
 
     /**
-     * Allows for other controllers to build a query there and then request it here
+     * Allows for Raw SQL firing without the query builder
      *
      * @param  \Aura\SqlQuery\AbstractQuery $query
      * @param  boolean                      $single
      *
      * @return array
      */
-    public function readRaw($query, $single = false)
+    public function readRaw($sql, $single = false)
     {
-        return $this->fireStatementAndReturn($query, $single);
+        $pdo = $this->getDatabaseDriver();
+
+        if ($single === false) {
+            return $pdo->fetchAll($sql);
+        }
+
+        return $pdo->fetchOne($sql);
     }
 
     /**
