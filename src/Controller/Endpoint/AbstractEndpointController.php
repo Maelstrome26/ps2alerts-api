@@ -100,9 +100,9 @@ abstract class AbstractEndpointController implements
     /**
      * Builds an item response in Fractal then hands off to the responder
      *
-     * @param  array $item                                The item to transform
-     * @param  mixed $callback                            The Transformer to pass through to Fractal
-     * @param  \Symfony\Component\HttpFoundation\Response The client's response
+     * @param  array                                      $item     The item to transform
+     * @param  mixed                                      $callback The Transformer to pass through to Fractal
+     * @param  \Symfony\Component\HttpFoundation\Response $response The client's response
      *
      * @return array
      */
@@ -117,8 +117,8 @@ abstract class AbstractEndpointController implements
     /**
      * Builds a collection of items from Fractal then hands off to the responder
      *
-     * @param  array $collection                         The collection to transform
-     * @param  mixed $callback                           The Transformer to pass through to Fractal
+     * @param  array $collection                          The collection to transform
+     * @param  mixed $callback                            The Transformer to pass through to Fractal
      * @param  \Symfony\Component\HttpFoundation\Response The client's response
      *
      * @return array
@@ -152,9 +152,9 @@ abstract class AbstractEndpointController implements
     /**
      * Responds gracefully with an error.
      *
-     * @param  \Symfony\Component\HttpFoundation\Response  $response
-     * @param  string                                      $message   Response message to put in the error
-     * @param  int                                         $errorCode Error code to set
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  string                                     $message   Response message to put in the error
+     * @param  int                                        $errorCode Error code to set
      *
      * @return array
      */
@@ -250,7 +250,7 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 400 HTTP header and a given message.
      *
-     * @param \Symfony\Component\HttpFoundation\Response $Response
+     * @param \Symfony\Component\HttpFoundation\Response $response
      * @param string                                     $message
      *
      * @return \Symfony\Component\HttpFoundation\Response
@@ -264,7 +264,7 @@ abstract class AbstractEndpointController implements
     /**
      * Reads any requested includes and adds them to the item / collection
      *
-     * @param  Symfony\Component\HttpFoundation\Request
+     * @param  Symfony\Component\HttpFoundation\Request $request
      *
      * @return void
      */
