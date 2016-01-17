@@ -76,6 +76,19 @@ abstract class AbstractEndpointRepository implements
     }
 
     /**
+     * Allows for other controllers to build a query there and then request it here
+     *
+     * @param  \Aura\SqlQuery\AbstractQuery $query
+     * @param  boolean                      $single
+     *
+     * @return array
+     */
+    public function readRaw($query, $single = false)
+    {
+        return $this->fireStatementAndReturn($query, $single);
+    }
+
+    /**
      * Reads a single record from the database
      *
      * @param  string $id
