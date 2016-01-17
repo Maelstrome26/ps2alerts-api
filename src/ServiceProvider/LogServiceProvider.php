@@ -21,7 +21,7 @@ class LogServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->singleton('Monolog\Logger', function () {
+        $this->getContainer()->singleton('Monolog\Logger', function() {
             $log = new Logger('app');
 
             $config = $this->getContainer()->get('config');

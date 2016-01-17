@@ -19,7 +19,7 @@ class DatabaseServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->singleton('Aura\Sql', function () {
+        $this->getContainer()->singleton('Aura\Sql', function() {
             $config = $this->getContainer()->get('config')['database'];
 
             $pdo = new ExtendedPdo(
@@ -27,7 +27,7 @@ class DatabaseServiceProvider extends ServiceProvider
                 $config['user'],
                 $config['password']
             );
-            
+
             return $pdo;
         });
     }

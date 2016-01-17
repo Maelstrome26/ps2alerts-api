@@ -28,7 +28,7 @@ try {
     $response->setStatusCode(404)->setContent(
         $container->get('Twig_Environment')->render('404.html')
     );
-} catch(\Exception $e) {
+} catch (\Exception $e) {
     $response->setContent(
         'An error occured! ' . $e->getMessage()
     );

@@ -10,7 +10,6 @@ use Ps2alerts\Api\Contract\RedisAwareInterface;
 use Ps2alerts\Api\Contract\RedisAwareTrait;
 use Ps2alerts\Api\Contract\UuidAwareInterface;
 use Ps2alerts\Api\Contract\UuidAwareTrait;
-use Ps2alerts\Api\QueryObjects\QueryObject;
 
 abstract class AbstractEndpointRepository implements
     DatabaseAwareInterface,
@@ -116,7 +115,6 @@ abstract class AbstractEndpointRepository implements
      * Reads all records based off a simple where statement
      *
      * @param  array $fields
-     * @param  string $value
      *
      * @return array
      */
@@ -126,7 +124,7 @@ abstract class AbstractEndpointRepository implements
 
         $query->cols(['*']);
 
-        foreach($fields as $field => $value) {
+        foreach ($fields as $field => $value) {
             $query->where("`{$field}` = '{$value}'");
         }
 
@@ -136,8 +134,7 @@ abstract class AbstractEndpointRepository implements
     /**
      * Reads the count of records based off a where statement
      *
-     * @param  array $field
-     * @param  string $value
+     * @param  array $fields
      *
      * @return array
      */
@@ -148,7 +145,7 @@ abstract class AbstractEndpointRepository implements
 
         $query->cols(["COUNT({$key}) as COUNT"]);
 
-        foreach($fields as $field => $value) {
+        foreach ($fields as $field => $value) {
             $query->where("`{$field}` = '{$value}'");
         }
 

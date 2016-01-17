@@ -23,7 +23,7 @@ class RedisServiceProvider extends ServiceProvider implements
      */
     public function register()
     {
-        $this->getContainer()->singleton('redis', function () {
+        $this->getContainer()->singleton('redis', function() {
             $redisConfig = $this->getContainer()->get('config')['redis'];
 
             $client = new Client([

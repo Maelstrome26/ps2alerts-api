@@ -32,13 +32,13 @@ class TemplateServiceProvider extends ServiceProvider
         ];
 
         // Register the singleton with the container
-        $this->getContainer()->singleton('Twig_Environment', function () use ($globals, $config) {
+        $this->getContainer()->singleton('Twig_Environment', function() use ($globals, $config) {
 
             $cache = false;
             $debug = true;
 
             if ($config['environment'] === "production" || $config['environment'] === "staging") {
-                $cache = __DIR__ .'/../../cache';
+                $cache = __DIR__ . '/../../cache';
                 $debug = false;
             }
 
@@ -52,7 +52,7 @@ class TemplateServiceProvider extends ServiceProvider
             foreach ($globals as $key => $val) {
                 $twig->addGlobal($key, $val);
             }
-            
+
             // Add extensions
             if ($debug === true) {
                 $twig->addExtension(new Twig_Extension_Debug);
