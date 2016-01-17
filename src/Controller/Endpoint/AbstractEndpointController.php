@@ -119,7 +119,7 @@ abstract class AbstractEndpointController implements
      *
      * @param  array                                      $collection The collection to transform
      * @param  \League\Fractal\TransformerAbstract        $callback   The Transformer to pass through to Fractal
-     * @param  \Symfony\Component\HttpFoundation\Response $repsonse   The client's response
+     * @param  \Symfony\Component\HttpFoundation\Response $response   The client's response
      *
      * @return array
      */
