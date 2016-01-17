@@ -115,17 +115,20 @@ abstract class AbstractEndpointRepository implements
     /**
      * Reads all records based off a simple where statement
      *
-     * @param  string $field
+     * @param  array $fields
      * @param  string $value
      *
      * @return array
      */
-    public function readAllByField($field, $value)
+    public function readAllByFields($fields)
     {
         $query = $this->newQuery();
 
-        $query->cols(['*'])
-              ->where("`{$field}` = '{$value}'");
+        $query->cols(['*']);
+
+        foreach($fields as $field => $value) {
+            $query->where("`{$field}` = '{$value}'");
+        }
 
         return $this->fireStatementAndReturn($query);
     }
@@ -133,17 +136,21 @@ abstract class AbstractEndpointRepository implements
     /**
      * Reads the count of records based off a where statement
      *
-     * @param  string $field
+     * @param  array $field
      * @param  string $value
      *
      * @return array
      */
-    public function readCountByField($field, $value)
+    public function readCountByFields($fields)
     {
         $query = $this->newQuery();
+        $key   = $this->returnKeyType('primary');
 
-        $query->cols(["COUNT({$field}) as COUNT"])
-              ->where("`{$field}` = '{$value}'");
+        $query->cols(["COUNT({$key}) as COUNT"]);
+
+        foreach($fields as $field => $value) {
+            $query->where("`{$field}` = '{$value}'");
+        }
 
         $result = $this->fireStatementAndReturn($query);
 
