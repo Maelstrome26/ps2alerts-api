@@ -112,6 +112,20 @@ abstract class AbstractEndpointRepository implements
         return $this->fireStatementAndReturn($query);
     }
 
+    /**
+     * Reads all records based off a simple where statement
+     *
+     * @param  string $field
+     * @param  string $value
+     *
+     * @return array
+     */
+    public function readAllByField($field, $value)
+    {
+        $query = $this->newQuery();
+
+        $query->cols(['*'])
+              ->where("`{$field}` = '{$value}'");
 
         return $this->fireStatementAndReturn($query);
     }
