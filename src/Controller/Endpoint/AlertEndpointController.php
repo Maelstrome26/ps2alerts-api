@@ -53,7 +53,7 @@ class AlertEndpointController extends AbstractEndpointController
 
     public function getActives(Request $request, Response $response)
     {
-        $actives = $this->repository->readAllByFields(['InProgress', 1]);
+        $actives = $this->repository->readAllByFields(['InProgress' => 1]);
 
         if (empty($actives)) {
             return $this->errorEmpty($response);
