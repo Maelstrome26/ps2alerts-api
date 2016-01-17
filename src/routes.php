@@ -21,8 +21,13 @@ $route->get(
 );
 
 $route->get(
-    '/v2/alerts/counts',
-    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getTotals'
+    '/v2/alerts/counts/victories',
+    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getVictories'
+);
+
+$route->get(
+    '/v2/alerts/counts/dominations',
+    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getDominations'
 );
 
 $route->get(

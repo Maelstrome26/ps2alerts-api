@@ -53,7 +53,7 @@ class AlertEndpointController extends AbstractEndpointController
 
     public function getActives(Request $request, Response $response)
     {
-        $actives = $this->repository->readAllByField('InProgress', 1);
+        $actives = $this->repository->readAllByFields(['InProgress', 1]);
 
         if (empty($actives)) {
             return $this->errorEmpty($response);
@@ -62,15 +62,31 @@ class AlertEndpointController extends AbstractEndpointController
         return $this->respond('collection', $actives, $this->transformer, $request, $response);
     }
 
-    public function getTotals(Request $request, Response $response, array $args)
+    public function getVictories(Request $request, Response $response, array $args)
     {
         $counts = [
-            'total'       => $this->repository->readCountByField('Valid', 1),
-            'dominations' => $this->repository->readCountByField('ResultDomination', 1),
-            'vs'          => $this->repository->readCountByField('ResultWinner', 'VS'),
-            'nc'          => $this->repository->readCountByField('ResultWinner', 'NC'),
-            'tr'          => $this->repository->readCountByField('ResultWinner', 'TR'),
-            'draw'        => $this->repository->readCountByField('ResultDraw', 1)
+            'vs'          => $this->repository->readCountByFields(['ResultWinner' => 'VS', 'Valid' => 1]),
+            'nc'          => $this->repository->readCountByFields(['ResultWinner' => 'NC', 'Valid' => 1]),
+            'tr'          => $this->repository->readCountByFields(['ResultWinner' => 'TR', 'Valid' => 1]),
+            'draw'        => $this->repository->readCountByFields(['ResultDraw' => 1, 'Valid' => 1]),
+            'total'       => $this->repository->readCountByFields(['Valid' => 1])
+        ];
+
+        if (empty($counts['total'])) {
+            return $this->errorEmpty($response);
+        }
+
+        return $this->respond('item', $counts, new AlertTotalTransformer, $request, $response);
+    }
+
+    public function getDominations(Request $request, Response $response, array $args)
+    {
+        $counts = [
+            'vs'          => $this->repository->readCountByFields(['ResultWinner' => 'VS', 'Valid' => 1, 'ResultDomination' => 1]),
+            'nc'          => $this->repository->readCountByFields(['ResultWinner' => 'NC', 'Valid' => 1, 'ResultDomination' => 1]),
+            'tr'          => $this->repository->readCountByFields(['ResultWinner' => 'TR', 'Valid' => 1, 'ResultDomination' => 1]),
+            'draw'        => $this->repository->readCountByFields(['ResultDraw' => 1, 'Valid' => 1, 'ResultDomination' => 1]),
+            'total'       => $this->repository->readCountByFields(['Valid' => 1, 'ResultDomination' => 1])
         ];
 
         if (empty($counts['total'])) {
