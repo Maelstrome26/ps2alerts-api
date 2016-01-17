@@ -35,7 +35,7 @@ class LogServiceProvider extends ServiceProvider
                 );
                 $slackHandler->setLevel(\Monolog\Logger::ERROR);
 
-                $log->pushHandler($slackHandler, Logger::ERROR);
+                $log->pushHandler($slackHandler);
             }
 
             $log->pushHandler(
