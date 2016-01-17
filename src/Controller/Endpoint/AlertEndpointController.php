@@ -11,6 +11,13 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AlertEndpointController extends AbstractEndpointController
 {
+    /**
+     * Construct
+     *
+     * @param Ps2alerts\Api\Repository\AlertRepository   $repository
+     * @param Ps2alerts\Api\Transformer\AlertTransformer $transformer
+     * @param League\Fractal\Manager                     $fractal
+     */
     public function __construct(
         AlertRepository  $repository,
         AlertTransformer $transformer,
