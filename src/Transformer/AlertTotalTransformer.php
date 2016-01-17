@@ -16,11 +16,11 @@ class AlertTotalTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'vs'          => (int) $data['vs'],
-            'nc'          => (int) $data['nc'],
-            'tr'          => (int) $data['tr'],
-            'draw'        => (int) $data['draw'],
-            'total'       => (int) $data['total']
+            'vs'    => (int) $data['vs'],
+            'nc'    => (int) $data['nc'],
+            'tr'    => (int) $data['tr'],
+            'draw'  => (int) $data['draw'],
+            'total' => (int) $data['total']
         ];
     }
 }
