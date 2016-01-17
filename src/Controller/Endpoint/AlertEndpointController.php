@@ -35,7 +35,7 @@ class AlertEndpointController extends AbstractEndpointController
      *
      * @param  Symfony\Component\HttpFoundation\Request  $request
      * @param  Symfony\Component\HttpFoundation\Response $response
-     * @param  array
+     * @param  array                                     $args
      *
      * @return array
      */
