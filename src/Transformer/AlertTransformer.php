@@ -162,7 +162,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeFactions($data)
     {
-        $data = $this->factionRepo->readAllById($data['ResultID'], 'result');
+        $data = $this->factionRepo->readSingleById($data['ResultID'], 'result');
         return $this->item($data, new FactionTransformer);
     }
 
