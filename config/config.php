@@ -13,7 +13,7 @@ return [
         'password' => $_ENV['DB_PASS'],
         'schema'   => $_ENV['DB_NAME']
     ],
-    'database_data'     => [
+    'database_data' => [
         'host'     => $_ENV['DB_HOST'],
         'user'     => $_ENV['DB_USER'],
         'password' => $_ENV['DB_PASS'],

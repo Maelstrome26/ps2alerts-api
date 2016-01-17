@@ -20,8 +20,7 @@ $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\UuidServiceProvide
 $container->inflector('Ps2alerts\Api\Contract\ConfigAwareInterface')
           ->invokeMethod('setConfig', ['config']);
 $container->inflector('Ps2alerts\Api\Contract\DatabaseAwareInterface')
-          ->invokeMethod('setDatabaseDriver', ['Database']);
-$container->inflector('Ps2alerts\Api\Contract\DatabaseAwareInterface')
+          ->invokeMethod('setDatabaseDriver', ['Database'])
           ->invokeMethod('setDatabaseDataDriver', ['Database\Data']);
 $container->inflector('Ps2alerts\Api\Contract\LogAwareInterface')
           ->invokeMethod('setLogDriver', ['Monolog\Logger']);
