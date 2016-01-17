@@ -58,7 +58,7 @@ class AlertTransformer extends TransformerAbstract
     protected $mapRepo;
     protected $outfitRepo;
     protected $playerRepo;
-    protected $popRepo;
+    protected $populationRepo;
     protected $vehicleRepo;
     protected $weaponRepo;
     protected $xpRepo;
