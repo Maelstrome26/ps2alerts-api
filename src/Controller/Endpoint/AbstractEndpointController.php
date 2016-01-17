@@ -90,13 +90,10 @@ abstract class AbstractEndpointController implements
         switch ($kind) {
             case 'item':
                 return $this->respondWithItem($data, $callback, $response);
-                break;
             case 'collection':
                 return $this->respondWithCollection($data, $callback, $response);
-                break;
             default:
                 return $this->errorInternalError('No Response was defined. Please report this.');
-                break;
         }
     }
 
