@@ -107,11 +107,11 @@ abstract class AbstractEndpointRepository implements
     public function returnKeyType($key)
     {
         switch ($key) {
+            case 'result':
+                return $this->getResultKey();
             case 'primary':
             default:
                 return $this->getPrimaryKey();
-            case 'result':
-                return $this->getResultKey();
         }
     }
 }
