@@ -13,6 +13,12 @@ return [
         'password' => $_ENV['DB_PASS'],
         'schema'   => $_ENV['DB_NAME']
     ],
+    'database_data'     => [
+        'host'     => $_ENV['DB_HOST'],
+        'user'     => $_ENV['DB_USER'],
+        'password' => $_ENV['DB_PASS'],
+        'schema'   => $_ENV['DB_NAME_DATA']
+    ],
     'redis'        => [
         'enabled' => $_ENV['REDIS_ENABLED'],
         'host'    => $_ENV['REDIS_HOST'],
