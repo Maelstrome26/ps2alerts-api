@@ -62,7 +62,16 @@ class AlertEndpointController extends AbstractEndpointController
         return $this->respond('collection', $actives, $this->transformer, $request, $response);
     }
 
-    public function getVictories(Request $request, Response $response, array $args)
+    /**
+     * Returns the victories of each faction and the totals
+     *
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  array                                     $args
+     *
+     * @return array
+     */
+    public function getVictories(Request $request, Response $response)
     {
         $counts = [
             'vs'          => $this->repository->readCountByFields(['ResultWinner' => 'VS', 'Valid' => 1]),
@@ -79,13 +88,20 @@ class AlertEndpointController extends AbstractEndpointController
         return $this->respond('item', $counts, new AlertTotalTransformer, $request, $response);
     }
 
-    public function getDominations(Request $request, Response $response, array $args)
+    /**
+     * Returns the dominations of each faction and the totals
+     *
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
+     *
+     * @return array
+     */
+    public function getDominations(Request $request, Response $response)
     {
         $counts = [
             'vs'          => $this->repository->readCountByFields(['ResultWinner' => 'VS', 'Valid' => 1, 'ResultDomination' => 1]),
             'nc'          => $this->repository->readCountByFields(['ResultWinner' => 'NC', 'Valid' => 1, 'ResultDomination' => 1]),
             'tr'          => $this->repository->readCountByFields(['ResultWinner' => 'TR', 'Valid' => 1, 'ResultDomination' => 1]),
-            'draw'        => $this->repository->readCountByFields(['ResultDraw' => 1, 'Valid' => 1, 'ResultDomination' => 1]),
             'total'       => $this->repository->readCountByFields(['Valid' => 1, 'ResultDomination' => 1])
         ];
 
