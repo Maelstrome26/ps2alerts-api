@@ -158,7 +158,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return \League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Item
      */
     public function includeCombats($data)
     {

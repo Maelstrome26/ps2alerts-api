@@ -17,7 +17,7 @@ abstract class AbstractEndpointController implements
     /**
      * Contains the repository used for interfacing with the database
      *
-     * @var Mixed | Ps2alerts\Api\Repository\AbstractEndpointRepository
+     * @var \Ps2alerts\Api\Repository\AbstractEndpointRepository
      */
     protected $repository;
 
@@ -31,7 +31,7 @@ abstract class AbstractEndpointController implements
     /**
      * Holds Fractal
      *
-     * @var \League\Fractal
+     * @var \League\Fractal\Manager
      */
     protected $fractal;
 
@@ -101,7 +101,7 @@ abstract class AbstractEndpointController implements
      * Builds an item response in Fractal then hands off to the responder
      *
      * @param  array                                      $item     The item to transform
-     * @param  mixed                                      $callback The Transformer to pass through to Fractal
+     * @param  \League\Fractal\TransformerAbstract        $callback The Transformer to pass through to Fractal
      * @param  \Symfony\Component\HttpFoundation\Response $response The client's response
      *
      * @return array
@@ -117,9 +117,9 @@ abstract class AbstractEndpointController implements
     /**
      * Builds a collection of items from Fractal then hands off to the responder
      *
-     * @param  array $collection                          The collection to transform
-     * @param  mixed $callback                            The Transformer to pass through to Fractal
-     * @param  \Symfony\Component\HttpFoundation\Response The client's response
+     * @param  array                                      $collection The collection to transform
+     * @param  \League\Fractal\TransformerAbstract        $callback   The Transformer to pass through to Fractal
+     * @param  \Symfony\Component\HttpFoundation\Response $repsonse   The client's response
      *
      * @return array
      */
