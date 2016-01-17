@@ -17,22 +17,22 @@ $route->get('/', 'Ps2alerts\Api\Controller\MainController::index');
 // Alert Endpoint
 $route->get(
     '/v2/alerts/active',
-    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getActives'
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getActives'
 );
 
 $route->get(
     '/v2/alerts/counts/victories',
-    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getVictories'
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertCountsEndpointController::getVictories'
 );
 
 $route->get(
     '/v2/alerts/counts/dominations',
-    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getDominations'
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertCountsEndpointController::getDominations'
 );
 
 $route->get(
     '/v2/alerts/{id}',
-    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getSingle'
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getSingle'
 );
 
 /**
