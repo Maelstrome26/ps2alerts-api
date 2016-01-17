@@ -81,7 +81,7 @@ abstract class AbstractEndpointController implements
      * @param  \Symfony\Component\HttpFoundation\Request  $request  The request itself
      * @param  \Symfony\Component\HttpFoundation\Response $response The response object to eventually call
      *
-     * @return \Symfony\Component\HttpFoundation\Response           Eventually
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     protected function respond($kind, $data, $callback, Request $request, Response $response)
     {
@@ -104,7 +104,7 @@ abstract class AbstractEndpointController implements
      * @param  mixed $callback                            The Transformer to pass through to Fractal
      * @param  \Symfony\Component\HttpFoundation\Response The client's response
      *
-     * @return array                                     The formatted array
+     * @return array
      */
     protected function respondWithItem($item, $callback, Response $response)
     {
@@ -121,7 +121,7 @@ abstract class AbstractEndpointController implements
      * @param  mixed $callback                           The Transformer to pass through to Fractal
      * @param  \Symfony\Component\HttpFoundation\Response The client's response
      *
-     * @return array                                     The formatted array
+     * @return array
      */
     protected function respondWithCollection($collection, $callback, Response $response)
     {
@@ -135,9 +135,9 @@ abstract class AbstractEndpointController implements
      * The final step where the formatted array is now sent back as a response in JSON form
      *
      * @param  \Symfony\Component\HttpFoundation\Response $response
-     * @param  array                                     $array     The formatted array
+     * @param  array                                      $array
      *
-     * @return \Symfony\Component\HttpFoundation\Response           The final response
+     * @return \Symfony\Component\HttpFoundation\Response
      */
     protected function respondWithArray(Response $response, array $array)
     {
@@ -249,6 +249,9 @@ abstract class AbstractEndpointController implements
 
     /**
      * Generates a Response with a 400 HTTP header and a given message.
+     *
+     * @param \Symfony\Component\HttpFoundation\Response $Response
+     * @param string                                     $message
      *
      * @return \Symfony\Component\HttpFoundation\Response
      */
