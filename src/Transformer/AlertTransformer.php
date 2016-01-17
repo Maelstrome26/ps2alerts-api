@@ -136,7 +136,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeClasses($data)
     {
-        $data = $this->classRepo->readAll($data['ResultID'], 'result');
+        $data = $this->classRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($data, new ClassTransformer);
     }
 
@@ -149,7 +149,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeCombatHistorys($data)
     {
-        $data = $this->combatHistoryRepo->readAll($data['ResultID'], 'result');
+        $data = $this->combatHistoryRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($data, new CombatHistoryTransformer);
     }
 
@@ -162,7 +162,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeFactions($data)
     {
-        $data = $this->factionRepo->readAll($data['ResultID'], 'result');
+        $data = $this->factionRepo->readAllById($data['ResultID'], 'result');
         return $this->item($data, new FactionTransformer);
     }
 
@@ -175,7 +175,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeMapInitials($data)
     {
-        $data = $this->mapInitialRepo->readAll($data['ResultID'], 'result');
+        $data = $this->mapInitialRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($data, new MapInitialTransformer);
     }
 
@@ -188,7 +188,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeMaps($data)
     {
-        $data = $this->mapRepo->readAll($data['ResultID'], 'result');
+        $data = $this->mapRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($data, new MapTransformer);
     }
 
@@ -201,7 +201,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeOutfits($data)
     {
-        $data = $this->outfitRepo->readAll($data['ResultID'], 'result');
+        $data = $this->outfitRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($data, new OutfitTransformer);
     }
 
@@ -214,7 +214,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includePopulations($data)
     {
-        $data = $this->populationRepo->readAll($data['ResultID'], 'result');
+        $data = $this->populationRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($data, new PopulationTransformer);
     }
 
@@ -227,7 +227,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includePlayers($data)
     {
-        $data = $this->playerRepo->readAll($data['ResultID'], 'result');
+        $data = $this->playerRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($data, new PlayerTransformer);
     }
 
@@ -240,7 +240,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeVehicles($data)
     {
-        $data = $this->vehicleRepo->readAll($data['ResultID'], 'result');
+        $data = $this->vehicleRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($data, new VehicleTransformer);
     }
 
@@ -253,7 +253,7 @@ class AlertTransformer extends TransformerAbstract
      */
     public function includeWeapons($data)
     {
-        $map = $this->weaponRepo->readAll($data['ResultID'], 'result');
+        $map = $this->weaponRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($map, new WeaponTransformer);
     }
 
@@ -267,7 +267,7 @@ class AlertTransformer extends TransformerAbstract
     public function includeXps($data)
     {
         // NOTE TO SELF: RATE LIMIT THIS BAD BOY
-        $map = $this->xpRepo->readAll($data['ResultID'], 'result');
+        $map = $this->xpRepo->readAllById($data['ResultID'], 'result');
         return $this->collection($map, new XpTransformer);
     }
 }
