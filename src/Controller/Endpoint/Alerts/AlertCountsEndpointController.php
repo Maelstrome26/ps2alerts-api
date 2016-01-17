@@ -50,8 +50,8 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
     /**
      * Returns the dominations of each faction and the totals
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  \Symfony\Component\HttpFoundation\Response $response
      *
      * @return array
      */
@@ -60,93 +60,93 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
         return $this->getCountData($request, $response, 'dominations');
     }
 
+    /**
+     * Gets the required count data and returns
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  string                                     $mode     The type of data we're getting (victory / domination)
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
     public function getCountData(Request $request, Response $response, $mode)
     {
-        $servers = $request->get('servers');
+        $serversQuery = $request->get('servers');
+        $zonesQuery   = $request->get('zones');
+        $servers      = $this->getConfigItem('servers');
+        $zones        = $this->getConfigItem('zones');
 
-        if (! empty($servers) && $servers !== 'all') {
-            $servers = explode(',', $servers);
+        if (! empty($serversQuery)) {
+            $check = explode(',', $serversQuery);
+
+            // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
+            foreach($check as $id) {
+                if (! in_array($id, $servers)) {
+                    return $this->errorWrongArgs($response, 'Invalid Server Arguments passed');
+                }
+            }
+
+            $servers = $serversQuery;
+        } else {
+            $servers = implode(',', $servers);
         }
 
-        if ($servers === 'all') {
-            $servers = $this->getConfigItem('servers');
+        if (! empty($zonesQuery)) {
+            $check = explode(',', $zonesQuery);
+
+            // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
+            foreach($check as $id) {
+                if (! in_array($id, $zones)) {
+                    return $this->errorWrongArgs($response, 'Invalid Zone Arguments passed');
+                }
+            }
+
+            $zones = $zonesQuery;
+        } else {
+            $zones = implode(',', $zones);
         }
 
-        /*
-        SELECT
-	       sum(case when ResultWinner="VS" AND ResultServer= 1 then 1 else 0 end) VS
-        FROM ws_results;
+        /* The marvelous query that is fired:
+        SUM(CASE WHEN `ResultWinner`='VS' AND `ResultServer` IN (1,10,13,17,25,1000,2000) AND `ResultAlertCont` IN (2,4,6,8) THEN 1 ELSE 0 END) vs,
         */
 
-        $query = $this->repository->newQuery();
+        $serversExploded = explode(',', $servers);
 
-        foreach ($servers as $server) {
-            $filters = $this->buildCountFilters($mode, $server);
-            $counts[$server]  = [
-                'vs'    => $this->repository->readCountByFields($filters['vs']),
-                'nc'    => $this->repository->readCountByFields($filters['nc']),
-                'tr'    => $this->repository->readCountByFields($filters['tr']),
-                'total' => $this->repository->readCountByFields($filters['total']),
-                'draw'  => null
-            ];
+        foreach ($serversExploded as $server) {
+            $query = $this->repository->newQuery();
 
-            if ($mode === 'victories') {
-                $counts[$server]['draw'] = $this->repository->readCountByFields($filters['draw']);
+            $sql = '';
+
+            foreach ($this->getConfigItem('factions') as $faction) {
+                $factionAbv = strtoupper($faction);
+                $sql .= "SUM(CASE WHEN `ResultWinner`='{$factionAbv}' ";
+                $sql .= "AND `ResultServer` IN ({$server}) ";
+                $sql .= "AND `ResultAlertCont` IN ({$zones}) ";
+
+                if ($mode === 'dominations') {
+                    $sql .= "AND `ResultDomination` = 1 ";
+                }
+
+                $sql .= "THEN 1 ELSE 0 END) {$faction}";
+
+                if ($factionAbv !== 'DRAW') {
+                    $sql .= ", ";
+                }
             }
-        }
 
-        var_dump($counts);die;
+            $query->cols([$sql]);
+            $data = $this->repository->readRaw($query->getStatement(), true);
+            $data['total'] = array_sum($data);
 
-        return $this->respond('item', $counts, new AlertTotalTransformer, $request, $response);
-    }
-
-    /**
-     * Builds a set of filters based on input via query strings
-     *
-     * @param  Request $request
-     * @param  string  $mode
-     *
-     * @return array
-     */
-    public function buildCountFilters($mode, $server = null)
-    {
-        $return = [];
-        $fields = ['Valid' => 1];
-
-        if ($mode === 'dominations') {
-            $fields['ResultDomination'] = 1;
-        }
-
-        if (! empty($server)) {
-            $fields['ResultServer'] = (int) $server;
-        }
-
-        $factions = $this->getConfigItem('factions');
-        $factions[] = 'total';
-
-        foreach ($factions as $faction) {
-            if ($mode === 'dominations' && $faction === 'draw') {
-                continue;
+            if ($mode === 'domination') {
+                $data['draw'] = null; // For dominations, set it by default first
             }
-            $return[$faction] = $fields;
 
-            if ($faction !== 'total') {
-                $return[$faction]['ResultWinner'] = strtoupper($faction);
-            }
+            // Build each section of the final response using the transformer
+            $counts['data'][$server] = $this->createItem($data, new AlertTotalTransformer);
         }
 
-        return $return;
-    }
-
-    public function getCountServers(Request $request, $mode)
-    {
-        $server = $request->get('server');
-
-        if (! empty($server) && $server = 'all') {
-            foreach ($this->getConfigItem('servers') as $server) {
-                $filters = $this->buildCountFilters($request, $mode);
-                $return[$server][$faction] = null;
-            }
-        }
+        // Return the now formatted array to the response
+        return $this->respondWithArray($response, $counts);
     }
 }
