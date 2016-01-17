@@ -21,6 +21,11 @@ $route->get(
 );
 
 $route->get(
+    '/v2/alerts/counts',
+    'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getTotals'
+);
+
+$route->get(
     '/v2/alerts/{id}',
     'Ps2alerts\Api\Controller\Endpoint\AlertEndpointController::getSingle'
 );

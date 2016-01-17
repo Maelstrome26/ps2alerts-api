@@ -5,6 +5,7 @@ namespace Ps2alerts\Api\Controller\Endpoint;
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Repository\AlertRepository;
+use Ps2alerts\Api\Transformer\AlertTotalTransformer;
 use Ps2alerts\Api\Transformer\AlertTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,5 +60,23 @@ class AlertEndpointController extends AbstractEndpointController
         }
 
         return $this->respond('collection', $actives, $this->transformer, $request, $response);
+    }
+
+    public function getTotals(Request $request, Response $response, array $args)
+    {
+        $counts = [
+            'total'       => $this->repository->readCountByField('Valid', 1),
+            'dominations' => $this->repository->readCountByField('ResultDomination', 1),
+            'vs'          => $this->repository->readCountByField('ResultWinner', 'VS'),
+            'nc'          => $this->repository->readCountByField('ResultWinner', 'NC'),
+            'tr'          => $this->repository->readCountByField('ResultWinner', 'TR'),
+            'draw'        => $this->repository->readCountByField('ResultDraw', 1)
+        ];
+
+        if (empty($counts['total'])) {
+            return $this->errorEmpty($response);
+        }
+
+        return $this->respond('item', $counts, new AlertTotalTransformer, $request, $response);
     }
 }
