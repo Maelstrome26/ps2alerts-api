@@ -12,7 +12,6 @@ class AlertControllerTest extends \PHPUnit_Framework_TestCase
         $response = $client->request('GET', 'http://192.168.33.10/ps2alerts-api/public/v2/alerts/10000');
 
         $this->assertEquals(200, $response->getStatusCode());
-        $data = json_decode($response->getBody(true), true);
     }
 
     public function testAlertHandlesEmptyData()
@@ -41,6 +40,8 @@ class AlertControllerTest extends \PHPUnit_Framework_TestCase
 
         $this->assertEquals(200, $response->getStatusCode());
         $data = json_decode($response->getBody(true), true);
+
+        $this->assertArrayHasKey('data', $data);
     }
 
     public function testAlertReturnsJsonHeaders()
