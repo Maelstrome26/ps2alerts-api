@@ -32,7 +32,7 @@ class TemplateServiceProvider extends ServiceProvider
         ];
 
         // Register the singleton with the container
-        $this->getContainer()->singleton('Twig_Environment', function() use ($globals, $config) {
+        $this->getContainer()->singleton('Twig_Environment', function () use ($globals, $config) {
 
             $cache = false;
             $debug = true;

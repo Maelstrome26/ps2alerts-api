@@ -18,7 +18,7 @@ class ConfigServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->singleton('config', function() {
+        $this->getContainer()->singleton('config', function () {
             return include __DIR__ . '/../../config/config.php';
         });
     }
