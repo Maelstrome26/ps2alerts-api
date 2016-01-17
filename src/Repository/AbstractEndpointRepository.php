@@ -57,6 +57,14 @@ abstract class AbstractEndpointRepository implements
         return $query;
     }
 
+    /**
+     * Executes the statement to the DB and returns the results
+     *
+     * @param  \Aura\SqlQuery\AbstractQuery $query
+     * @param  boolean                      $single
+     *
+     * @return array
+     */
     public function fireStatementAndReturn($query, $single = false)
     {
         $pdo = $this->getDatabaseDriver();
@@ -104,6 +112,13 @@ abstract class AbstractEndpointRepository implements
         return $this->fireStatementAndReturn($query);
     }
 
+    /**
+     * Sets the proper key to search on based off a string
+     *
+     * @param  string $key
+     *
+     * @return string
+     */
     public function returnKeyType($key)
     {
         switch ($key) {
