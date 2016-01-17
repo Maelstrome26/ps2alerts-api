@@ -1,6 +1,6 @@
 <?php
 
-namespace Ps2alerts\Api\Controller\Endpoint;
+namespace Ps2alerts\Api\Controller\Endpoint\Alerts;
 
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
