@@ -132,7 +132,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeClasses($data)
     {
@@ -145,7 +145,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeCombatHistorys($data)
     {
@@ -158,7 +158,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeCombats($data)
     {
@@ -171,7 +171,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeMapInitials($data)
     {
@@ -184,7 +184,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeMaps($data)
     {
@@ -197,7 +197,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeOutfits($data)
     {
@@ -210,7 +210,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includePopulations($data)
     {
@@ -223,7 +223,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includePlayers($data)
     {
@@ -236,7 +236,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeVehicles($data)
     {
@@ -249,7 +249,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeWeapons($data)
     {
@@ -262,7 +262,7 @@ class AlertTransformer extends TransformerAbstract
      *
      * @param  array $data
      *
-     * @return League\Fractal\Resource\Collection
+     * @return \League\Fractal\Resource\Collection
      */
     public function includeXps($data)
     {
