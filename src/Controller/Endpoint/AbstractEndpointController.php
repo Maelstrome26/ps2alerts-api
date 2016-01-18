@@ -151,7 +151,7 @@ abstract class AbstractEndpointController implements
      */
     public function createCollection($collection, $transformer)
     {
-        $resource = new Collection($collection, $callback);
+        $resource = new Collection($collection, $transformer);
         $rootScope = $this->fractal->createData($resource);
 
         return $rootScope->toArray();
