@@ -13,9 +13,18 @@ return [
         'password' => $_ENV['DB_PASS'],
         'schema'   => $_ENV['DB_NAME']
     ],
+    'database_data' => [
+        'host'     => $_ENV['DB_HOST'],
+        'user'     => $_ENV['DB_USER'],
+        'password' => $_ENV['DB_PASS'],
+        'schema'   => $_ENV['DB_NAME_DATA']
+    ],
     'redis'        => [
         'enabled' => $_ENV['REDIS_ENABLED'],
         'host'    => $_ENV['REDIS_HOST'],
         'db'      => $_ENV['REDIS_DB']
-    ]
+    ],
+    'factions' => ['vs','nc','tr','draw'],
+    'servers'  => [1,10,13,17,25,1000,2000],
+    'zones'    => [2,4,6,8]
 ];

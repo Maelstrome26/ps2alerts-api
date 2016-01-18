@@ -101,34 +101,60 @@ abstract class AbstractEndpointController implements
      * Builds an item response in Fractal then hands off to the responder
      *
      * @param  array                                      $item     The item to transform
-     * @param  \League\Fractal\TransformerAbstract        $callback The Transformer to pass through to Fractal
+     * @param  \League\Fractal\TransformerAbstract        $transformer The Transformer to pass through to Fractal
      * @param  \Symfony\Component\HttpFoundation\Response $response The client's response
      *
      * @return array
      */
-    protected function respondWithItem($item, $callback, Response $response)
+    protected function respondWithItem($item, $transformer, Response $response)
     {
-        $resource = new Item($item, $callback);
+        return $this->respondWithArray($response, $this->createItem($item, $transformer));
+    }
+
+    /**
+     * Creates the item array and returns it hence it came.
+     *
+     * @param  array                               $item     The data to parse
+     * @param  \League\Fractal\TransformerAbstract $transformer
+     *
+     * @return array
+     */
+    public function createItem($item, $transformer)
+    {
+        $resource = new Item($item, $transformer);
         $rootScope = $this->fractal->createData($resource);
 
-        return $this->respondWithArray($response, $rootScope->toArray());
+        return $rootScope->toArray();
     }
 
     /**
      * Builds a collection of items from Fractal then hands off to the responder
      *
-     * @param  array                                      $collection The collection to transform
-     * @param  \League\Fractal\TransformerAbstract        $callback   The Transformer to pass through to Fractal
-     * @param  \Symfony\Component\HttpFoundation\Response $response   The client's response
+     * @param  array                                      $collection  The collection to transform
+     * @param  \League\Fractal\TransformerAbstract        $transformer The Transformer to pass through to Fractal
+     * @param  \Symfony\Component\HttpFoundation\Response $response    The client's response
      *
      * @return array
      */
-    protected function respondWithCollection($collection, $callback, Response $response)
+    protected function respondWithCollection($collection, $transformer, Response $response)
     {
-        $resource = new Collection($collection, $callback);
+        return $this->respondWithArray($response, $this->createCollection($collection, $transformer));
+    }
+
+    /**
+     * Creates a collection array and sends it back to hence it came.
+     *
+     * @param  array                               $collection
+     * @param  \League\Fractal\TransformerAbstract $transformer
+     *
+     * @return array
+     */
+    public function createCollection($collection, $transformer)
+    {
+        $resource = new Collection($collection, $transformer);
         $rootScope = $this->fractal->createData($resource);
 
-        return $this->respondWithArray($response, $rootScope->toArray());
+        return $rootScope->toArray();
     }
 
     /**

@@ -76,6 +76,25 @@ abstract class AbstractEndpointRepository implements
     }
 
     /**
+     * Allows for Raw SQL firing without the query builder
+     *
+     * @param  string  $sql
+     * @param  boolean $single
+     *
+     * @return array
+     */
+    public function readRaw($sql, $single = false)
+    {
+        $pdo = $this->getDatabaseDriver();
+
+        if ($single === false) {
+            return $pdo->fetchAll($sql);
+        }
+
+        return $pdo->fetchOne($sql);
+    }
+
+    /**
      * Reads a single record from the database
      *
      * @param  string $id
