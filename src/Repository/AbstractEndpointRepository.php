@@ -78,7 +78,7 @@ abstract class AbstractEndpointRepository implements
     /**
      * Allows for Raw SQL firing without the query builder
      *
-     * @param  \Aura\SqlQuery\AbstractQuery $query
+     * @param  \Aura\SqlQuery\AbstractQuery $sql
      * @param  boolean                      $single
      *
      * @return array

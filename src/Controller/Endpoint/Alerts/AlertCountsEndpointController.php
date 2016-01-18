@@ -80,7 +80,7 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
             $check = explode(',', $serversQuery);
 
             // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
-            foreach($check as $id) {
+            foreach ($check as $id) {
                 if (! in_array($id, $servers)) {
                     return $this->errorWrongArgs($response, 'Invalid Server Arguments passed');
                 }
@@ -95,7 +95,7 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
             $check = explode(',', $zonesQuery);
 
             // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
-            foreach($check as $id) {
+            foreach ($check as $id) {
                 if (! in_array($id, $zones)) {
                     return $this->errorWrongArgs($response, 'Invalid Zone Arguments passed');
                 }
@@ -106,10 +106,7 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
             $zones = implode(',', $zones);
         }
 
-        /* The marvelous query that is fired:
-        SUM(CASE WHEN `ResultWinner`='VS' AND `ResultServer` IN (1,10,13,17,25,1000,2000) AND `ResultAlertCont` IN (2,4,6,8) THEN 1 ELSE 0 END) vs,
-        */
-
+        $counts = [];
         $serversExploded = explode(',', $servers);
 
         foreach ($serversExploded as $server) {

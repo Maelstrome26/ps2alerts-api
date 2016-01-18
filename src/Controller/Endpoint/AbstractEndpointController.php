@@ -145,7 +145,7 @@ abstract class AbstractEndpointController implements
      * Creates a collection array and sends it back to hence it came.
      *
      * @param  array                               $collection
-     * @param  /League/Fractal/TransformerAbstract $transformer
+     * @param  \League\Fractal\TransformerAbstract $transformer
      *
      * @return array
      */
