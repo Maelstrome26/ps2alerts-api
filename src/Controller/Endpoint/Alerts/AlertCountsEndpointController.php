@@ -4,19 +4,15 @@ namespace Ps2alerts\Api\Controller\Endpoint\Alerts;
 
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
-use Ps2alerts\Api\Contract\ConfigAwareInterface;
-use Ps2alerts\Api\Contract\ConfigAwareTrait;
 use Ps2alerts\Api\Repository\AlertRepository;
 use Ps2alerts\Api\Transformer\AlertTotalTransformer;
 use Ps2alerts\Api\Transformer\AlertTransformer;
+use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AlertCountsEndpointController extends AbstractEndpointController implements
-    ConfigAwareInterface
+class AlertCountsEndpointController extends AbstractEndpointController
 {
-    use ConfigAwareTrait;
-
     /**
      * Construct
      *
@@ -71,39 +67,11 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
      */
     public function getCountData(Request $request, Response $response, $mode)
     {
-        $serversQuery = $request->get('servers');
-        $zonesQuery   = $request->get('zones');
-        $servers      = $this->getConfigItem('servers');
-        $zones        = $this->getConfigItem('zones');
-
-        if (! empty($serversQuery)) {
-            $check = explode(',', $serversQuery);
-
-            // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
-            foreach ($check as $id) {
-                if (! in_array($id, $servers)) {
-                    return $this->errorWrongArgs($response, 'Invalid Server Arguments passed');
-                }
-            }
-
-            $servers = $serversQuery;
-        } else {
-            $servers = implode(',', $servers);
-        }
-
-        if (! empty($zonesQuery)) {
-            $check = explode(',', $zonesQuery);
-
-            // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
-            foreach ($check as $id) {
-                if (! in_array($id, $zones)) {
-                    return $this->errorWrongArgs($response, 'Invalid Zone Arguments passed');
-                }
-            }
-
-            $zones = $zonesQuery;
-        } else {
-            $zones = implode(',', $zones);
+        try {
+            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
+            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+        } catch (InvalidArgumentException $e) {
+            return $this->errorWrongArgs($response, $e->getMessage());
         }
 
         $counts = [];
@@ -132,6 +100,7 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
             }
 
             $query->cols([$sql]);
+
             $data = $this->repository->readRaw($query->getStatement(), true);
             $data['total'] = array_sum($data);
 
