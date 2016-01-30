@@ -115,4 +115,16 @@ class AlertCountsEndpointController extends AbstractEndpointController
         // Return the now formatted array to the response
         return $this->respondWithArray($response, $counts);
     }
+
+    public function getDateTotals(Request $request, Response $response)
+    {
+        try {
+            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
+            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+        } catch (InvalidArgumentException $e) {
+            return $this->errorWrongArgs($response, $e->getMessage());
+        }
+
+        
+    }
 }
