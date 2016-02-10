@@ -4,14 +4,19 @@ namespace Ps2alerts\Api\Controller\Endpoint;
 
 use League\Fractal\Resource\Collection;
 use League\Fractal\Resource\Item;
+use Ps2alerts\Api\Contract\ConfigAwareInterface;
+use Ps2alerts\Api\Contract\ConfigAwareTrait;
 use Ps2alerts\Api\Contract\DatabaseAwareInterface;
 use Ps2alerts\Api\Contract\DatabaseAwareTrait;
+use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
 abstract class AbstractEndpointController implements
+    ConfigAwareInterface,
     DatabaseAwareInterface
 {
+    use ConfigAwareTrait;
     use DatabaseAwareTrait;
 
     /**
@@ -301,5 +306,38 @@ abstract class AbstractEndpointController implements
         if (! empty($queryString)) {
             $this->fractal->parseIncludes($request->query->get('embed'));
         }
+    }
+
+    /**
+     * Gets the Server or Zone filters and runs a check to make sure the request validates. Also formats the list
+     * correctly for inclusion in query strings.
+     *
+     * @param  string                                     $queryString
+     * @param  string                                     $mode
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     *
+     * @return string
+     */
+    public function getFiltersFromQueryString($queryString, $mode, $response)
+    {
+        $filters = $this->getConfigItem($mode); // $mode is either 'servers' or 'zones'
+
+        if (! empty($queryString)) {
+            $check = explode(',', $queryString);
+
+            // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
+            foreach ($check as $id) {
+                if (! is_numeric($id)) {
+                    throw new InvalidArgumentException("Non numerical ID detected. Only numerical IDs are accepted.");
+                }
+                if (! in_array($id, $filters)) {
+                    throw new InvalidArgumentException("Unrecognized {$mode}. Please check the IDs you sent.");
+                }
+            }
+            return $queryString;
+        }
+
+        // If no string was provided, returns all servers encoded as a comma seperated string
+        return implode(',', $filters);
     }
 }
