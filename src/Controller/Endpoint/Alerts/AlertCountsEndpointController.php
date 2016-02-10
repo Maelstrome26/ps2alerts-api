@@ -117,9 +117,8 @@ class AlertCountsEndpointController extends AbstractEndpointController
         }
 
         $data = [];
-        $serversExploded = explode(',', $servers);
 
-        $metrics = $this->getDailyMetrics($server, $zones);
+        $metrics = $this->getDailyMetrics($servers, $zones);
 
         foreach ($metrics as $row) {
             $date = $row['dateIndex'];
