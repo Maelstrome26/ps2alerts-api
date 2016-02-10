@@ -112,31 +112,14 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
         foreach ($serversExploded as $server) {
             $query = $this->repository->newQuery();
 
-            $sql = '';
-
-            foreach ($this->getConfigItem('factions') as $faction) {
-                $factionAbv = strtoupper($faction);
-                $sql .= "SUM(CASE WHEN `ResultWinner`='{$factionAbv}' ";
-                $sql .= "AND `ResultServer` IN ({$server}) ";
-                $sql .= "AND `ResultAlertCont` IN ({$zones}) ";
-
-                if ($mode === 'dominations') {
-                    $sql .= "AND `ResultDomination` = 1 ";
-                }
-
-                $sql .= "THEN 1 ELSE 0 END) {$faction}";
-
-                if ($factionAbv !== 'DRAW') {
-                    $sql .= ", ";
-                }
-            }
+            $sql = $this->generateFactionCaseSql($server, $zones, $mode);
 
             $query->cols([$sql]);
             $data = $this->repository->readRaw($query->getStatement(), true);
             $data['total'] = array_sum($data);
 
             if ($mode === 'domination') {
-                $data['draw'] = null; // For dominations, set it by default first
+                $data['draw'] = null; // Since domination draws are not possible, set it to null
             }
 
             // Build each section of the final response using the transformer
@@ -145,5 +128,137 @@ class AlertCountsEndpointController extends AbstractEndpointController implement
 
         // Return the now formatted array to the response
         return $this->respondWithArray($response, $counts);
+    }
+
+    /**
+     * Get Daily totals over a range of dates
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getDailyTotals(Request $request, Response $response)
+    {
+        try {
+            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
+            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+        } catch (InvalidArgumentException $e) {
+            return $this->errorWrongArgs($response, $e->getMessage());
+        }
+
+        $data = [];
+        $serversExploded = explode(',', $servers);
+
+        $metrics = $this->getDailyMetrics($server, $zones);
+
+        foreach ($metrics as $row) {
+            $date = $row['dateIndex'];
+            unset($row['dateIndex']);
+            $row['total'] = array_sum($row);
+
+            // Build each section of the final response using the transformer
+            $data['data'][$date] = $this->createItem($row, new AlertTotalTransformer);
+        }
+
+        // Return the now formatted array to the response
+        return $this->respondWithArray($response, $data);
+    }
+
+    /**
+     * Get Daily totals over a range of dates broken down by server
+     *
+     * @param  \Symfony\Component\HttpFoundation\Request  $request
+     * @param  \Symfony\Component\HttpFoundation\Response $response
+     *
+     * @return \Symfony\Component\HttpFoundation\Response
+     */
+    public function getDailyTotalsByServer(Request $request, Response $response)
+    {
+        try {
+            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
+            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+        } catch (InvalidArgumentException $e) {
+            return $this->errorWrongArgs($response, $e->getMessage());
+        }
+
+        $data = [];
+        $serversExploded = explode(',', $servers);
+
+        foreach ($serversExploded as $server) {
+            $metrics = $this->getDailyMetrics($server, $zones);
+
+            foreach ($metrics as $row) {
+                $date = $row['dateIndex'];
+                unset($row['dateIndex']);
+                $row['total'] = array_sum($row);
+
+                // Build each section of the final response using the transformer
+                $data['data'][$server][$date] = $this->createItem($row, new AlertTotalTransformer);
+            }
+        }
+
+        // Return the now formatted array to the response
+        return $this->respondWithArray($response, $data);
+    }
+
+    /**
+     * Gets raw daily metrics which can be further processed
+     *
+     * @param  string $server
+     * @param  string $zones
+     *
+     * @return array
+     */
+    public function getDailyMetrics($server, $zones)
+    {
+        $query = $this->repository->newQuery();
+
+        $sql = $this->generateFactionCaseSql($server, $zones);
+        $sql .= ', DATE(ResultDateTime) AS dateIndex';
+        $query->cols([$sql]);
+
+        $query->where('ResultDateTime IS NOT NULL');
+        $query->groupBy(['dateIndex']);
+
+        return $metrics = $this->repository->readRaw($query->getStatement());
+    }
+
+    /**
+     * Generates the SELECT CASE statements required to filter down by Faction and Server
+     *
+     * @param  string $server
+     * @param  string $zones
+     * @param  string $mode
+     *
+     * @return string
+     */
+    public function generateFactionCaseSql($server = null, $zones = null, $mode = null)
+    {
+        $sql = '';
+
+        foreach ($this->getConfigItem('factions') as $faction) {
+            $factionAbv = strtoupper($faction);
+            $sql .= "SUM(CASE WHEN `ResultWinner`='{$factionAbv}' ";
+            if (! empty($server)) {
+                $sql .= "AND `ResultServer` IN ({$server}) ";
+            }
+
+            if (! empty($zones)) {
+                $sql .= "AND `ResultAlertCont` IN ({$zones}) ";
+            }
+
+            if ($mode === 'dominations') {
+                $sql .= "AND `ResultDomination` = 1 ";
+            }
+
+            $sql .= "THEN 1 ELSE 0 END) {$faction}";
+
+            if ($factionAbv !== 'DRAW') {
+                $sql .= ", ";
+            }
+        }
+
+        return $sql;
     }
 }

@@ -31,6 +31,16 @@ $route->get(
 );
 
 $route->get(
+    '/v2/alerts/counts/daily',
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertCountsEndpointController::getDailyTotals'
+);
+
+$route->get(
+    '/v2/alerts/counts/dailyByServer',
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertCountsEndpointController::getDailyTotalsByServer'
+);
+
+$route->get(
     '/v2/alerts/{id}',
     'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getSingle'
 );
