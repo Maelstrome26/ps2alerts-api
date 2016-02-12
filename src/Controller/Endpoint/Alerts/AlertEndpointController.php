@@ -4,18 +4,14 @@ namespace Ps2alerts\Api\Controller\Endpoint\Alerts;
 
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
-use Ps2alerts\Api\Contract\ConfigAwareInterface;
-use Ps2alerts\Api\Contract\ConfigAwareTrait;
 use Ps2alerts\Api\Repository\AlertRepository;
 use Ps2alerts\Api\Transformer\AlertTotalTransformer;
 use Ps2alerts\Api\Transformer\AlertTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class AlertEndpointController extends AbstractEndpointController implements
-    ConfigAwareInterface
+class AlertEndpointController extends AbstractEndpointController
 {
-    use ConfigAwareTrait;
 
     /**
      * Construct
