@@ -68,4 +68,46 @@ class AlertEndpointController extends AbstractEndpointController
 
         return $this->respond('collection', $actives, $this->transformer, $request, $response);
     }
+
+    /**
+     * Returns all alerts in historial order
+     *
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
+     *
+     * @return \League\Fractal\TransformerAbstract
+     */
+    public function getHistoryByDate(Request $request, Response $response)
+    {
+        try {
+            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
+            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+        } catch (InvalidArgumentException $e) {
+            return $this->errorWrongArgs($response, $e->getMessage());
+        }
+
+        $offset = $request->get('offset');
+        $limit = $request->get('limit');
+
+        if (empty($offset) || ! is_numeric($offset)) {
+            $offset = 0;
+        }
+
+        if (empty($limit) || ! is_numeric($limit)) {
+            $limit = 50;
+        }
+
+        $query = $this->repository->newQuery();
+
+        $query->cols(['*']);
+        $query->where("`ResultServer` IN ({$servers})");
+        $query->where("`ResultAlertCont` IN ({$zones})");
+        $query->orderBy(["`ResultEndTime` DESC"]);
+        $query->limit($limit);
+        $query->offset($offset);
+
+        $history = $this->repository->readRaw($query->getStatement());
+
+        return $this->respond('collection', $history, $this->transformer, $request, $response);
+    }
 }

@@ -41,6 +41,11 @@ $route->get(
 );
 
 $route->get(
+    '/v2/alerts/history',
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getHistoryByDate'
+);
+
+$route->get(
     '/v2/alerts/{id}',
     'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getSingle'
 );
