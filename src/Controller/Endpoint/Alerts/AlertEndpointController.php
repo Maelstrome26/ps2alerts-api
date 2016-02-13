@@ -94,7 +94,7 @@ class AlertEndpointController extends AbstractEndpointController
         }
 
         if (empty($limit) || ! is_numeric($limit)) {
-            $limit = 50;
+            $limit = 25;
         }
 
         $query = $this->repository->newQuery();
