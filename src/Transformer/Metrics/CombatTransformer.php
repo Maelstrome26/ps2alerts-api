@@ -17,27 +17,27 @@ class CombatTransformer extends TransformerAbstract
     {
         return [
             'kills' => [
-                'vs' => (int) $data['killsVS'],
-                'nc' => (int) $data['killsNC'],
-                'tr' => (int) $data['killsTR'],
+                'vs'    => (int) $data['killsVS'],
+                'nc'    => (int) $data['killsNC'],
+                'tr'    => (int) $data['killsTR'],
                 'total' => (int) $data['totalKills'],
             ],
             'deaths' => [
-                'vs' => (int) $data['deathsVS'],
-                'nc' => (int) $data['deathsNC'],
-                'tr' => (int) $data['deathsTR'],
+                'vs'    => (int) $data['deathsVS'],
+                'nc'    => (int) $data['deathsNC'],
+                'tr'    => (int) $data['deathsTR'],
                 'total' => (int) $data['totalDeaths'],
             ],
             'teamkills' => [
-                'vs' => (int) $data['teamKillsVS'],
-                'nc' => (int) $data['teamKillsNC'],
-                'tr' => (int) $data['teamKillsTR'],
+                'vs'    => (int) $data['teamKillsVS'],
+                'nc'    => (int) $data['teamKillsNC'],
+                'tr'    => (int) $data['teamKillsTR'],
                 'total' => (int) $data['totalTKs'],
             ],
             'suicides' => [
-                'vs' => (int) $data['suicidesVS'],
-                'nc' => (int) $data['suicidesNC'],
-                'tr' => (int) $data['suicidesTR'],
+                'vs'    => (int) $data['suicidesVS'],
+                'nc'    => (int) $data['suicidesNC'],
+                'tr'    => (int) $data['suicidesTR'],
                 'total' => (int) $data['totalSuicides'],
             ]
         ];
