@@ -19,13 +19,13 @@ class VehicleTransformer extends TransformerAbstract
             'id' => (int) $data['vehicleID'],
             'kills' => [
                 'infantry' => (int) $data['killICount'],
-                'vehicle' => (int) $data['killVCount'],
-                'total' => (int) $data['killCount'],
+                'vehicle'  => (int) $data['killVCount'],
+                'total'    => (int) $data['killCount'],
             ],
             'deaths' => [
                 'infantry' => (int) $data['deathICount'],
-                'vehicle' => (int) $data['deathVCount'],
-                'total' => (int) $data['deathCount'],
+                'vehicle'  => (int) $data['deathVCount'],
+                'total'    => (int) $data['deathCount'],
             ],
             'bails' => (int) $data['bails']
         ];

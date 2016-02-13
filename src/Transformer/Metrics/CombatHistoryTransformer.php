@@ -17,9 +17,9 @@ class CombatHistoryTransformer extends TransformerAbstract
     {
         return [
             'timestamp' => (int) $data['timestamp'],
-            'vs'   => (int) $data['killsVS'],
-            'nc'   => (int) $data['killsVS'],
-            'tr'   => (int) $data['killsTR']
+            'vs'        => (int) $data['killsVS'],
+            'nc'        => (int) $data['killsVS'],
+            'tr'        => (int) $data['killsTR']
         ];
     }
 }
