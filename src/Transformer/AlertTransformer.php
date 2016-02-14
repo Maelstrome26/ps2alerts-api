@@ -120,6 +120,7 @@ class AlertTransformer extends TransformerAbstract
             'server'       => (int) $data['ResultServer'],
             'zone'         => (int) $data['ResultAlertCont'],
             'winner'       => (string) $data['ResultWinner'],
+            'timeBracket'  => (string) $data['ResultTimeType'],
             'isDraw'       => (boolean) $data['ResultDraw'],
             'isDomination' => (boolean) $data['ResultDomination'],
             'isValid'      => (boolean) $data['Valid'],
