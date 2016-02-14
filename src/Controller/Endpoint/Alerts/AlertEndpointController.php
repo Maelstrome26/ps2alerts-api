@@ -12,7 +12,6 @@ use Symfony\Component\HttpFoundation\Response;
 
 class AlertEndpointController extends AbstractEndpointController
 {
-
     /**
      * Construct
      *
@@ -86,22 +85,39 @@ class AlertEndpointController extends AbstractEndpointController
             return $this->errorWrongArgs($response, $e->getMessage());
         }
 
-        $offset = $request->get('offset');
-        $limit = $request->get('limit');
+        $dateFrom = $request->get('dateFrom');
+        $dateTo   = $request->get('dateTo');
+        $offset   = (int) $request->get('offset');
+        $limit    = (int) $request->get('limit');
 
-        if (empty($offset) || ! is_numeric($offset)) {
+        // Set defaults if not supplied
+        if ($offset === null || ! is_numeric($offset)) {
             $offset = 0;
         }
 
-        if (empty($limit) || ! is_numeric($limit)) {
+        if ($limit === null || ! is_numeric($limit)) {
             $limit = 25;
         }
+
+        if ($dateFrom === null) {
+            $dateFrom = date('Y-m-d H:m:s', strtotime('-24 hours'));
+        }
+
+        if ($dateTo === null) {
+            $dateTo = date('Y-m-d H:m:s');
+        }
+
+        // Format the dates into UNIX timestamp for use with the DB
+        $dateFrom = date('U', strtotime($dateFrom));
+        $dateTo   = date('U', strtotime($dateTo));
 
         $query = $this->repository->newQuery();
 
         $query->cols(['*']);
         $query->where("`ResultServer` IN ({$servers})");
         $query->where("`ResultAlertCont` IN ({$zones})");
+        $query->where("`ResultEndTime` > {$dateFrom}");
+        $query->where("`ResultEndTime` < {$dateTo}");
         $query->orderBy(["`ResultEndTime` DESC"]);
         $query->limit($limit);
         $query->offset($offset);
