@@ -102,24 +102,24 @@ class AlertEndpointController extends AbstractEndpointController
         }
 
         if ($dateFrom === null) {
-            $dateFrom = date('Y-m-d H:m:s', strtotime('-24 hours'));
+            $dateFrom = date('Y-m-d H:i:s', strtotime('-48 hours'));
         }
 
         if ($dateTo === null) {
-            $dateTo = date('Y-m-d H:m:s');
+            $dateTo = date('Y-m-d H:i:s', strtotime('now'));
         }
 
         // Format the dates into UNIX timestamp for use with the DB
-        $dateFrom = date('U', strtotime($dateFrom));
-        $dateTo   = date('U', strtotime($dateTo));
+        $dateFrom = date('Y-m-d H:i:s', strtotime($dateFrom));
+        $dateTo   = date('Y-m-d H:i:s', strtotime($dateTo));
 
         $query = $this->repository->newQuery();
 
         $query->cols(['*']);
         $query->where("`ResultServer` IN ({$servers})");
         $query->where("`ResultAlertCont` IN ({$zones})");
-        $query->where("`ResultEndTime` > {$dateFrom}");
-        $query->where("`ResultEndTime` < {$dateTo}");
+        $query->where("`ResultDateTime` > '{$dateFrom}'");
+        $query->where("`ResultDateTime` < '{$dateTo}'");
         $query->where("`ResultWinner` IN ({$factions})");
         $query->where("`ResultTimeType` IN ({$brackets})");
         $query->orderBy(["`ResultEndTime` DESC"]);
