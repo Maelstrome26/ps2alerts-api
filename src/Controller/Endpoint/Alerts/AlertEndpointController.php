@@ -79,8 +79,10 @@ class AlertEndpointController extends AbstractEndpointController
     public function getHistoryByDate(Request $request, Response $response)
     {
         try {
-            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
-            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+            $servers  = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
+            $zones    = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+            $factions = $this->getFiltersFromQueryString($request->get('factions'), 'factions', $response);
+            $brackets = $this->getFiltersFromQueryString($request->get('brackets'), 'brackets', $response);
         } catch (InvalidArgumentException $e) {
             return $this->errorWrongArgs($response, $e->getMessage());
         }
@@ -118,6 +120,8 @@ class AlertEndpointController extends AbstractEndpointController
         $query->where("`ResultAlertCont` IN ({$zones})");
         $query->where("`ResultEndTime` > {$dateFrom}");
         $query->where("`ResultEndTime` < {$dateTo}");
+        $query->where("`ResultWinner` IN ({$factions})");
+        $query->where("`ResultTimeType` IN ({$brackets})");
         $query->orderBy(["`ResultEndTime` DESC"]);
         $query->limit($limit);
         $query->offset($offset);

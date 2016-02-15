@@ -320,24 +320,47 @@ abstract class AbstractEndpointController implements
      */
     public function getFiltersFromQueryString($queryString, $mode, $response)
     {
-        $filters = $this->getConfigItem($mode); // $mode is either 'servers' or 'zones'
+        $filters = $this->getConfigItem($mode);
+        $numericals = ['servers', 'zones'];
+        $strings = ['factions', 'brackets'];
 
         if (! empty($queryString)) {
             $check = explode(',', $queryString);
 
             // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
             foreach ($check as $id) {
-                if (! is_numeric($id)) {
-                    throw new InvalidArgumentException("Non numerical ID detected. Only numerical IDs are accepted.");
+                // If the query string should contain only numbers
+                if (in_array($mode, $numericals)) {
+                    if (! is_numeric($id)) {
+                        throw new InvalidArgumentException("Non numerical ID detected. Only numerical IDs are accepted with this request.");
+                    }
                 }
+                if (in_array($mode, $strings)) {
+                    if (is_numeric($id)) {
+                        throw new InvalidArgumentException("Numerical input detected. Only string inputs are accepted with this request.");
+                    }
+                }
+
                 if (! in_array($id, $filters)) {
                     throw new InvalidArgumentException("Unrecognized {$mode}. Please check the IDs you sent.");
                 }
             }
+
+            // Format into strings comma seperated for SQL
+            if (in_array($mode, $strings)) {
+                $queryString = "'" . implode("','", $check) . "'";
+            }
+
             return $queryString;
         }
 
-        // If no string was provided, returns all servers encoded as a comma seperated string
-        return implode(',', $filters);
+        $return = implode(',', $filters);
+
+        if (in_array($mode, $strings)) {
+            $return = "'" . implode("','", $filters) . "'";
+        }
+
+        // If no string was provided, returns all data encoded as a comma seperated string
+        return $return;
     }
 }

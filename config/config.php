@@ -24,7 +24,8 @@ return [
         'host'    => $_ENV['REDIS_HOST'],
         'db'      => $_ENV['REDIS_DB']
     ],
-    'factions' => ['vs','nc','tr','draw'],
     'servers'  => [1,10,13,17,25,1000,2000],
-    'zones'    => [2,4,6,8]
+    'zones'    => [2,4,6,8],
+    'factions' => ['vs','nc','tr','draw'],
+    'brackets' => ['MOR','AFT','PRI']
 ];
