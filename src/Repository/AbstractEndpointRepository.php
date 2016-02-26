@@ -48,7 +48,7 @@ abstract class AbstractEndpointRepository implements
      */
     protected function getDbDriver()
     {
-        return $this->getDatabaseDataDriver();
+        return $this->getDatabaseDriver();
     }
 
     /**
