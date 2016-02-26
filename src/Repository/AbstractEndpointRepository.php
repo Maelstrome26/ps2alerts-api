@@ -42,6 +42,16 @@ abstract class AbstractEndpointRepository implements
     abstract public function getResultKey();
 
     /**
+     * Allows the ability to overload and swap the DB driver if required
+     *
+     * @return \Aura\Sql\ExtendedPdo
+     */
+    protected function getDbDriver()
+    {
+        return $this->getDatabaseDataDriver();
+    }
+
+    /**
      * Builds a new query factory ready for use with the QueryObjects
      *
      * @return \Aura\SqlQuery\AbstractQuery
@@ -66,7 +76,7 @@ abstract class AbstractEndpointRepository implements
      */
     public function fireStatementAndReturn($query, $single = false)
     {
-        $pdo = $this->getDatabaseDriver();
+        $pdo = $this->getDbDriver();
 
         if ($single === false) {
             return $pdo->fetchAll($query->getStatement(), $query->getBindValues());
@@ -85,7 +95,7 @@ abstract class AbstractEndpointRepository implements
      */
     public function readRaw($sql, $single = false)
     {
-        $pdo = $this->getDatabaseDriver();
+        $pdo = $this->getDbDriver();
 
         if ($single === false) {
             return $pdo->fetchAll($sql);
@@ -140,12 +150,24 @@ abstract class AbstractEndpointRepository implements
     public function readAllByFields($fields)
     {
         $query = $this->newQuery();
-
         $query->cols(['*']);
 
         foreach ($fields as $field => $value) {
             $query->where("`{$field}` = '{$value}'");
         }
+
+        return $this->fireStatementAndReturn($query);
+    }
+
+    /**
+     * Returns all records with no filtering
+     *
+     * @return array
+     */
+    public function readAll()
+    {
+        $query = $this->newQuery();
+        $query->cols(['*']);
 
         return $this->fireStatementAndReturn($query);
     }

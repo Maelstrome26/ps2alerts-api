@@ -14,7 +14,7 @@ use Ps2alerts\Api\Repository\Metrics\PopulationRepository;
 use Ps2alerts\Api\Repository\Metrics\VehicleRepository;
 use Ps2alerts\Api\Repository\Metrics\WeaponRepository;
 use Ps2alerts\Api\Repository\Metrics\XpRepository;
-use Ps2alerts\Api\Transformer\AlertTransformer;
+
 use Ps2alerts\Api\Transformer\Metrics\ClassTransformer;
 use Ps2alerts\Api\Transformer\Metrics\CombatHistoryTransformer;
 use Ps2alerts\Api\Transformer\Metrics\CombatTransformer;

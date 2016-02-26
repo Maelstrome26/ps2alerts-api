@@ -50,6 +50,11 @@ $route->get(
     'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getSingle'
 );
 
+$route->get(
+    '/v2/data',
+    'Ps2alerts\Api\Controller\Endpoint\Data\DataEndpointController::getSupplementalData'
+);
+
 /**
  * Return the dispatcher to the app loader
  */

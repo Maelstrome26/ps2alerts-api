@@ -26,8 +26,8 @@ class OutfitTransformer extends TransformerAbstract
                 'kills'     => (int) $data['outfitKills'],
                 'deaths'    => (int) $data['outfitDeaths'],
                 'teamkills' => (int) $data['outfitTKs'],
-                'suicides'  => (int) $data['outfitSuicides'],
-                'captures'  => (int) $data['outfitCaps'],
+                'suicides'  => (int) $data['outfitSuicides']
+                // 'captures'  => (int) $data['outfitCaps'], --- CURRENTLY EMPTY AND BROKEN
             ]
         ];
     }
