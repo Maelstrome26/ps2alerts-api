@@ -17,9 +17,9 @@ class PlayerTransformer extends TransformerAbstract
     {
         return [
             'player'  => [
-                'id'       => (int) $data['playerID'],
+                'id'       => (string) $data['playerID'], // Bigint
                 'name'     => (string) $data['playerName'],
-                'outfitID' => (int) $data['playerOutfit'],
+                'outfitID' => (string) $data['playerOutfit'], // Bigint
                 'faction'  => (int) $data['playerFaction']
             ],
             'metrics' => [

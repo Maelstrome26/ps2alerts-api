@@ -17,7 +17,7 @@ class OutfitTransformer extends TransformerAbstract
     {
         return [
             'outfit'  => [
-                'id'      => (int) $data['outfitID'],
+                'id'      => (string) $data['outfitID'], // Bigint
                 'name'    => (string) $data['outfitName'],
                 'tag'     => (string) $data['outfitTag'],
                 'faction' => (int) $data['outfitFaction']

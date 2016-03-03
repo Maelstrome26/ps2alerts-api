@@ -16,7 +16,7 @@ class XpTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'playerID'   => (int) $data['playerID'],
+            'playerID'   => (string) $data['playerID'], // Bigint
             'type'       => (int) $data['type'],
             'occurences' => (int) $data['occurances']
         ];
