@@ -59,8 +59,13 @@ $route->get(
  * Profiles
  */
 $route->get(
-    '/v2/profiles/search/player',
+    '/v2/profiles/search/player/{term}',
     'Ps2alerts\Api\Controller\Endpoint\Profiles\ProfileStatsEndpointController::getPlayersByTerm'
+);
+
+$route->get(
+    '/v2/profiles/search/outfit/{term}',
+    'Ps2alerts\Api\Controller\Endpoint\Profiles\ProfileStatsEndpointController::getOutfitsByTerm'
 );
 
 /**
