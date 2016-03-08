@@ -56,6 +56,14 @@ $route->get(
 );
 
 /**
+ * Profiles
+ */
+$route->get(
+    '/v2/profiles/search/player',
+    'Ps2alerts\Api\Controller\Endpoint\Profiles\ProfileStatsEndpointController::getPlayersByTerm'
+);
+
+/**
  * Return the dispatcher to the app loader
  */
 return $route->getDispatcher();
