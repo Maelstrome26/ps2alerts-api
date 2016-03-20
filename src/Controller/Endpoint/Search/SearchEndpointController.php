@@ -5,8 +5,8 @@ namespace Ps2alerts\Api\Controller\Endpoint\Search;
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
-use Ps2alerts\Api\Transformer\Profiles\PlayerTransformer;
-use Ps2alerts\Api\Transformer\Profiles\OutfitTransformer;
+use Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer;
+use Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Symfony\Component\HttpFoundation\Request;
@@ -20,17 +20,17 @@ class SearchEndpointController extends AbstractEndpointController
      * @param League\Fractal\Manager                     $fractal
      */
     public function __construct(
-        Manager               $fractal,
-        PlayerTotalRepository $playerTotalRepo,
-        OutfitTotalRepository $outfitTotalRepo,
-        PlayerTransformer     $playerTransformer,
-        OutfitTransformer     $outfitTransformer
+        Manager                 $fractal,
+        PlayerTotalRepository   $playerTotalRepo,
+        OutfitTotalRepository   $outfitTotalRepo,
+        PlayerSearchTransformer $playerSearchTransformer,
+        OutfitSearchTransformer $outfitSearchTransformer
     ) {
-        $this->fractal           = $fractal;
-        $this->playerRepository  = $playerTotalRepo;
-        $this->outfitRepository  = $outfitTotalRepo;
-        $this->playerTransformer = $playerTransformer;
-        $this->outfitTransformer = $outfitTransformer;
+        $this->fractal                 = $fractal;
+        $this->playerRepository        = $playerTotalRepo;
+        $this->outfitRepository        = $outfitTotalRepo;
+        $this->playerSearchTransformer = $playerSearchTransformer;
+        $this->outfitSearchTransformer = $outfitSearchTransformer;
     }
 
     /**
@@ -49,7 +49,13 @@ class SearchEndpointController extends AbstractEndpointController
             $players = $this->searchForPlayer($args['term']);
 
             if (! empty($players)) {
-                return $this->respond('collection', $players, $this->playerTransformer, $request, $response);
+                return $this->respond(
+                    'collection',
+                    $players,
+                    $this->playerSearchTransformer,
+                    $request,
+                    $response
+                );
             }
 
             return $this->errorEmpty($response);
@@ -74,7 +80,13 @@ class SearchEndpointController extends AbstractEndpointController
             $outfits = $this->searchForOutfit($name);
 
             if (! empty($outfits)) {
-                return $this->respond('collection', $outfits, $this->outfitTransformer, $request, $response);
+                return $this->respond(
+                    'collection',
+                    $outfits,
+                    $this->outfitSearchTransformer,
+                    $request,
+                    $response
+                );
             }
 
             return $this->errorEmpty($response);
