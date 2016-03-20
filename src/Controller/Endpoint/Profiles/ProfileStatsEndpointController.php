@@ -86,6 +86,8 @@ class ProfileStatsEndpointController extends AbstractEndpointController
      *
      * @param  string $term
      *
+     * @todo SQL injection prevention
+     *
      * @return array
      */
     public function searchForPlayer($term)
@@ -102,11 +104,12 @@ class ProfileStatsEndpointController extends AbstractEndpointController
      *
      * @param  string $term
      *
+     * @todo SQL injection prevention
+     *
      * @return array
      */
     public function searchForOutfit($term)
     {
-        var_dump($term);
         $query = $this->outfitRepository->newQuery();
         $query->cols(['*']);
         $query->where("outfitName LIKE '%{$term}%'");
