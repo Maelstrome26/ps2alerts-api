@@ -18,17 +18,17 @@ class SearchEndpointController extends AbstractEndpointController
      * Construct
      *
      * @param League\Fractal\Manager                                   $fractal
-     * @param Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository   $outfitTotalRepo
-     * @param Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository   $playerTotalRepo
      * @param Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer $outfitSearchTransformer
+     * @param Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository   $outfitTotalRepo
      * @param Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer $playerSearchTransformer
+     * @param Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository   $playerTotalRepo
      */
     public function __construct(
         Manager                 $fractal,
-        PlayerTotalRepository   $playerTotalRepo,
         OutfitTotalRepository   $outfitTotalRepo,
-        PlayerSearchTransformer $playerSearchTransformer,
-        OutfitSearchTransformer $outfitSearchTransformer
+        PlayerTotalRepository   $playerTotalRepo,
+        OutfitSearchTransformer $outfitSearchTransformer,
+        PlayerSearchTransformer $playerSearchTransformer
     ) {
         $this->fractal                 = $fractal;
         $this->playerRepository        = $playerTotalRepo;
