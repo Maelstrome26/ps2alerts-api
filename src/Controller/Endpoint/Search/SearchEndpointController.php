@@ -5,10 +5,10 @@ namespace Ps2alerts\Api\Controller\Endpoint\Search;
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
-use Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer;
-use Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer;
-use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
+use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
+use Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer;
+use Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -17,7 +17,11 @@ class SearchEndpointController extends AbstractEndpointController
     /**
      * Construct
      *
-     * @param League\Fractal\Manager                     $fractal
+     * @param League\Fractal\Manager                                   $fractal
+     * @param Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository   $outfitTotalRepo
+     * @param Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository   $playerTotalRepo
+     * @param Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer $outfitSearchTransformer
+     * @param Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer $playerSearchTransformer
      */
     public function __construct(
         Manager                 $fractal,
