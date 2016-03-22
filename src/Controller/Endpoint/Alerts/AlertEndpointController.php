@@ -46,7 +46,13 @@ class AlertEndpointController extends AbstractEndpointController
             return $this->errorEmpty($response);
         }
 
-        return $this->respond('item', $alert, $this->transformer, $request, $response);
+        return $this->respond(
+            'item',
+            $alert,
+            $this->transformer,
+            $request,
+            $response
+        );
     }
 
     /**
@@ -65,7 +71,13 @@ class AlertEndpointController extends AbstractEndpointController
             return $this->errorEmpty($response);
         }
 
-        return $this->respond('collection', $actives, $this->transformer, $request, $response);
+        return $this->respond(
+            'collection',
+            $actives,
+            $this->transformer,
+            $request,
+            $response
+        );
     }
 
     /**
