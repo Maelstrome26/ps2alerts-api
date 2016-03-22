@@ -128,19 +128,26 @@ class AlertEndpointController extends AbstractEndpointController
         $query = $this->repository->newQuery();
 
         $query->cols(['*']);
-        $query->where("`ResultServer` IN ({$servers})");
-        $query->where("`ResultAlertCont` IN ({$zones})");
-        $query->where("`ResultDateTime` > '{$dateFrom}'");
-        $query->where("`ResultDateTime` < '{$dateTo}'");
-        $query->where("`ResultWinner` IN ({$factions})");
-        $query->where("`ResultTimeType` IN ({$brackets})");
-        $query->orderBy(["`ResultEndTime` DESC"]);
+        $query->where('ResultServer IN (?)', $servers);
+        $query->where('ResultAlertCont IN (?)', $zones);
+        $query->where('ResultDateTime > ?', $dateFrom);
+        $query->where('ResultDateTime < ?', $dateTo);
+        $query->where("ResultWinner IN ({$factions})"); // LOOK INTO DOING WITH BIND
+        $query->where("ResultTimeType IN ({$brackets})"); // LOOK INTO DOING WITH BIND
+
+        $query->orderBy(["ResultEndTime DESC"]);
         $query->limit($limit);
         $query->offset($offset);
 
-        $history = $this->repository->readRaw($query->getStatement());
+        $history = $this->repository->fireStatementAndReturn($query);
 
-        return $this->respond('collection', $history, $this->transformer, $request, $response);
+        return $this->respond(
+            'collection',
+            $history,
+            $this->transformer,
+            $request,
+            $response
+        );
     }
 
     /**
