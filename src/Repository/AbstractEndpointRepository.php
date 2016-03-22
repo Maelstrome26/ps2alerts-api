@@ -170,7 +170,7 @@ abstract class AbstractEndpointRepository implements
         $query->cols(['*']);
 
         foreach ($fields as $field => $value) {
-            $query->where("{$key} = ?", $value);
+            $query->where("{$field} = ?", $value);
         }
 
         return $this->fireStatementAndReturn($query);
@@ -204,7 +204,7 @@ abstract class AbstractEndpointRepository implements
         $query->cols(["COUNT({$key}) as COUNT"]);
 
         foreach ($fields as $field => $value) {
-            $query->where("{$key} = ?", $value);
+            $query->where("{$field} = ?", $value);
         }
 
         $result = $this->fireStatementAndReturn($query);

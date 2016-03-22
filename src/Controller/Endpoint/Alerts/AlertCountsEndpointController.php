@@ -186,7 +186,7 @@ class AlertCountsEndpointController extends AlertEndpointController
         $sql .= ', DATE(ResultDateTime) AS dateIndex';
         $query->cols([$sql]);
 
-        $query->where('ResultDateTime != ?', 'NULL');
+        $query->where('ResultDateTime IS NOT NULL');
         $query->groupBy(['dateIndex']);
 
         return $metrics = $this->repository->readRaw($query->getStatement());
