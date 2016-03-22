@@ -77,12 +77,24 @@ abstract class AbstractEndpointRepository implements
     public function fireStatementAndReturn($query, $single = false)
     {
         $pdo = $this->getDbDriver();
+        $queryDebug = $this->getConfigItem('dbQueryDebug');
 
-        if ($single === false) {
-            return $pdo->fetchAll($query->getStatement(), $query->getBindValues());
+        if ($queryDebug === true) {
+            $pdo->setProfiler(new Profiler);
+            $pdo->getProfiler()->setActive(true);
         }
 
-        return $pdo->fetchOne($query->getStatement(), $query->getBindValues());
+        if ($single === false) {
+            $return = $pdo->fetchAll($query->getStatement(), $query->getBindValues());
+        } else {
+            $return = $pdo->fetchOne($query->getStatement(), $query->getBindValues());
+        }
+
+        if ($queryDebug === true) {
+            var_dump($pdo->getProfiler()->getProfiles());
+        }
+
+        return $return;
     }
 
     /**
