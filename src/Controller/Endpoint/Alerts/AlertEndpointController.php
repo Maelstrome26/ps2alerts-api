@@ -127,13 +127,15 @@ class AlertEndpointController extends AbstractEndpointController
 
         $query = $this->repository->newQuery();
 
+        // @todo Look into doing bind properly
+        // @too Look into doing WHERE IN statements with binds
         $query->cols(['*']);
-        $query->where('ResultServer IN (?)', $servers);
-        $query->where('ResultAlertCont IN (?)', $zones);
+        $query->where("ResultServer IN ({$servers})");
+        $query->where("ResultAlertCont IN ({$zones})");
         $query->where('ResultDateTime > ?', $dateFrom);
         $query->where('ResultDateTime < ?', $dateTo);
         $query->where("ResultWinner IN ({$factions})"); // LOOK INTO DOING WITH BIND
-        $query->where("ResultTimeType IN ({$brackets})"); // LOOK INTO DOING WITH BIND
+        $query->where("ResultTimeType IN ({$brackets})");
 
         $query->orderBy(["ResultEndTime DESC"]);
         $query->limit($limit);
