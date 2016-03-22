@@ -12,7 +12,7 @@ class LeaderboardEndpointController extends AbstractEndpointController
     /**
      * Construct
      *
-     * @param League\Fractal\Manager                     $fractal
+     * @param League\Fractal\Manager $fractal
      */
     public function __construct(
         Manager $fractal

@@ -14,7 +14,7 @@ class DataEndpointController extends AbstractEndpointController
      * Construct
      *
      * @param Ps2alerts\Api\Transformer\DataTransformer $transformer
-     * @param League\Fractal\Manager                     $fractal
+     * @param League\Fractal\Manager                    $fractal
      */
     public function __construct(
         DataTransformer $transformer,
