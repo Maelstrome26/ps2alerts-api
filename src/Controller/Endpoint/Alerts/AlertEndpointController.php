@@ -134,7 +134,7 @@ class AlertEndpointController extends AbstractEndpointController
         $query->where("ResultAlertCont IN ({$zones})");
         $query->where('ResultDateTime > ?', $dateFrom);
         $query->where('ResultDateTime < ?', $dateTo);
-        $query->where("ResultWinner IN ({$factions})"); // LOOK INTO DOING WITH BIND
+        $query->where("ResultWinner IN ({$factions})");
         $query->where("ResultTimeType IN ({$brackets})");
 
         $query->orderBy(["ResultEndTime DESC"]);
