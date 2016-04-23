@@ -16,16 +16,15 @@ class OutfitProfileTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'id'        => (string) $data['playerID'], // Bigint
-            'name'      => (string) $data['playerName'],
-            'outfit'    => (string) $data['playerOutfit'], // Bigint
-            'faction'   => (int) $data['playerFaction'],
-            'server'    => (int) $data['playerServer'],
-            'kills'     => (int) $data['playerKills'],
-            'deaths'    => (int) $data['playerDeaths'],
-            'teamkills' => (int) $data['playerTeamKills'],
-            'suicides'  => (int) $data['playerSuicides'],
-            'headshots' => (int) $data['headshots']
+            'name'      => (string) $data['outfitName'],
+            'tag'       => (string) $data['outfitTag'],
+            'faction'   => (int) $data['outfitFaction'],
+            'kills'     => (int) $data['outfitKills'],
+            'deaths'    => (int) $data['outfitDeaths'],
+            'teamkills' => (int) $data['outfitTKs'],
+            'suicides'  => (int) $data['outfitSuicides'],
+            'server'    => (int) $data['outfitServer'],
+            'captures'  => (int) $data['outfitCaptures']
         ];
     }
 }

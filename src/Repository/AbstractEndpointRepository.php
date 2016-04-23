@@ -79,7 +79,7 @@ abstract class AbstractEndpointRepository implements
      *
      * @return array
      */
-    public function fireStatementAndReturn($query, $single = false)
+    public function fireStatementAndReturn($query, $single = false, $object = false)
     {
         $pdo = $this->getDbDriver();
         $queryDebug = $this->getConfigItem('dbQueryDebug');
@@ -90,9 +90,17 @@ abstract class AbstractEndpointRepository implements
         }
 
         if ($single === false) {
-            $return = $pdo->fetchAll($query->getStatement(), $query->getBindValues());
+            if ($object === false) {
+                $return = $pdo->fetchAll($query->getStatement(), $query->getBindValues());
+            } else {
+                $return = $pdo->fetchObjects($query->getStatement(), $query->getBindValues());
+            }
         } else {
-            $return = $pdo->fetchOne($query->getStatement(), $query->getBindValues());
+            if ($object === false) {
+                $return = $pdo->fetchOne($query->getStatement(), $query->getBindValues());
+            } else {
+                $return = $pdo->fetchObject($query->getStatement(), $query->getBindValues());
+            }
         }
 
         if ($queryDebug === true) {

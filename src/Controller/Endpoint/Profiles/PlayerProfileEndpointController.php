@@ -37,19 +37,15 @@ class PlayerProfileEndpointController extends AbstractEndpointController
     }
 
     /**
-     * Gets a player's data
+     * Gets a player
      *
-     * @param  string $id Numerical player ID
+     * @param  string $id
      *
      * @return array
      */
     public function getPlayer(Request $request, Response $response, array $args)
     {
-        $player = $this->getMetrics($args);
-
-        // $player = $this->createItem($player, $this->playerSearchTransformer);
-
-        var_dump($player);die;
+        $player = $this->playerTotalRepo->readSinglebyId($args['id']);
 
         return $this->respond(
             'item',
@@ -58,33 +54,5 @@ class PlayerProfileEndpointController extends AbstractEndpointController
             $request,
             $response
         );
-    }
-
-    public function getMetrics($args)
-    {
-        $player = $this->playerTotalRepo->readSinglebyId($args['id']);
-
-        $metrics = [];
-
-        // Get the data
-        $metrics['alerts']   = $this->getPlayerAlerts($player);
-        $metrics['weapons']  = $this->getPlayerWeapons($player);
-        $metrics['vehicles'] = $this->getPlayerVehicles($player);
-
-        $player['metrics']  = $this->parsePlayerMetrics($player);
-
-        return $player;
-    }
-
-    public function getPlayerAlerts($player)
-    {
-        return $this->playerRepo->readAllByFields([
-            'playerID' => $player['playerID']
-        ]);
-    }
-
-    public function parsePlayerMetrics($player)
-    {
-
     }
 }
