@@ -31,7 +31,6 @@ $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')
 $container->inflector('Ps2alerts\Api\Contract\UuidAwareInterface')
           ->invokeMethod('setUuidDriver', ['Ramsey\Uuid\Uuid']);
 
-
 // Container Inflector
 $container->inflector('League\Container\ContainerAwareInterface')
           ->invokeMethod('setContainer', [$container]);

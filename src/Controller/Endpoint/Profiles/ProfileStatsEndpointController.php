@@ -106,7 +106,6 @@ class ProfileStatsEndpointController extends AbstractEndpointController
      */
     public function searchForOutfit($term)
     {
-        var_dump($term);
         $query = $this->outfitRepository->newQuery();
         $query->cols(['*']);
         $query->where("outfitName LIKE '%{$term}%'");
