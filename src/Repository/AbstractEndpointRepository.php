@@ -226,8 +226,9 @@ abstract class AbstractEndpointRepository implements
             case 'result':
                 return $this->getResultKey();
             case 'primary':
-            default:
                 return $this->getPrimaryKey();
+            default:
+                return $key;
         }
     }
 }
