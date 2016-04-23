@@ -46,7 +46,13 @@ class AlertEndpointController extends AbstractEndpointController
             return $this->errorEmpty($response);
         }
 
-        return $this->respond('item', $alert, $this->transformer, $request, $response);
+        return $this->respond(
+            'item',
+            $alert,
+            $this->transformer,
+            $request,
+            $response
+        );
     }
 
     /**
@@ -65,7 +71,13 @@ class AlertEndpointController extends AbstractEndpointController
             return $this->errorEmpty($response);
         }
 
-        return $this->respond('collection', $actives, $this->transformer, $request, $response);
+        return $this->respond(
+            'collection',
+            $actives,
+            $this->transformer,
+            $request,
+            $response
+        );
     }
 
     /**
@@ -115,20 +127,29 @@ class AlertEndpointController extends AbstractEndpointController
 
         $query = $this->repository->newQuery();
 
+        // @todo Look into doing bind properly
+        // @too Look into doing WHERE IN statements with binds
         $query->cols(['*']);
-        $query->where("`ResultServer` IN ({$servers})");
-        $query->where("`ResultAlertCont` IN ({$zones})");
-        $query->where("`ResultDateTime` > '{$dateFrom}'");
-        $query->where("`ResultDateTime` < '{$dateTo}'");
-        $query->where("`ResultWinner` IN ({$factions})");
-        $query->where("`ResultTimeType` IN ({$brackets})");
-        $query->orderBy(["`ResultEndTime` DESC"]);
+        $query->where("ResultServer IN ({$servers})");
+        $query->where("ResultAlertCont IN ({$zones})");
+        $query->where('ResultDateTime > ?', $dateFrom);
+        $query->where('ResultDateTime < ?', $dateTo);
+        $query->where("ResultWinner IN ({$factions})");
+        $query->where("ResultTimeType IN ({$brackets})");
+
+        $query->orderBy(["ResultEndTime DESC"]);
         $query->limit($limit);
         $query->offset($offset);
 
-        $history = $this->repository->readRaw($query->getStatement());
+        $history = $this->repository->fireStatementAndReturn($query);
 
-        return $this->respond('collection', $history, $this->transformer, $request, $response);
+        return $this->respond(
+            'collection',
+            $history,
+            $this->transformer,
+            $request,
+            $response
+        );
     }
 
     /**

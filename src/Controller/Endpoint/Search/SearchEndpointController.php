@@ -1,36 +1,40 @@
 <?php
 
-namespace Ps2alerts\Api\Controller\Endpoint\Profiles;
+namespace Ps2alerts\Api\Controller\Endpoint\Search;
 
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
-use Ps2alerts\Api\Transformer\Profiles\PlayerTransformer;
-use Ps2alerts\Api\Transformer\Profiles\OutfitTransformer;
-use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
+use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
+use Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer;
+use Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
-class ProfileStatsEndpointController extends AbstractEndpointController
+class SearchEndpointController extends AbstractEndpointController
 {
     /**
      * Construct
      *
-     * @param League\Fractal\Manager                     $fractal
+     * @param League\Fractal\Manager                                   $fractal
+     * @param Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer $outfitSearchTransformer
+     * @param Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository   $outfitTotalRepo
+     * @param Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer $playerSearchTransformer
+     * @param Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository   $playerTotalRepo
      */
     public function __construct(
-        Manager               $fractal,
-        PlayerTotalRepository $playerTotalRepo,
-        OutfitTotalRepository $outfitTotalRepo,
-        PlayerTransformer     $playerTransformer,
-        OutfitTransformer     $outfitTransformer
+        Manager                 $fractal,
+        OutfitTotalRepository   $outfitTotalRepo,
+        PlayerTotalRepository   $playerTotalRepo,
+        OutfitSearchTransformer $outfitSearchTransformer,
+        PlayerSearchTransformer $playerSearchTransformer
     ) {
-        $this->fractal           = $fractal;
-        $this->playerRepository  = $playerTotalRepo;
-        $this->outfitRepository  = $outfitTotalRepo;
-        $this->playerTransformer = $playerTransformer;
-        $this->outfitTransformer = $outfitTransformer;
+        $this->fractal                 = $fractal;
+        $this->playerRepository        = $playerTotalRepo;
+        $this->outfitRepository        = $outfitTotalRepo;
+        $this->playerSearchTransformer = $playerSearchTransformer;
+        $this->outfitSearchTransformer = $outfitSearchTransformer;
     }
 
     /**
@@ -49,7 +53,13 @@ class ProfileStatsEndpointController extends AbstractEndpointController
             $players = $this->searchForPlayer($args['term']);
 
             if (! empty($players)) {
-                return $this->respond('collection', $players, $this->playerTransformer, $request, $response);
+                return $this->respond(
+                    'collection',
+                    $players,
+                    $this->playerSearchTransformer,
+                    $request,
+                    $response
+                );
             }
 
             return $this->errorEmpty($response);
@@ -74,7 +84,13 @@ class ProfileStatsEndpointController extends AbstractEndpointController
             $outfits = $this->searchForOutfit($name);
 
             if (! empty($outfits)) {
-                return $this->respond('collection', $outfits, $this->outfitTransformer, $request, $response);
+                return $this->respond(
+                    'collection',
+                    $outfits,
+                    $this->outfitSearchTransformer,
+                    $request,
+                    $response
+                );
             }
 
             return $this->errorEmpty($response);
@@ -85,6 +101,8 @@ class ProfileStatsEndpointController extends AbstractEndpointController
      * Takes a player name and searches for it
      *
      * @param  string $term
+     *
+     * @todo SQL injection prevention
      *
      * @return array
      */
@@ -101,6 +119,8 @@ class ProfileStatsEndpointController extends AbstractEndpointController
      * Takes a outfit name and searches for it
      *
      * @param  string $term
+     *
+     * @todo SQL injection prevention
      *
      * @return array
      */

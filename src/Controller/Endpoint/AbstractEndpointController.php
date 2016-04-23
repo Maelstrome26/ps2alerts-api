@@ -105,9 +105,9 @@ abstract class AbstractEndpointController implements
     /**
      * Builds an item response in Fractal then hands off to the responder
      *
-     * @param  array                                      $item     The item to transform
+     * @param  array                                      $item        The item to transform
      * @param  \League\Fractal\TransformerAbstract        $transformer The Transformer to pass through to Fractal
-     * @param  \Symfony\Component\HttpFoundation\Response $response The client's response
+     * @param  \Symfony\Component\HttpFoundation\Response $response    The client's response
      *
      * @return array
      */
@@ -119,7 +119,7 @@ abstract class AbstractEndpointController implements
     /**
      * Creates the item array and returns it hence it came.
      *
-     * @param  array                               $item     The data to parse
+     * @param  array                               $item        The data to parse
      * @param  \League\Fractal\TransformerAbstract $transformer
      *
      * @return array

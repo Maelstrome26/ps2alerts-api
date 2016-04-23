@@ -2,8 +2,11 @@
 
 namespace Ps2alerts\Api\Repository;
 
+use Aura\Sql\Profiler;
 use Aura\SqlQuery\AbstractQuery;
 use Aura\SqlQuery\QueryFactory;
+use Ps2alerts\Api\Contract\ConfigAwareInterface;
+use Ps2alerts\Api\Contract\ConfigAwareTrait;
 use Ps2alerts\Api\Contract\DatabaseAwareInterface;
 use Ps2alerts\Api\Contract\DatabaseAwareTrait;
 use Ps2alerts\Api\Contract\RedisAwareInterface;
@@ -12,10 +15,12 @@ use Ps2alerts\Api\Contract\UuidAwareInterface;
 use Ps2alerts\Api\Contract\UuidAwareTrait;
 
 abstract class AbstractEndpointRepository implements
+    ConfigAwareInterface,
     DatabaseAwareInterface,
     RedisAwareInterface,
     UuidAwareInterface
 {
+    use ConfigAwareTrait;
     use DatabaseAwareTrait;
     use RedisAwareTrait;
     use UuidAwareTrait;
@@ -77,12 +82,24 @@ abstract class AbstractEndpointRepository implements
     public function fireStatementAndReturn($query, $single = false)
     {
         $pdo = $this->getDbDriver();
+        $queryDebug = $this->getConfigItem('dbQueryDebug');
 
-        if ($single === false) {
-            return $pdo->fetchAll($query->getStatement(), $query->getBindValues());
+        if ($queryDebug === true) {
+            $pdo->setProfiler(new Profiler);
+            $pdo->getProfiler()->setActive(true);
         }
 
-        return $pdo->fetchOne($query->getStatement(), $query->getBindValues());
+        if ($single === false) {
+            $return = $pdo->fetchAll($query->getStatement(), $query->getBindValues());
+        } else {
+            $return = $pdo->fetchOne($query->getStatement(), $query->getBindValues());
+        }
+
+        if ($queryDebug === true) {
+            var_dump($pdo->getProfiler()->getProfiles());
+        }
+
+        return $return;
     }
 
     /**
@@ -117,7 +134,7 @@ abstract class AbstractEndpointRepository implements
         $key = $this->returnKeyType($keyType);
 
         $query->cols(['*'])
-              ->where("`{$key}` = '{$id}'");
+              ->where("{$key} = ?", $id);
 
         return $this->fireStatementAndReturn($query, true);
     }
@@ -135,7 +152,7 @@ abstract class AbstractEndpointRepository implements
         $key = $this->returnKeyType($keyType);
 
         $query->cols(['*'])
-              ->where("`{$key}` = '{$id}'");
+              ->where("{$key} = ?", $id);
 
         return $this->fireStatementAndReturn($query);
     }
@@ -153,7 +170,7 @@ abstract class AbstractEndpointRepository implements
         $query->cols(['*']);
 
         foreach ($fields as $field => $value) {
-            $query->where("`{$field}` = '{$value}'");
+            $query->where("{$field} = ?", $value);
         }
 
         return $this->fireStatementAndReturn($query);
@@ -187,7 +204,7 @@ abstract class AbstractEndpointRepository implements
         $query->cols(["COUNT({$key}) as COUNT"]);
 
         foreach ($fields as $field => $value) {
-            $query->where("`{$field}` = '{$value}'");
+            $query->where("{$field} = ?", $value);
         }
 
         $result = $this->fireStatementAndReturn($query);

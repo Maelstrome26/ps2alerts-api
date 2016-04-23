@@ -14,7 +14,7 @@ class DataEndpointController extends AbstractEndpointController
      * Construct
      *
      * @param Ps2alerts\Api\Transformer\DataTransformer $transformer
-     * @param League\Fractal\Manager                     $fractal
+     * @param League\Fractal\Manager                    $fractal
      */
     public function __construct(
         DataTransformer $transformer,
@@ -35,6 +35,12 @@ class DataEndpointController extends AbstractEndpointController
      */
     public function getSupplementalData(Request $request, Response $response, array $args)
     {
-        return $this->respond('item', null, $this->transformer, $request, $response);
+        return $this->respond(
+            'item',
+            null,
+            $this->transformer,
+            $request,
+            $response
+        );
     }
 }
