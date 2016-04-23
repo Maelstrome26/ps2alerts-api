@@ -70,15 +70,43 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
         $client = $this->getHttpClientDriver();
 
         $response = $client->get(
-            "https://census.daybreakgames.com/s:planetside2alertstats/get/ps2:v2/character/{$data['playerID']}"
+            "https://census.daybreakgames.com/s:planetside2alertstats/get/ps2:v2/character/{$data['playerID']}?c:resolve=stat,stat_by_faction"
         );
 
         $json = json_decode($response->getBody()->getContents(), true);
 
         $character = $json['character_list'][0];
 
+        $statCount = count($character['stats']['stat']);
+        $statFactionCount = count($character['stats']['stat_by_faction']);
+
+        $character['kills']     = 0;
+        $character['deaths']    = 0;
+        $character['headshots'] = 0;
+
+        for ($i = 0; $i < $statFactionCount; $i++) {
+            $row = $character['stats']['stat_by_faction'][$i];
+
+            if ($row['stat_name'] === 'weapon_kills') {
+                $character['kills'] = ($row['value_forever_nc'] + $row['value_forever_tr']);
+            }
+
+            if ($row['stat_name'] === 'weapon_headshots') {
+                $character['headshots'] = ($row['value_forever_nc'] + $row['value_forever_tr']);
+            }
+        }
+
+        for ($i = 0; $i < $statCount; $i++) {
+            $row = $character['stats']['stat'][$i];
+
+            if ($row['stat_name'] === 'weapon_deaths') {
+                $character['deaths'] = $row['value_forever'];
+            }
+        }
+
         // Removes daft ".0" from the end of the login string...
         $character['times']['last_login_date'] = str_replace('.0', '', $character['times']['last_login_date']);
+
         return $this->item($character, new PlayerCensusTransformer);
     }
 

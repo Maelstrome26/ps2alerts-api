@@ -28,6 +28,11 @@ class PlayerCensusTransformer extends TransformerAbstract
             'battleRank' => [
                 'current'       => (int) $data['battle_rank']['value'],
                 'percentToNext' => (int) $data['battle_rank']['percent_to_next'],
+            ],
+            'stats' => [
+                'kills'     => (int) $data['kills'],
+                'deaths'    => (int) $data['deaths'],
+                'headshots' => (int) $data['headshots']
             ]
         ];
     }
