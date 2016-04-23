@@ -69,7 +69,6 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
         $json = json_decode($response->getBody()->getContents(), true);
 
         $character = $json['character_list'][0];
-        var_dump($character);
         return $this->item($character, new PlayerCensusTransformer);
     }
 
