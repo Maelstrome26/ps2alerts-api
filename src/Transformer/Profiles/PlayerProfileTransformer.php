@@ -3,20 +3,26 @@
 namespace Ps2alerts\Api\Transformer\Profiles;
 
 use League\Fractal\TransformerAbstract;
+use Ps2alerts\Api\Contract\HttpClientAwareInterface;
+use Ps2alerts\Api\Contract\HttpClientAwareTrait;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerRepository;
 use Ps2alerts\Api\Transformer\Profiles\OutfitProfileTransformer;
+use Ps2alerts\Api\Transformer\Profiles\PlayerCensusTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerInvolvementTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerMetricsTransformer;
 
-class PlayerProfileTransformer extends TransformerAbstract
+class PlayerProfileTransformer extends TransformerAbstract implements HttpClientAwareInterface
 {
+    use HttpClientAwareTrait;
+
     /**
      * List of available includes to this resource
      *
      * @var array
      */
     protected $availableIncludes = [
+        'census',
         'involvement',
         'metrics',
         'outfit',
@@ -50,6 +56,21 @@ class PlayerProfileTransformer extends TransformerAbstract
             'faction' => (int) $data['playerFaction'],
             'server'  => (int) $data['playerServer']
         ];
+    }
+
+    public function includeCensus($data)
+    {
+        $client = $this->getHttpClientDriver();
+
+        $response = $client->get(
+            "https://census.daybreakgames.com/s:planetside2alertstats/get/ps2:v2/character/{$data['playerID']}"
+        );
+
+        $json = json_decode($response->getBody()->getContents(), true);
+
+        $character = $json['character_list'][0];
+        var_dump($character);
+        return $this->item($character, new PlayerCensusTransformer);
     }
 
     /**
