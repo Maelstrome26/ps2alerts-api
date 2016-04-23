@@ -16,17 +16,17 @@ class PlayerCensusTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'name' => (string) $data['name']['first'],
-            'lastOnline' => (int) $data['times']['last_login'],
+            'name'           => (string) $data['name']['first'],
+            'lastOnline'     => (int) $data['times']['last_login'],
             'lastOnlineDate' => (string) $data['times']['last_login_date'],
-            'minutesPlayed' => (int) $data['times']['minutes_played'],
+            'minutesPlayed'  => (int) $data['times']['minutes_played'],
             'certs' => [
-                'earned' => (int) $data['certs']['earned_points'],
-                'spent' => (int) $data['certs']['spent_points'],
+                'earned'    => (int) $data['certs']['earned_points'],
+                'spent'     => (int) $data['certs']['spent_points'],
                 'available' => (int) $data['certs']['available_points'],
             ],
             'battleRank' => [
-                'current' => (int) $data['battle_rank']['value'],
+                'current'       => (int) $data['battle_rank']['value'],
                 'percentToNext' => (int) $data['battle_rank']['percent_to_next'],
             ]
         ];
