@@ -58,6 +58,13 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
         ];
     }
 
+    /**
+     * Grab Census only info
+     *
+     * @param  array $data
+     *
+     * @return \League\Fractal\Resource\Collection
+     */
     public function includeCensus($data)
     {
         $client = $this->getHttpClientDriver();
@@ -69,6 +76,9 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
         $json = json_decode($response->getBody()->getContents(), true);
 
         $character = $json['character_list'][0];
+
+        // Removes daft ".0" from the end of the login string...
+        $character['times']['last_login_date'] = str_replace('.0', '', $character['times']['last_login_date']);
         return $this->item($character, new PlayerCensusTransformer);
     }
 
