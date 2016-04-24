@@ -4,14 +4,14 @@ namespace Ps2alerts\Api\Repository\Metrics;
 
 use Ps2alerts\Api\Repository\AbstractEndpointRepository;
 
-class WeaponRepository extends AbstractEndpointRepository
+class VehicleTotalRepository extends AbstractEndpointRepository
 {
     /**
      * {@inheritdoc}
      */
     public function getTable()
     {
-        return 'ws_weapons';
+        return 'ws_vehicles_totals';
     }
 
     /**

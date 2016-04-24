@@ -11,7 +11,7 @@ class VehicleRepository extends AbstractEndpointRepository
      */
     public function getTable()
     {
-        return 'ws_vehicles_totals';
+        return 'ws_vehicles';
     }
 
     /**

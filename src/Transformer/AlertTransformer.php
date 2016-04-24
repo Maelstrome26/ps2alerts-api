@@ -11,8 +11,8 @@ use Ps2alerts\Api\Repository\Metrics\MapRepository;
 use Ps2alerts\Api\Repository\Metrics\OutfitRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerRepository;
 use Ps2alerts\Api\Repository\Metrics\PopulationRepository;
-use Ps2alerts\Api\Repository\Metrics\VehicleRepository;
-use Ps2alerts\Api\Repository\Metrics\WeaponRepository;
+use Ps2alerts\Api\Repository\Metrics\VehicleTotalRepository;
+use Ps2alerts\Api\Repository\Metrics\WeaponTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\XpRepository;
 
 use Ps2alerts\Api\Transformer\Metrics\ClassTransformer;
@@ -74,8 +74,8 @@ class AlertTransformer extends TransformerAbstract
      * @param OutfitRepository        $outfitRepo
      * @param PlayerRepository        $playerRepo
      * @param PopulationRepository    $populationRepo
-     * @param VehicleRepository       $vehicleRepo
-     * @param WeaponRepository        $weaponRepo
+     * @param VehicleTotalRepository       $vehicleRepo
+     * @param WeaponTotalRepository        $weaponRepo
      * @param XpRepository            $xpRepo
      */
     public function __construct(
@@ -87,8 +87,8 @@ class AlertTransformer extends TransformerAbstract
         OutfitRepository        $outfitRepo,
         PlayerRepository        $playerRepo,
         PopulationRepository    $populationRepo,
-        VehicleRepository       $vehicleRepo,
-        WeaponRepository        $weaponRepo,
+        VehicleTotalRepository       $vehicleRepo,
+        WeaponTotalRepository        $weaponRepo,
         XpRepository            $xpRepo
     ) {
         $this->classRepo         = $classRepo;

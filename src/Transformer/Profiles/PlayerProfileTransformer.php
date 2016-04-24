@@ -7,6 +7,8 @@ use Ps2alerts\Api\Contract\HttpClientAwareInterface;
 use Ps2alerts\Api\Contract\HttpClientAwareTrait;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerRepository;
+use Ps2alerts\Api\Repository\Metrics\VehicleRepository;
+use Ps2alerts\Api\Repository\Metrics\WeaponRepository;
 use Ps2alerts\Api\Transformer\Profiles\OutfitProfileTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerCensusTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerInvolvementTransformer;
@@ -30,14 +32,21 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
         'weapons'
     ];
 
+    protected $outfitTotalsRepo;
     protected $playerRepo;
+    protected $vehicleRepo;
+    protected $weaponRepo;
 
     public function __construct(
         OutfitTotalRepository $outfitTotalsRepo,
-        PlayerRepository $playerRepo
+        PlayerRepository $playerRepo,
+        VehicleRepository $vehicleRepo,
+        WeaponRepository $weaponRepo
     ) {
         $this->outfitTotalsRepo = $outfitTotalsRepo;
-        $this->playerRepo = $playerRepo;
+        $this->playerRepo       = $playerRepo;
+        $this->vehicleRepo      = $vehicleRepo;
+        $this->weaponRepo       = $weaponRepo;
     }
 
     /**
@@ -170,7 +179,7 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
     }
 
     /**
-     * Get Outfit info and metrics
+     * Get Vehicle info and metrics
      *
      * @param  array $data
      *
@@ -178,11 +187,40 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
      */
     public function includeVehicles($data)
     {
-        // @todo: FINISH
+        $metrics = [];
+        $data = $this->vehicleRepo->readAllById($data['playerID'], 'playerID');
+        $count = count($data);
+
+        // Calculate metrics
+        for ($i = 0; $i < $count; $i++) {
+            $vehicleID = $data[$i]['vehicleID'];
+            if (empty($metrics[$vehicleID])) {
+                $metrics[$vehicleID] = [
+                    'id'        => $vehicleID,
+                    'kills'     => 0,
+                    'killsInf'  => 0,
+                    'killsVeh'  => 0,
+                    'deaths'    => 0,
+                    'deathsInf' => 0,
+                    'deathsVeh' => 0,
+                    'bails'     => 0
+                ];
+            }
+
+            $metrics[$vehicleID]['kills']     = $metrics[$vehicleID]['kills'] + $data[$i]['killCount'];
+            $metrics[$vehicleID]['killsInf']  = $metrics[$vehicleID]['killsInf'] + $data[$i]['killICount'];
+            $metrics[$vehicleID]['killsVeh']  = $metrics[$vehicleID]['killsVeh'] + $data[$i]['killVCount'];
+            $metrics[$vehicleID]['deaths']    = $metrics[$vehicleID]['deaths'] + $data[$i]['deathCount'];
+            $metrics[$vehicleID]['deathsInf'] = $metrics[$vehicleID]['deathsInf'] + $data[$i]['deathICount'];
+            $metrics[$vehicleID]['deathsVeh'] = $metrics[$vehicleID]['deathsVeh'] + $data[$i]['deathVCount'];
+            $metrics[$vehicleID]['bails']     = $metrics[$vehicleID]['bails'] + $data[$i]['bails'];
+        }
+
+        return $this->collection($metrics, new PlayerVehicleTransformer);
     }
 
     /**
-     * Get Outfit info and metrics
+     * Get Weapon info and metrics
      *
      * @param  array $data
      *
@@ -190,6 +228,27 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
      */
     public function includeWeapons($data)
     {
-        // @todo: FINISH
+        $metrics = [];
+        $data = $this->weaponRepo->readAllById($data['playerID'], 'playerID');
+        $count = count($data);
+
+        // Calculate metrics
+        for ($i = 0; $i < $count; $i++) {
+            $weaponID = $data[$i]['weaponID'];
+            if (empty($metrics[$weaponID])) {
+                $metrics[$weaponID] = [
+                    'id'        => $weaponID,
+                    'kills'     => 0,
+                    'headshots' => 0,
+                    'teamkills' => 0
+                ];
+            }
+
+            $metrics[$weaponID]['kills']     = $metrics[$weaponID]['kills'] + $data[$i]['killCount'];
+            $metrics[$weaponID]['headshots'] = $metrics[$weaponID]['headshots'] + $data[$i]['headshots'];
+            $metrics[$weaponID]['teamkills'] = $metrics[$weaponID]['teamkills'] + $data[$i]['teamkills'];
+        }
+
+        return $this->collection($metrics, new PlayerWeaponTransformer);
     }
 }
