@@ -49,7 +49,7 @@ class SearchEndpointController extends AbstractEndpointController
     public function getPlayersByTerm(Request $request, Response $response, array $args)
     {
         // If a valid player name we're searching on
-        if ($this->parsePlayerName($args['term'])) {
+        if ($this->parsePlayerName($args['term'], $response)) {
             $players = $this->searchForPlayer($args['term']);
 
             if (! empty($players)) {
@@ -140,13 +140,13 @@ class SearchEndpointController extends AbstractEndpointController
      *
      * @return boolean
      */
-    public function parsePlayerName($name)
+    public function parsePlayerName($name, Response $response)
     {
         if (empty($name)) {
             return $this->errorWrongArgs($response, 'Player name needs to be present.');
         }
 
-        if (strlen($name > 24)) {
+        if (strlen($name) > 24) {
             return $this->errorWrongArgs($response, 'Player names cannot be longer than 24 characters.');
         }
 
