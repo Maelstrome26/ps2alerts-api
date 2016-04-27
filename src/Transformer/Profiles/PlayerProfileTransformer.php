@@ -32,21 +32,21 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
         'weapons'
     ];
 
-    protected $outfitTotalsRepo;
+    protected $outfitTotalRepo;
     protected $playerRepo;
     protected $vehicleRepo;
     protected $weaponRepo;
 
     public function __construct(
-        OutfitTotalRepository $outfitTotalsRepo,
+        OutfitTotalRepository $outfitTotalRepo,
         PlayerRepository $playerRepo,
         VehicleRepository $vehicleRepo,
         WeaponRepository $weaponRepo
     ) {
-        $this->outfitTotalsRepo = $outfitTotalsRepo;
-        $this->playerRepo       = $playerRepo;
-        $this->vehicleRepo      = $vehicleRepo;
-        $this->weaponRepo       = $weaponRepo;
+        $this->outfitTotalRepo = $outfitTotalRepo;
+        $this->playerRepo      = $playerRepo;
+        $this->vehicleRepo     = $vehicleRepo;
+        $this->weaponRepo      = $weaponRepo;
     }
 
     /**
@@ -174,7 +174,7 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
      */
     public function includeOutfit($data)
     {
-        $data = $this->outfitTotalsRepo->readSingleById($data['playerOutfit'], 'primary');
+        $data = $this->outfitTotalRepo->readSingleById($data['playerOutfit'], 'primary');
         return $this->item($data, new OutfitProfileTransformer);
     }
 

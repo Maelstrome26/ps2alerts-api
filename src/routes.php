@@ -76,6 +76,11 @@ $route->get(
     'Ps2alerts\Api\Controller\Endpoint\Profiles\PlayerProfileEndpointController::getPlayer'
 );
 
+$route->get(
+    '/v2/profiles/outfit/{id}',
+    'Ps2alerts\Api\Controller\Endpoint\Profiles\OutfitProfileEndpointController::getOutfit'
+);
+
 /**
  * Return the dispatcher to the app loader
  */
