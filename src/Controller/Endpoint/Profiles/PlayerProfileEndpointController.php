@@ -24,16 +24,12 @@ class PlayerProfileEndpointController extends AbstractEndpointController
      */
     public function __construct(
         Manager                  $fractal,
-        PlayerRepository         $playerRepo,
         PlayerTotalRepository    $playerTotalRepo,
-        PlayerProfileTransformer $playerProfileTransformer,
-        PlayerSearchTransformer  $playerSearchTransformer
+        PlayerProfileTransformer $playerProfileTransformer
     ) {
         $this->fractal                  = $fractal;
-        $this->playerRepo               = $playerRepo;
         $this->playerTotalRepo          = $playerTotalRepo;
         $this->playerProfileTransformer = $playerProfileTransformer;
-        $this->playerSearchTransformer  = $playerSearchTransformer;
     }
 
     /**
