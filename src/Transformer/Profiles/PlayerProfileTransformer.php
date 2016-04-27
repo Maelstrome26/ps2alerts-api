@@ -78,8 +78,16 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
     {
         $client = $this->getHttpClientDriver();
 
+        $namespace = 'ps2:v2';
+
+        if ($data['playerServer'] >= 2000) {
+            $namespace = 'ps2ps4eu';
+        } elseif ($data['playerServer'] >= 1000) {
+            $namespace = 'ps2ps4us';
+        }
+
         $response = $client->get(
-            "https://census.daybreakgames.com/s:planetside2alertstats/get/ps2:v2/character/{$data['playerID']}?c:resolve=stat,stat_by_faction"
+            "https://census.daybreakgames.com/s:planetside2alertstats/get/{$namespace}/character/{$data['playerID']}?c:resolve=stat,stat_by_faction"
         );
 
         $json = json_decode($response->getBody()->getContents(), true);
