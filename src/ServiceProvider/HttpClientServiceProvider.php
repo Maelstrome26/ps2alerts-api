@@ -21,7 +21,7 @@ class HttpClientServiceProvider extends ServiceProvider
     {
         $this->getContainer()->add('GuzzleHttp\Client', function () {
             return new Client([
-                'timeout' => 2.0
+                'timeout' => 10.0
             ]);
         });
     }
