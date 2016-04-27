@@ -5,10 +5,8 @@ namespace Ps2alerts\Api\Controller\Endpoint\Profiles;
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
-use Ps2alerts\Api\Repository\Metrics\PlayerRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Transformer\Profiles\PlayerProfileTransformer;
-use Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -20,7 +18,6 @@ class PlayerProfileEndpointController extends AbstractEndpointController
      * @param League\Fractal\Manager                                      $fractal
      * @param Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository      $playerTotalRepo
      * @param Ps2alerts\Api\Transformer\Profiles\PlayerProfileTransformer $playerProfileTransformer
-     * @param Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer    $playerSearchTransformer
      */
     public function __construct(
         Manager                  $fractal,
@@ -35,7 +32,9 @@ class PlayerProfileEndpointController extends AbstractEndpointController
     /**
      * Gets a player
      *
-     * @param  string $id
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  array                                     $args
      *
      * @return array
      */
