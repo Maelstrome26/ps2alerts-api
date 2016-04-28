@@ -30,7 +30,7 @@ class OutfitProfileTransformer extends TransformerAbstract
      * @var array
      */
     protected $availableIncludes = [
-        'captures',
+        'facilities',
         'involvement',
         'metrics',
         'players'
@@ -79,7 +79,7 @@ class OutfitProfileTransformer extends TransformerAbstract
         ];
     }
 
-    public function includeCaptures($data)
+    public function includeFacilities($data)
     {
         $redis = $this->getRedisDriver();
         $key = "ps2alerts:api:profiles:outfit:captures:{$data['outfitID']}";
