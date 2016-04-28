@@ -9,10 +9,10 @@ use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerRepository;
 use Ps2alerts\Api\Repository\Metrics\VehicleRepository;
 use Ps2alerts\Api\Repository\Metrics\WeaponRepository;
-use Ps2alerts\Api\Transformer\Profiles\OutfitProfileTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerCensusTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerInvolvementTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerMetricsTransformer;
+use Ps2alerts\Api\Transformer\Profiles\PlayerOutfitTransformer;
 
 class PlayerProfileTransformer extends TransformerAbstract implements HttpClientAwareInterface
 {
@@ -28,25 +28,25 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
         'involvement',
         'metrics',
         'outfit',
-        'vehicles',
+        //'vehicles',
         'weapons'
     ];
 
-    protected $outfitTotalsRepo;
+    protected $outfitTotalRepo;
     protected $playerRepo;
     protected $vehicleRepo;
     protected $weaponRepo;
 
     public function __construct(
-        OutfitTotalRepository $outfitTotalsRepo,
-        PlayerRepository $playerRepo,
-        VehicleRepository $vehicleRepo,
-        WeaponRepository $weaponRepo
+        OutfitTotalRepository $outfitTotalRepo,
+        PlayerRepository      $playerRepo,
+        VehicleRepository     $vehicleRepo,
+        WeaponRepository      $weaponRepo
     ) {
-        $this->outfitTotalsRepo = $outfitTotalsRepo;
-        $this->playerRepo       = $playerRepo;
-        $this->vehicleRepo      = $vehicleRepo;
-        $this->weaponRepo       = $weaponRepo;
+        $this->outfitTotalRepo = $outfitTotalRepo;
+        $this->playerRepo      = $playerRepo;
+        $this->vehicleRepo     = $vehicleRepo;
+        $this->weaponRepo      = $weaponRepo;
     }
 
     /**
@@ -182,8 +182,8 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
      */
     public function includeOutfit($data)
     {
-        $data = $this->outfitTotalsRepo->readSingleById($data['playerOutfit'], 'primary');
-        return $this->item($data, new OutfitProfileTransformer);
+        $data = $this->outfitTotalRepo->readSingleById($data['playerOutfit'], 'primary');
+        return $this->item($data, new PlayerOutfitTransformer);
     }
 
     /**

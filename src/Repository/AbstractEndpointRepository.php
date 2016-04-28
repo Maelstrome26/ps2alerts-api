@@ -87,6 +87,9 @@ abstract class AbstractEndpointRepository implements
         if ($queryDebug === true) {
             $pdo->setProfiler(new Profiler);
             $pdo->getProfiler()->setActive(true);
+            var_dump("QUERY: {$query->getStatement()}");
+            var_dump("BINDS:");
+            var_dump($query->getBindValues());
         }
 
         if ($single === false) {
@@ -151,6 +154,7 @@ abstract class AbstractEndpointRepository implements
      * Reads all related records from the database
      *
      * @param  string $id
+     * @param  string $keyType Field to search on
      *
      * @return array
      */
