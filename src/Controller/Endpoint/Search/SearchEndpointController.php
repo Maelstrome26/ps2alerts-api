@@ -128,9 +128,11 @@ class SearchEndpointController extends AbstractEndpointController
     {
         $query = $this->outfitRepository->newQuery();
         $query->cols(['*']);
-        $query->where("outfitName LIKE '%{$term}%'");
+        $query->where("outfitTag LIKE :term");
+        $query->where("outfitName LIKE :term");
+        $query->bindValue('term', "%{$term}%");
 
-        return $this->outfitRepository->readRaw($query->getStatement());
+        return $this->outfitRepository->fireStatementAndReturn($query);
     }
 
     /**
