@@ -80,7 +80,7 @@ class SearchEndpointController extends AbstractEndpointController
         $name = urldecode($args['term']); // Spaces will have to URL encoded
 
         // If a valid outfit name we're searching on
-        if ($this->parseOutfitName($name)) {
+        if ($this->parseOutfitName($name, $response)) {
             $outfits = $this->searchForOutfit($name);
 
             if (! empty($outfits)) {
@@ -172,13 +172,13 @@ class SearchEndpointController extends AbstractEndpointController
      *
      * @return boolean
      */
-    public function parseOutfitName($name)
+    public function parseOutfitName($name, Response $response)
     {
         if (empty($name)) {
             return $this->errorWrongArgs($response, 'Outfit name needs to be present.');
         }
 
-        if (strlen($name > 32)) {
+        if (strlen($name) > 32) {
             return $this->errorWrongArgs($response, 'Outfit names cannot be longer than 32 characters.');
         }
 
