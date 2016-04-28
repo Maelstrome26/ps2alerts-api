@@ -9,10 +9,10 @@ use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerRepository;
 use Ps2alerts\Api\Repository\Metrics\VehicleRepository;
 use Ps2alerts\Api\Repository\Metrics\WeaponRepository;
-use Ps2alerts\Api\Transformer\Profiles\OutfitProfileTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerCensusTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerInvolvementTransformer;
 use Ps2alerts\Api\Transformer\Profiles\PlayerMetricsTransformer;
+use Ps2alerts\Api\Transformer\Profiles\PlayerOutfitTransformer;
 
 class PlayerProfileTransformer extends TransformerAbstract implements HttpClientAwareInterface
 {
@@ -28,7 +28,7 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
         'involvement',
         'metrics',
         'outfit',
-        'vehicles',
+        //'vehicles',
         'weapons'
     ];
 
@@ -39,9 +39,9 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
 
     public function __construct(
         OutfitTotalRepository $outfitTotalRepo,
-        PlayerRepository $playerRepo,
-        VehicleRepository $vehicleRepo,
-        WeaponRepository $weaponRepo
+        PlayerRepository      $playerRepo,
+        VehicleRepository     $vehicleRepo,
+        WeaponRepository      $weaponRepo
     ) {
         $this->outfitTotalRepo = $outfitTotalRepo;
         $this->playerRepo      = $playerRepo;
@@ -175,7 +175,7 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
     public function includeOutfit($data)
     {
         $data = $this->outfitTotalRepo->readSingleById($data['playerOutfit'], 'primary');
-        return $this->item($data, new OutfitProfileTransformer);
+        return $this->item($data, new PlayerOutfitTransformer);
     }
 
     /**

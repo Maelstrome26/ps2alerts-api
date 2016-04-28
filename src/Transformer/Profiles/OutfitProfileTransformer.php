@@ -37,7 +37,7 @@ class OutfitProfileTransformer extends TransformerAbstract
     protected $playerTotalRepo;
 
     public function __construct(
-        OutfitRepository $outfitRepo,
+        OutfitRepository      $outfitRepo,
         OutfitTotalRepository $outfitTotalRepo,
         PlayerRepository      $playerRepo,
         PlayerTotalRepository $playerTotalRepo
@@ -58,6 +58,7 @@ class OutfitProfileTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
+            'id'        => (string) $data['outfitID'], // Bigint
             'name'      => (string) $data['outfitName'],
             'tag'       => (string) $data['outfitTag'],
             'faction'   => (int) $data['outfitFaction'],
