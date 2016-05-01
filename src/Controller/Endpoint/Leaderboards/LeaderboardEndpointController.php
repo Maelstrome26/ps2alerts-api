@@ -194,6 +194,7 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
         $query = $this->outfitTotalRepository->newQuery();
         $query->cols(['*']);
         $query->orderBy(["{$field} desc"]);
+        $query->where('outfitID > 0');
 
         if (isset($server)) {
             $query->where('outfitServer = ?', $server);

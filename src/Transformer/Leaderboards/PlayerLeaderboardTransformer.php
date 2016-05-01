@@ -24,6 +24,8 @@ class PlayerLeaderboardTransformer extends TransformerAbstract
         return [
             'id'        => (string) $data['playerID'],
             'name'      => (string) $data['playerName'],
+            'faction'   => (int) $data['playerFaction'],
+            'server'    => (int) $data['playerServer'],
             'kills'     => (int) $data['playerKills'],
             'deaths'    => (int) $data['playerDeaths'],
             'teamkills' => (int) $data['playerTeamKills'],

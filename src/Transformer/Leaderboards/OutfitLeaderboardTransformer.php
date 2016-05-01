@@ -18,6 +18,9 @@ class OutfitLeaderboardTransformer extends TransformerAbstract
         return [
             'id'        => (string) $data['outfitID'],
             'name'      => (string) $data['outfitName'],
+            'tag'       => (string) $data['outfitTag'],
+            'server'    => (int) $data['outfitServer'],
+            'faction'   => (int) $data['outfitFaction'],
             'kills'     => (int) $data['outfitKills'],
             'deaths'    => (int) $data['outfitDeaths'],
             'teamkills' => (int) $data['outfitTKs'],
