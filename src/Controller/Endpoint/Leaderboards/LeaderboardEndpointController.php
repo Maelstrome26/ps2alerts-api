@@ -187,6 +187,9 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
                 case 'headshots':
                     $field = 'headshots';
                     break;
+                case 'captures':
+                    $field = 'outfitCaptures';
+                    break;
             }
         }
 
@@ -362,7 +365,8 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
             'deaths',
             'teamkills',
             'suicides',
-            'headshots'
+            'headshots',
+            'captures'
         ];
 
         if (! empty($field) && in_array($field, $validFields)) {
