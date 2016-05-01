@@ -87,8 +87,7 @@ abstract class AbstractEndpointRepository implements
         if ($queryDebug === true) {
             $pdo->setProfiler(new Profiler);
             $pdo->getProfiler()->setActive(true);
-            var_dump("QUERY: {$query->getStatement()}");
-            var_dump("BINDS:");
+            var_dump($query->getStatement());
             var_dump($query->getBindValues());
         }
 

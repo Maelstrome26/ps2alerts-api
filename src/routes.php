@@ -82,6 +82,19 @@ $route->get(
 );
 
 /**
+ * Leaderboards
+ */
+$route->get(
+    '/v2/leaderboards/players',
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::players'
+);
+
+$route->get(
+    '/v2/leaderboards/outfits',
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::outfits'
+);
+
+/**
  * Return the dispatcher to the app loader
  */
 return $route->getDispatcher();
