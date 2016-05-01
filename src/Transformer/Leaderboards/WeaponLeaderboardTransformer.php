@@ -16,7 +16,8 @@ class WeaponLeaderboardTransformer extends TransformerAbstract
     public function transform($data)
     {
         return [
-            'kills'     => (int) $data['kills'],
+            'id'        => (int) $data['weaponID'],
+            'kills'     => (int) $data['killCount'],
             'teamkills' => (int) $data['teamkills'],
             'headshots' => (int) $data['headshots']
         ];

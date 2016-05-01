@@ -29,21 +29,23 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
     public function __construct(
         Manager               $fractal,
         PlayerTotalRepository $playerTotalRepository,
-        OutfitTotalRepository $outfitTotalRepository
+        OutfitTotalRepository $outfitTotalRepository,
+        WeaponTotalRepository $weaponTotalRepository
     ) {
 
         $this->fractal = $fractal;
         $this->playerTotalRepository = $playerTotalRepository;
         $this->outfitTotalRepository = $outfitTotalRepository;
+        $this->weaponTotalRepository = $weaponTotalRepository;
     }
 
     /**
      * Get Player Leaderboard
      *
-     * @param  Request  $request  [description]
-     * @param  Response $response [description]
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
      *
-     * @return [type]             [description]
+     * @return League\Fractal\Manager
      */
     public function players(Request $request, Response $response)
     {
@@ -142,10 +144,10 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
     /**
      * Get Outfit Leaderboard
      *
-     * @param  Request  $request  [description]
-     * @param  Response $response [description]
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
      *
-     * @return [type]             [description]
+     * @return League\Fractal\Manager
      */
     public function outfits(Request $request, Response $response)
     {
@@ -216,6 +218,78 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
         );
     }
 
+    /**
+     * Get Weapon Leaderboard
+     *
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
+     *
+     * @return League\Fractal\Manager
+     */
+    public function weapons(Request $request, Response $response)
+    {
+        $valid = $this->validateRequestVars($request);
+
+        // If validation didn't pass, chuck 'em out
+        if ($valid !== true) {
+            return $this->errorWrongArgs($response, $valid->getMessage());
+        }
+
+        $field  = $request->get('field');
+
+        // Translate field into table specific columns
+
+        // Default
+        if (! isset($field)) {
+            $field = 'killCount';
+        }
+
+        if (isset($field)) {
+            switch ($field) {
+                case 'kills':
+                    $field = 'killCount';
+                    break;
+                case 'headshots':
+                    $field = 'headshots';
+                    break;
+                case 'teamkills':
+                    $field = 'teamkills';
+                    break;
+            }
+        }
+
+        $redis = $this->getRedisDriver();
+        $key = "ps2alerts:api:leaderboards:weapons:{$field}";
+
+        // If we have this cached already
+        if (! empty($redis->exists($key))) {
+            $weapons = json_decode($redis->get($key), true);
+        } else {
+            // Perform Query
+            $query = $this->weaponTotalRepository->newQuery();
+            $query->cols([
+                'weaponID',
+                'SUM(killCount) as killCount',
+                'SUM(teamkills) as teamkills',
+                'SUM(headshots) as headshots'
+            ]);
+            $query->orderBy(["{$field} desc"]);
+            $query->groupBy(['weaponID']);
+
+            $weapons = $this->weaponTotalRepository->fireStatementAndReturn($query);
+
+            // Cache results in redis
+            $redis->setEx($key, 7200, json_encode($weapons));
+        }
+
+        return $this->respond(
+            'collection',
+            $weapons,
+            new WeaponLeaderboardTransformer,
+            $request,
+            $response
+        );
+    }
 
     /**
      * Gets a players outfit either from DB or Redis
