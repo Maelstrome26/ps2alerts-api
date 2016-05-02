@@ -277,6 +277,7 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
                 'SUM(teamkills) as teamkills',
                 'SUM(headshots) as headshots'
             ]);
+            $query->where('weaponID > 0');
             $query->orderBy(["{$field} desc"]);
             $query->groupBy(['weaponID']);
 
