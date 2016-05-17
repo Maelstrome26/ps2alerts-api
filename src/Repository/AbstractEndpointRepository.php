@@ -61,12 +61,20 @@ abstract class AbstractEndpointRepository implements
      *
      * @return \Aura\SqlQuery\AbstractQuery
      */
-    public function newQuery()
+    public function newQuery($type = 'single')
     {
         $factory = new QueryFactory('mysql');
 
-        $query = $factory->newSelect(); // Suspect I'll only ever need this one
-        $query->from($this->getTable());
+        if ($type === 'single') {
+            $query = $factory->newSelect();
+            $query->from($this->getTable());
+        } elseif ($type === 'update') {
+            $query = $factory->newUpdate();
+        } elseif ($type === 'delete') {
+            $query = $factory->newDelete();
+        }
+
+        var_dump($this->getTable());
 
         return $query;
     }
@@ -138,7 +146,7 @@ abstract class AbstractEndpointRepository implements
      *
      * @return array
      */
-    public function readSinglebyId($id, $keyType = 'primary')
+    public function readSinglebyId($id, $keyType = 'primary', $object = false)
     {
         $query = $this->newQuery();
         $key = $this->returnKeyType($keyType);
@@ -146,7 +154,7 @@ abstract class AbstractEndpointRepository implements
         $query->cols(['*'])
               ->where("{$key} = ?", $id);
 
-        return $this->fireStatementAndReturn($query, true);
+        return $this->fireStatementAndReturn($query, true, $object);
     }
 
     /**

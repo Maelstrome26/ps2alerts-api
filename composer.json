@@ -19,7 +19,8 @@
         "monolog/monolog": "^1.17",
         "ramsey/uuid": "^3.1",
         "league/fractal": "^0.13.0",
-        "guiguiboy/php-cli-progress-bar": "dev-master"
+        "guiguiboy/php-cli-progress-bar": "dev-master",
+        "symfony/console": "^3.0"
     },
     "require-dev": {
         "guzzlehttp/guzzle": "^6.1",

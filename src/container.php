@@ -38,4 +38,8 @@ $container->inflector('Ps2alerts\Api\Contract\UuidAwareInterface')
 $container->inflector('League\Container\ContainerAwareInterface')
           ->invokeMethod('setContainer', [$container]);
 
+// Processing deps
+$container->add('Ps2alerts\Api\Factory\AuraFactory')
+          ->withArgument('Aura\SqlQuery\QueryFactory');
+
 return $container;
