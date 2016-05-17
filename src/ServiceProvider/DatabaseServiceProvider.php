@@ -24,8 +24,6 @@ class DatabaseServiceProvider extends ServiceProvider
         $this->getContainer()->singleton('Database', function () {
             $config = $this->getContainer()->get('config')['database'];
 
-            var_dump($config['host']);
-
             $pdo = new ExtendedPdo(
                 "mysql:host={$config['host']};dbname={$config['schema']}",
                 $config['user'],
