@@ -12,7 +12,9 @@ josegonzalez\Dotenv\Loader::load([
     'toEnv'    => true
 ]);
 
-$container = include __DIR__ . '/../src/container.php';
+$container = include __DIR__ . '/container.php';
+
+include __DIR__ . '/Command/CommandsCommon.php';
 
 $application = new Application();
 // List commands here

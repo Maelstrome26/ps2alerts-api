@@ -17,4 +17,14 @@ class AuraFactory
     {
         return $this->factory->newSelect();
     }
+
+    public function newUpdate()
+    {
+        return $this->factory->newUpdate();
+    }
+
+    public function newDelete()
+    {
+        return $this->factory->newDelete();
+    }
 }

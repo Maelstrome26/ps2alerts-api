@@ -39,7 +39,8 @@ class DeleteAlertCommand extends Command
 
         $alert = $this->alertRepo->readSingleById($id, 'primary', true);
 
-        $this->processPlayers($alert);
+        $playersProcessed = $this->processPlayers($alert);
+        $output->writeln("{$playersProcessed} players processed");
 
         /*
         Needs to do:
@@ -64,7 +65,6 @@ class DeleteAlertCommand extends Command
             * XP Totals
          */
 
-        $output->writeln($text);
     }
 
     protected function processPlayers($alert)
@@ -76,17 +76,37 @@ class DeleteAlertCommand extends Command
             'playerKills AS kills',
             'playerDeaths AS deaths',
             'playerTeamKills AS teamkills',
-            'playerSuicides AS suicides'
+            'playerSuicides AS suicides',
+            'headshots'
         ]);
         $query->from('ws_players');
 
         $query->where('resultID = ?', $alert->ResultID);
+        //$query->where('playerID = ?', '5428010618035323201');
 
-        $statement = $this->db->prepare($query->getStatement());
-        $statement->execute($query->getBindValues());
+        $playerQuery = $this->db->prepare($query->getStatement());
+        $playerQuery->execute($query->getBindValues());
 
-        while($row = $statement->fetch(\PDO::FETCH_OBJ)) {
-            var_dump($row);
+        $count = 0;
+
+        while($row = $playerQuery->fetch(\PDO::FETCH_OBJ)) {
+
+            $count++;
+
+            $update = $this->auraFactory->newUpdate();
+            $update->table('ws_players_total');
+            $update->where('playerID = ?', $row->playerID);
+
+            $update->set('playerKills', "playerKills - {$row->kills}");
+            $update->set('playerDeaths', "playerDeaths - {$row->deaths}");
+            $update->set('playerTeamKills', "playerTeamKills - {$row->teamkills}");
+            $update->set('playerSuicides', "playerSuicides - {$row->suicides}");
+            $update->set('headshots', "headshots - {$row->headshots}");
+
+            $updateQuery = $this->db->prepare($update->getStatement());
+            $updateQuery->execute($update->getBindValues());
         }
+
+        return $count;
     }
 }
