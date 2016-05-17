@@ -74,8 +74,6 @@ abstract class AbstractEndpointRepository implements
             $query = $factory->newDelete();
         }
 
-        var_dump($this->getTable());
-
         return $query;
     }
 
