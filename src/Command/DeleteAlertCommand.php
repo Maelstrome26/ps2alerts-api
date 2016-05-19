@@ -37,22 +37,27 @@ class DeleteAlertCommand extends Command
     {
         $id = $input->getArgument('alert');
 
+        $this->processAlert($id, $output);
+    }
+
+    public function processAlert($id, $output, $force = null)
+    {
         $alert = $this->alertRepo->readSingleById($id, 'primary', true);
 
-        if (empty($alert)) {
+        if (empty($force) && empty($id)) {
             $output->writeln("ALERT {$id} DOES NOT EXIST!");
             return false;
         }
 
         $output->writeln("DELETING ALERT {$id}");
 
-        $players = $this->processPlayers($alert);
+        $players = $this->processPlayers($id);
         $output->writeln("{$players} players processed");
 
-        $outfits = $this->processOutfits($alert);
+        $outfits = $this->processOutfits($id);
         $output->writeln("{$outfits} outfits processed");
 
-        $types = $this->processXP($alert);
+        $types = $this->processXP($id);
         $output->writeln("{$types} XP types processed");
         $tables = [
             'ws_classes',
@@ -72,16 +77,16 @@ class DeleteAlertCommand extends Command
             'ws_xp'
         ];
 
-        $this->deleteAllFromTables($tables, $alert, $output);
+        $this->deleteAllFromTables($tables, $id, $output);
 
         // Finally delete the alert
-        $this->deleteAlert($alert);
-        $output->writeln("Alert {$alert->ResultID} successfully deleted!");
-        
+        $this->deleteAlert($id);
+        $output->writeln("Alert {$id} successfully deleted!");
+
         return true;
     }
 
-    protected function processPlayers($alert)
+    protected function processPlayers($id)
     {
         $cols = [
             'playerID',
@@ -101,7 +106,7 @@ class DeleteAlertCommand extends Command
         ];
 
         return $this->runProcess(
-            $alert,
+            $id,
             $cols,
             'ws_players',
             'ws_players_total',
@@ -110,7 +115,7 @@ class DeleteAlertCommand extends Command
         );
     }
 
-    protected function processOutfits($alert)
+    protected function processOutfits($id)
     {
         $cols = [
             'outfitID',
@@ -128,7 +133,7 @@ class DeleteAlertCommand extends Command
         ];
 
         return $this->runProcess(
-            $alert,
+            $id,
             $cols,
             'ws_outfits',
             'ws_outfits_total',
@@ -137,7 +142,7 @@ class DeleteAlertCommand extends Command
         );
     }
 
-    protected function processXP($alert)
+    protected function processXP($id)
     {
         $cols = [
             'SUM(occurances) AS occurances',
@@ -149,7 +154,7 @@ class DeleteAlertCommand extends Command
         ];
 
         return $this->runProcess(
-            $alert,
+            $id,
             $cols,
             'ws_xp',
             'ws_xp_totals',
@@ -160,7 +165,7 @@ class DeleteAlertCommand extends Command
     }
 
     protected function runProcess(
-        $alert,
+        $id,
         array $cols,
         $table,
         $totalsTable,
@@ -184,7 +189,7 @@ class DeleteAlertCommand extends Command
         $query = $this->auraFactory->newSelect();
         $query->cols($cols);
         $query->from($table);
-        $query->where('resultID = ?', $alert->ResultID);
+        $query->where('resultID = ?', $id);
 
         if (! empty($groupBy)) {
             $query->groupBy($groupBy);
@@ -213,12 +218,12 @@ class DeleteAlertCommand extends Command
         return $count;
     }
 
-    protected function deleteAllFromTables(array $tables, $alert, OutputInterface $output)
+    protected function deleteAllFromTables(array $tables, $id, OutputInterface $output)
     {
         foreach($tables as $table) {
             $delete = $this->auraFactory->newDelete();
             $delete->from($table);
-            $delete->where('resultID = ?', $alert->ResultID);
+            $delete->where('resultID = ?', $id);
 
             $deleteQuery = $this->db->prepare($delete->getStatement());
             $deleteQuery->execute($delete->getBindValues());
@@ -228,11 +233,11 @@ class DeleteAlertCommand extends Command
         }
     }
 
-    protected function deleteAlert($alert)
+    protected function deleteAlert($id)
     {
         $delete = $this->auraFactory->newDelete();
         $delete->from('ws_results');
-        $delete->where('ResultID = ?', $alert->ResultID);
+        $delete->where('ResultID = ?', $id);
 
         $deleteQuery = $this->db->prepare($delete->getStatement());
         $deleteQuery->execute($delete->getBindValues());
