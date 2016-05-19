@@ -39,74 +39,202 @@ class DeleteAlertCommand extends Command
 
         $alert = $this->alertRepo->readSingleById($id, 'primary', true);
 
-        $playersProcessed = $this->processPlayers($alert);
-        $output->writeln("{$playersProcessed} players processed");
+        if (empty($alert)) {
+            $output->writeln("ALERT {$id} DOES NOT EXIST!");
+            return false;
+        }
 
-        /*
-        Needs to do:
-        * Delete records:
-            * Players
-            * Outfits
-            * Vehicles
-            * Weapons
-            * XP
-            * Map
-            * Map Initial
-            * Class Combat
-            * Combat History
-            * Population History
-            * Factions record
-            * The result itself
-        * Recalculate global totals:
-            * Player Totals
-            * Outfit Totals
-            * Vehicle Totals
-            * Weapon Totals
-            * XP Totals
-         */
+        $output->writeln("DELETING ALERT {$id}");
 
+        $players = $this->processPlayers($alert);
+        $output->writeln("{$players} players processed");
+
+        $outfits = $this->processOutfits($alert);
+        $output->writeln("{$outfits} outfits processed");
+
+        $types = $this->processXP($alert);
+        $output->writeln("{$types} XP types processed");
+        $tables = [
+            'ws_classes',
+            'ws_classes_totals',
+            'ws_combat_history',
+            'ws_factions',
+            'ws_instances',
+            'ws_map',
+            'ws_map_initial',
+            'ws_outfits',
+            'ws_players',
+            'ws_pops',
+            'ws_vehicles',
+            'ws_vehicles_totals',
+            'ws_weapons',
+            'ws_weapons_totals',
+            'ws_xp'
+        ];
+
+        $this->deleteAllFromTables($tables, $alert, $output);
+
+        // Finally delete the alert
+        $this->deleteAlert($alert);
+        $output->writeln("Alert {$alert->ResultID} successfully deleted!");
+        
+        return true;
     }
 
     protected function processPlayers($alert)
     {
-        $query = $this->auraFactory->newSelect();
-        $query->cols([
-            'playerName',
+        $cols = [
             'playerID',
-            'playerKills AS kills',
-            'playerDeaths AS deaths',
-            'playerTeamKills AS teamkills',
-            'playerSuicides AS suicides',
+            'playerKills',
+            'playerDeaths',
+            'playerTeamKills',
+            'playerSuicides',
             'headshots'
-        ]);
-        $query->from('ws_players');
+        ];
 
+        $fields = [
+            'playerKills',
+            'playerDeaths',
+            'playerTeamKills',
+            'playerSuicides',
+            'headshots'
+        ];
+
+        return $this->runProcess(
+            $alert,
+            $cols,
+            'ws_players',
+            'ws_players_total',
+            'playerID',
+            $fields
+        );
+    }
+
+    protected function processOutfits($alert)
+    {
+        $cols = [
+            'outfitID',
+            'outfitKills',
+            'outfitDeaths',
+            'outfitTKs',
+            'outfitSuicides'
+        ];
+
+        $fields = [
+            'outfitKills',
+            'outfitDeaths',
+            'outfitTKs',
+            'outfitSuicides'
+        ];
+
+        return $this->runProcess(
+            $alert,
+            $cols,
+            'ws_outfits',
+            'ws_outfits_total',
+            'outfitID',
+            $fields
+        );
+    }
+
+    protected function processXP($alert)
+    {
+        $cols = [
+            'SUM(occurances) AS occurances',
+            'type'
+        ];
+
+        $fields = [
+            'occurances'
+        ];
+
+        return $this->runProcess(
+            $alert,
+            $cols,
+            'ws_xp',
+            'ws_xp_totals',
+            'type',
+            $fields,
+            ['type']
+        );
+    }
+
+    protected function runProcess(
+        $alert,
+        array $cols,
+        $table,
+        $totalsTable,
+        $filter,
+        array $fields,
+        $groupBy = null
+    ) {
+        // Check each cols to make sure we handle SUM(BLAH) AS BLAH issues
+
+        foreach($cols as $key => $col) {
+            if (strpos($col, 'AS ') !== false) {
+                $pos = strrpos($col, 'AS ') + 3; // Plus 3 for "AS "
+                $len = strlen($col);
+                $diff = $len - $pos;
+                $field = substr($col, $pos, $diff);
+
+                $cols[$key] = $field;
+            }
+        }
+
+        $query = $this->auraFactory->newSelect();
+        $query->cols($cols);
+        $query->from($table);
         $query->where('resultID = ?', $alert->ResultID);
-        //$query->where('playerID = ?', '5428010618035323201');
 
-        $playerQuery = $this->db->prepare($query->getStatement());
-        $playerQuery->execute($query->getBindValues());
+        if (! empty($groupBy)) {
+            $query->groupBy($groupBy);
+        }
+
+        $allQuery = $this->db->prepare($query->getStatement());
+        $allQuery->execute($query->getBindValues());
 
         $count = 0;
 
-        while($row = $playerQuery->fetch(\PDO::FETCH_OBJ)) {
-
+        while ($row = $allQuery->fetch(\PDO::FETCH_OBJ)) {
             $count++;
 
             $update = $this->auraFactory->newUpdate();
-            $update->table('ws_players_total');
-            $update->where('playerID = ?', $row->playerID);
+            $update->table($totalsTable);
+            $update->where("{$filter} = ?", $row->$filter);
 
-            $update->set('playerKills', "playerKills - {$row->kills}");
-            $update->set('playerDeaths', "playerDeaths - {$row->deaths}");
-            $update->set('playerTeamKills', "playerTeamKills - {$row->teamkills}");
-            $update->set('playerSuicides', "playerSuicides - {$row->suicides}");
-            $update->set('headshots', "headshots - {$row->headshots}");
+            foreach($fields as $field) {
+                $update->set($field, "{$field} - {$row->$field}");
+            }
 
             $updateQuery = $this->db->prepare($update->getStatement());
             $updateQuery->execute($update->getBindValues());
         }
 
         return $count;
+    }
+
+    protected function deleteAllFromTables(array $tables, $alert, OutputInterface $output)
+    {
+        foreach($tables as $table) {
+            $delete = $this->auraFactory->newDelete();
+            $delete->from($table);
+            $delete->where('resultID = ?', $alert->ResultID);
+
+            $deleteQuery = $this->db->prepare($delete->getStatement());
+            $deleteQuery->execute($delete->getBindValues());
+
+            $affected = $deleteQuery->rowCount();
+            $output->writeln("{$affected} rows deleted from table \"{$table}\"");
+        }
+    }
+
+    protected function deleteAlert($alert)
+    {
+        $delete = $this->auraFactory->newDelete();
+        $delete->from('ws_results');
+        $delete->where('ResultID = ?', $alert->ResultID);
+
+        $deleteQuery = $this->db->prepare($delete->getStatement());
+        $deleteQuery->execute($delete->getBindValues());
     }
 }
