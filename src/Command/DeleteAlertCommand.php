@@ -2,35 +2,31 @@
 
 namespace Ps2alerts\Api\Command;
 
+use Ps2alerts\Api\Command\BaseCommand;
 use Ps2alerts\Api\Repository\AlertRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DeleteAlertCommand extends Command
+class DeleteAlertCommand extends BaseCommand
 {
     protected $alertRepo;
-    protected $auraFactory;
-    protected $db;
+    protected $verbose = 0;
 
     protected function configure()
     {
-        $this
-            ->setName('DeleteAlert')
-            ->setDescription('Deletes an alert and corrects totals')
-            ->addArgument(
+        parent::configure();
+        $this->setName('DeleteAlert')
+             ->setDescription('Deletes an alert and corrects totals')
+             ->addArgument(
                 'alert',
                 InputArgument::REQUIRED,
                 'Alert ID to process'
-            )
-        ;
+            );
 
         global $container; // Inject Container
         $this->alertRepo = $container->get('Ps2alerts\Api\Repository\AlertRepository');
-        $this->auraFactory = $container->get('Ps2alerts\Api\Factory\AuraFactory');
-        $this->db = $container->get('Database');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -52,13 +48,20 @@ class DeleteAlertCommand extends Command
         $output->writeln("DELETING ALERT {$id}");
 
         $players = $this->processPlayers($id);
-        $output->writeln("{$players} players processed");
+        if ($this->verbose === 1) {
+            $output->writeln("{$players} players processed");
+        }
 
         $outfits = $this->processOutfits($id);
-        $output->writeln("{$outfits} outfits processed");
+        if ($this->verbose === 1) {
+            $output->writeln("{$outfits} outfits processed");
+        }
 
         $types = $this->processXP($id);
-        $output->writeln("{$types} XP types processed");
+        if ($this->verbose === 1) {
+            $output->writeln("{$types} XP types processed");
+        }
+
         $tables = [
             'ws_classes',
             'ws_classes_totals',
@@ -81,7 +84,10 @@ class DeleteAlertCommand extends Command
 
         // Finally delete the alert
         $this->deleteAlert($id);
-        $output->writeln("Alert {$id} successfully deleted!");
+
+        if ($this->verbose === 1) {
+            $output->writeln("Alert {$id} successfully deleted!");
+        }
 
         return true;
     }
@@ -229,7 +235,10 @@ class DeleteAlertCommand extends Command
             $deleteQuery->execute($delete->getBindValues());
 
             $affected = $deleteQuery->rowCount();
-            $output->writeln("{$affected} rows deleted from table \"{$table}\"");
+
+            if ($this->verbose === 1) {
+                $output->writeln("{$affected} rows deleted from table \"{$table}\"");
+            }
         }
     }
 

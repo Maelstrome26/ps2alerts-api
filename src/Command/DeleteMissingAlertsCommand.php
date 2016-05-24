@@ -2,33 +2,26 @@
 
 namespace Ps2alerts\Api\Command;
 
+use Ps2alerts\Api\Command\BaseCommand;
 use Ps2alerts\Api\Repository\AlertRepository;
-use Ps2alerts\Api\Command\DeleteAlertCommand;
-use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class DeleteMissingAlertsCommand extends Command
+class DeleteMissingAlertsCommand extends BaseCommand
 {
     protected $alertRepo;
-    protected $auraFactory;
-    protected $db;
     protected $alertProcessor;
 
     protected function configure()
     {
-        $this
-            ->setName('DeleteMissingAlerts')
-            ->setDescription('Deletes all missing alerts')
-        ;
+        parent::configure();
+        $this->setName('DeleteMissingAlerts')
+             ->setDescription('Deletes all missing alerts');
 
-        global $container; // Inject Container
+        global $container;
         $this->alertRepo = $container->get('Ps2alerts\Api\Repository\AlertRepository');
-        $this->auraFactory = $container->get('Ps2alerts\Api\Factory\AuraFactory');
         $this->alertProcessor = new DeleteAlertCommand();
-        $this->db = $container->get('Database');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -50,7 +43,9 @@ class DeleteMissingAlertsCommand extends Command
         while($count < $max) {
             $count++;
 
-            var_dump($count);
+            $per = round(($count / $max) * 100, 2);
+
+            $output->writeln("{$count} / {$max} - {$per}%");
 
             $alertPDO = $this->auraFactory->newSelect();
             $alertPDO->from('ws_results');
