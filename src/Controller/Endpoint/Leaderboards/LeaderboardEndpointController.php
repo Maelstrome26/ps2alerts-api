@@ -430,7 +430,6 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
 
         // Only accept commands from internal IP
         $ip = $request->getClientIp();
-        $ip = '192.168.33.10';
 
         if ($ip !== $_SERVER['SERVER_ADDR']) {
             $response->setStatusCode(404);
