@@ -16,7 +16,7 @@ class DeleteAlertCommand extends BaseCommand
 
     protected function configure()
     {
-        parent::configure();
+        parent::configure(); // See BaseCommand.php
         $this->setName('DeleteAlert')
              ->setDescription('Deletes an alert and corrects totals')
              ->addArgument(
