@@ -9,22 +9,20 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use PDO;
 
-class LeaderboardsCommand extends BaseCommand
+class LeaderboardPlayersCommand extends BaseCommand
 {
-    protected $alertRepo;
-    protected $alertProcessor;
-
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
-        $this->setName('Leaderboards:Process')
-             ->setDescription('Processes leaderboards updates');
+        $this->setName('Leaderboards:Players')
+             ->setDescription('Processes player leaderboards')
+             ->addArgument(
+                'server',
+                InputArgument::REQUIRED
+             );
 
         global $container;
         $this->redis = $container->get('redis');
-        $this->playerTotalRepo = $container->get(
-            'Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository'
-        );
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
@@ -32,13 +30,13 @@ class LeaderboardsCommand extends BaseCommand
         $start = microtime(true);
         $output->writeln("Running Player Leaderboards");
 
-        $this->playerLeaderboards($output);
+        $this->playerLeaderboards($input, $output);
 
         $end = microtime(true);
         $output->writeln("Processing took " . gmdate("H:i:s", ($end - $start)));
     }
 
-    public function playerLeaderboards(OutputInterface $output)
+    public function playerLeaderboards(InputInterface $input, OutputInterface $output)
     {
         $metrics = [
             'playerKills',
@@ -47,7 +45,13 @@ class LeaderboardsCommand extends BaseCommand
             'playerSuicides',
             'headshots'
         ];
-        $servers = [0,1,10,13,17,25,1000,2000];
+        $serverArg = $input->getArgument('server');
+
+        if ($serverArg === 'all') {
+            $servers = [0,1,10,13,17,25,1000,2000];
+        } else {
+            $servers = [$serverArg];
+        }
 
         foreach($servers as $server) {
             foreach($metrics as $metric) {
@@ -93,7 +97,7 @@ class LeaderboardsCommand extends BaseCommand
 
                     //$output->writeln("MEMORY: " . convert(memory_get_usage(true)));
 
-                    while ($player = $statement->fetch(PDO::FETCH_OBJ)) {
+                    while ($player = $statement->fetch(\PDO::FETCH_OBJ)) {
                         $playerPosKey = "ps2alerts:api:leaderboards:players:pos:{$player->playerID}";
 
                         // If player record doesn't exist
@@ -130,18 +134,20 @@ class LeaderboardsCommand extends BaseCommand
 
     public function markAsBeingUpdated($metric, $server)
     {
-        $key = "ps2alerts:api:leaderboards:status:{$metric}:{$server}";
+        $key = "ps2alerts:api:leaderboards:status:{$server}";
 
         // Create the key if it doesn't exist for some reason (1st runs)
         if (! $this->redis->exists($key)) {
             $data = [
                 'beingUpdated' => 1,
-                'lastUpdated'  => 'never'
+                'lastUpdated'  => date('U'),
+                $metric        => date('U')
             ];
         } else {
-            $data = $this->redis->get($key);
+            $data = json_decode($this->redis->get($key), true);
             $newData = $data;
             $data['beingUpdated'] = 1;
+            $data[$metric]        = date('U');
         }
 
         $this->redis->set($key, json_encode($data));
@@ -149,12 +155,13 @@ class LeaderboardsCommand extends BaseCommand
 
     public function markAsComplete($metric, $server)
     {
-        $key = "ps2alerts:api:leaderboards:status:{$metric}:{$server}";
+        $key = "ps2alerts:api:leaderboards:status:{$server}";
 
-        $data = [
-            'beingUpdated' => 0,
-            'lastUpdated'  => date('U', strtotime('now'))
-        ];
+        $data = json_decode($this->redis->get($key), true);
+
+        $data['beingUpdated'] = 0;
+        $data['lastUpdated'] = date('U');
+        $data[$metric] = date('U');
 
         $this->redis->set($key, json_encode($data));
     }
