@@ -13,6 +13,7 @@ use Ps2alerts\Api\Repository\Metrics\WeaponTotalRepository;
 use Ps2alerts\Api\Transformer\Leaderboards\OutfitLeaderboardTransformer;
 use Ps2alerts\Api\Transformer\Leaderboards\PlayerLeaderboardTransformer;
 use Ps2alerts\Api\Transformer\Leaderboards\WeaponLeaderboardTransformer;
+use Ps2alerts\Api\Transformer\Leaderboards\LeaderboardUpdatedTransformer;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -443,11 +444,11 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
 
         // If we have a key, change the flag to force exists so the cronjob can run
         if ($redis->exists($key)) {
-            $data = json_decode($redis->get($key), true);
+            $data = json_decode($redis->get($key));
 
              // Ignore if already flagged as being updated
-            if ($data['beingUpdated'] == 0) {
-                $data['forceUpdate'] = 1;
+            if ($data->beingUpdated == 0) {
+                $data->forceUpdate = 1;
                 $redis->set($key, json_encode($data));
             }
         } else {
@@ -456,5 +457,24 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
 
         $response->setStatusCode(202);
         return $response;
+    }
+
+    public function lastUpdate(Request $request, Response $response)
+    {
+        $config = $this->getConfig();
+        $redis = $this->getRedisDriver();
+
+        $data = [];
+
+        foreach($config['servers'] as $server) {
+            $key = "ps2alerts:api:leaderboards:status:{$server}";
+
+            if ($redis->exists($key)) {
+                $entry = json_decode($redis->get($key));
+                $data[$server] = $this->createItem($entry, new LeaderboardUpdatedTransformer);
+            }
+        }
+
+        return $this->respondWithArray($response, $data);
     }
 }
