@@ -45,7 +45,8 @@ class LeaderboardPlayersCommand extends BaseCommand
         ];
         $serverArg = $input->getArgument('server');
 
-        if ($serverArg === 'all' || $serverArg == '0') {
+        // Allows server 0, meaning all servers but not to process every server
+        if ($serverArg === 'all') {
             $servers = [0,1,10,13,17,25,1000,2000];
         } else {
             $servers = [$serverArg];
@@ -81,8 +82,8 @@ class LeaderboardPlayersCommand extends BaseCommand
                     $query = $this->auraFactory->newSelect();
                     $query->cols(['*']);
                     $query->from('ws_players_total');
-                    if ($server !== 0) {
-                         $query->where('playerServer', $server);
+                    if ($server != 0) {
+                         $query->where("playerServer = ?", $server);
                     }
                     $query->orderBy([$metric . ' DESC']);
                     $query->limit($limit);
@@ -93,7 +94,7 @@ class LeaderboardPlayersCommand extends BaseCommand
 
                     $count = $count + $statement->rowCount();
 
-                    //$output->writeln("MEMORY: " . convert(memory_get_usage(true)));
+                    $output->writeln('Processing records...');
 
                     while ($player = $statement->fetch(\PDO::FETCH_OBJ)) {
                         $playerPosKey = "ps2alerts:api:leaderboards:players:pos:{$player->playerID}";
@@ -101,32 +102,63 @@ class LeaderboardPlayersCommand extends BaseCommand
                         // If player record doesn't exist
                         if (! $this->redis->exists($playerPosKey)) {
                             $data = [
-                                'id'      => $player->playerID,
-                                'updated' => date('U', strtotime('now'))
+                                'updated' => [
+                                    'daily'   => date('U'),
+                                    'weekly'  => date('U'),
+                                    'monthly' => date('U'),
+                                ]
                             ];
                         } else {
                             $data = json_decode($this->redis->get($playerPosKey), true);
                         }
 
-                        // For first time running
-                        if (! empty($data[$server][$metric])) {
-                            $data[$server][$metric]['old'] = $data[$server][$metric]['new'];
-                        } else {
-                            $data[$server][$metric]['old'] = 0;
+                        $deadlines = [
+                            'daily',
+                            'weekly',
+                            'monthly'
+                        ];
+
+                        foreach($deadlines as $deadline) {
+                            // If new record for the metric
+                            if (empty($data[$server][$metric][$deadline])) {
+                                $data[$server][$metric][$deadline]['old'] = 0;
+                                $data[$server][$metric][$deadline]['new'] = 0;
+                            }
+
+                            // Flip new to old
+                            if (! empty($data[$server][$metric][$deadline])) {
+                                $data[$server][$metric][$deadline]['old'] = $data[$server][$metric][$deadline]['new'];
+                            }
+
+                            $dateObj = new \DateTime('now');
+                            $interval = 'PT0H'; // Default to now.
+
+                            if ($deadline === 'weekly') {
+                                $interval = 'P7D';
+                            } else if ($deadline === 'monthly') {
+                                $interval = 'P1M';
+                            }
+
+                            $dateObj->sub(new \DateInterval($interval));
+                            $deadlineTime = $dateObj->format('U');
+
+                            if ($data['updated'][$deadline] <= $deadlineTime) {
+                                // Update with new data
+                                $data[$server][$metric][$deadline]['new'] = $pos;
+                                $data['updated'][$deadline] = date('U');
+
+                                $this->redis->set($playerPosKey, json_encode($data));
+                            }
                         }
 
-                        $data[$server][$metric]['new'] = $pos;
-                        $data['updated'] = date('U', strtotime('now'));
-
-                        $this->redis->set($playerPosKey, json_encode($data));
                         $this->redis->rpush($list, $player->playerID);
-
                         $pos++;
                     }
                 }
 
-                $this->markAsComplete($metric, $server);
+                $this->markMetricAsComplete($metric, $server);
             }
+            $this->markAsComplete($server);
         }
     }
 
@@ -140,20 +172,27 @@ class LeaderboardPlayersCommand extends BaseCommand
                 'beingUpdated' => 1,
                 'lastUpdated'  => date('U'),
                 $metric        => date('U'),
-                'forceUpdate'  => 0
             ];
         } else {
             $data = json_decode($this->redis->get($key), true);
             $newData = $data;
             $data['beingUpdated'] = 1;
             $data[$metric]        = date('U');
-            $data['forceUpdate']  = 0;
         }
 
         $this->redis->set($key, json_encode($data));
     }
 
-    public function markAsComplete($metric, $server)
+    public function markMetricAsComplete($metric, $server)
+    {
+        $key = "ps2alerts:api:leaderboards:status:{$server}";
+
+        $data = json_decode($this->redis->get($key), true);
+        $data[$metric] = date('U');
+        $this->redis->set($key, json_encode($data));
+    }
+
+    public function markAsComplete($server)
     {
         $key = "ps2alerts:api:leaderboards:status:{$server}";
 
@@ -161,8 +200,6 @@ class LeaderboardPlayersCommand extends BaseCommand
 
         $data['beingUpdated'] = 0;
         $data['lastUpdated'] = date('U');
-        $data[$metric] = date('U');
-
         $this->redis->set($key, json_encode($data));
     }
 }

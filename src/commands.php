@@ -2,9 +2,9 @@
 
 use Ps2alerts\Api\Command\DeleteAlertCommand;
 use Ps2alerts\Api\Command\DeleteMissingAlertsCommand;
+use Ps2alerts\Api\Command\LeaderboardCheckCommand;
 use Ps2alerts\Api\Command\LeaderboardOutfitsCommand;
 use Ps2alerts\Api\Command\LeaderboardPlayersCommand;
-use Ps2alerts\Api\Command\LeaderboardScheduledCommand;
 use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -23,7 +23,7 @@ $application = new Application();
 // List commands here
 $application->add(new DeleteAlertCommand());
 $application->add(new DeleteMissingAlertsCommand());
+$application->add(new LeaderboardCheckCommand());
 $application->add(new LeaderboardOutfitsCommand());
 $application->add(new LeaderboardPlayersCommand());
-$application->add(new LeaderboardScheduledCommand());
 $application->run();
