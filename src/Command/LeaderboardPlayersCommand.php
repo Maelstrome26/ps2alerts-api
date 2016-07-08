@@ -3,11 +3,9 @@
 namespace Ps2alerts\Api\Command;
 
 use Ps2alerts\Api\Command\BaseCommand;
-use Ps2alerts\Api\Repository\AlertRepository;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
-use PDO;
 
 class LeaderboardPlayersCommand extends BaseCommand
 {
@@ -47,7 +45,7 @@ class LeaderboardPlayersCommand extends BaseCommand
         ];
         $serverArg = $input->getArgument('server');
 
-        if ($serverArg === 'all') {
+        if ($serverArg === 'all' || $serverArg == '0') {
             $servers = [0,1,10,13,17,25,1000,2000];
         } else {
             $servers = [$serverArg];
@@ -141,13 +139,15 @@ class LeaderboardPlayersCommand extends BaseCommand
             $data = [
                 'beingUpdated' => 1,
                 'lastUpdated'  => date('U'),
-                $metric        => date('U')
+                $metric        => date('U'),
+                'forceUpdate'  => 0
             ];
         } else {
             $data = json_decode($this->redis->get($key), true);
             $newData = $data;
             $data['beingUpdated'] = 1;
             $data[$metric]        = date('U');
+            $data['forceUpdate']  = 0;
         }
 
         $this->redis->set($key, json_encode($data));

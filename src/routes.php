@@ -99,6 +99,11 @@ $route->get(
     'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::weapons'
 );
 
+$route->get(
+    '/v2/leaderboards/update',
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::update'
+);
+
 /**
  * Return the dispatcher to the app loader
  */

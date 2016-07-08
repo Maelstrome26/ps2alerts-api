@@ -24,9 +24,10 @@ return [
         'host'    => $_ENV['REDIS_HOST'],
         'db'      => $_ENV['REDIS_DB']
     ],
-    'servers'      => [1,10,13,17,25,1000,2000],
-    'zones'        => [2,4,6,8],
-    'factions'     => ['vs','nc','tr','draw'],
-    'brackets'     => ['MOR','AFT','PRI'],
-    'dbQueryDebug' => $_ENV['DB_QUERY_DEBUG']
+    'servers'       => [1,10,13,17,25,1000,2000],
+    'zones'         => [2,4,6,8],
+    'factions'      => ['vs','nc','tr','draw'],
+    'brackets'      => ['MOR','AFT','PRI'],
+    'dbQueryDebug'  => $_ENV['DB_QUERY_DEBUG'],
+    'commands_path' => $_ENV['COMMANDS_PATH']
 ];
