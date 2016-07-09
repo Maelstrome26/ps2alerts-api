@@ -423,6 +423,4 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
 
         return $offset;
     }
-
-
 }
