@@ -9,7 +9,6 @@ $container->singleton('Symfony\Component\HttpFoundation\Request', function () {
 
 // Service Providers
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\ConfigServiceProvider');
-$container->addServiceProvider('Ps2alerts\Api\ServiceProvider\DatabaseDataServiceProvider');
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\DatabaseServiceProvider');
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\HttpClientServiceProvider');
 $container->addServiceProvider('Ps2alerts\Api\ServiceProvider\LogServiceProvider');
@@ -30,7 +29,8 @@ $container->inflector('Ps2alerts\Api\Contract\HttpClientAwareInterface')
 $container->inflector('Ps2alerts\Api\Contract\TemplateAwareInterface')
           ->invokeMethod('setTemplateDriver', ['Twig_Environment']);
 $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')
-          ->invokeMethod('setRedisDriver', ['redis']);
+          ->invokeMethod('setRedisDriver', ['redis'])
+          ->invokeMethod('setRedisCacheDriver', ['redisCache']);
 $container->inflector('Ps2alerts\Api\Contract\UuidAwareInterface')
           ->invokeMethod('setUuidDriver', ['Ramsey\Uuid\Uuid']);
 

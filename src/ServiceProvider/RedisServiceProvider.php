@@ -15,7 +15,8 @@ class RedisServiceProvider extends ServiceProvider implements
      * @var array
      */
     protected $provides = [
-        'redis'
+        'redis',
+        'redisCache'
     ];
 
     /**
@@ -29,6 +30,18 @@ class RedisServiceProvider extends ServiceProvider implements
             $client = new Client([
                 'host'     => $redisConfig['host'],
                 'database' => intval($redisConfig['db']),
+                'scheme'   => 'tcp'
+            ]);
+
+            return $client;
+        });
+
+        $this->getContainer()->singleton('redisCache', function () {
+            $redisConfig = $this->getContainer()->get('config')['redis'];
+
+            $client = new Client([
+                'host'     => $redisConfig['host'],
+                'database' => intval($redisConfig['db_cache']),
                 'scheme'   => 'tcp'
             ]);
 

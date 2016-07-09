@@ -20,14 +20,16 @@ return [
         'schema'   => $_ENV['DB_NAME_DATA']
     ],
     'redis'        => [
-        'enabled' => $_ENV['REDIS_ENABLED'],
-        'host'    => $_ENV['REDIS_HOST'],
-        'db'      => $_ENV['REDIS_DB']
+        'enabled'  => $_ENV['REDIS_ENABLED'],
+        'host'     => $_ENV['REDIS_HOST'],
+        'db'       => $_ENV['REDIS_DB'],
+        'db_cache' => $_ENV['REDIS_DB_CACHE']
     ],
-    'servers'       => [1,10,13,17,25,1000,2000],
-    'zones'         => [2,4,6,8],
-    'factions'      => ['vs','nc','tr','draw'],
-    'brackets'      => ['MOR','AFT','PRI'],
-    'dbQueryDebug'  => $_ENV['DB_QUERY_DEBUG'],
-    'commands_path' => $_ENV['COMMANDS_PATH']
+    'servers'           => [1,10,13,17,25,1000,2000],
+    'zones'             => [2,4,6,8],
+    'factions'          => ['vs','nc','tr','draw'],
+    'brackets'          => ['MOR','AFT','PRI'],
+    'db_query_debug'    => $_ENV['DB_QUERY_DEBUG'],
+    'commands_path'     => $_ENV['COMMANDS_PATH'],
+    'census_service_id' => $_ENV['CENSUS_SERVICE_ID']
 ];
