@@ -11,6 +11,9 @@ use Ps2alerts\Api\Contract\HttpClientAwareInterface;
 use Ps2alerts\Api\Contract\HttpClientAwareTrait;
 use Ps2alerts\Api\Contract\RedisAwareInterface;
 use Ps2alerts\Api\Contract\RedisAwareTrait;
+use Ps2alerts\Api\Exception\CensusErrorException;
+use Ps2alerts\Api\Exception\CensusEmptyException;
+use Ps2alerts\Api\Exception\RedisStoreException;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 
@@ -67,16 +70,66 @@ class DataEndpointController extends AbstractEndpointController implements
 
         // If not, pull it from Census and store it
         if (empty($character)) {
-            $character = $this->getCharacter($args['id']);
+            try {
+                $character = $this->getCharacter($args['id']);
+            } catch (CensusErrorException $e) {
+                $this->setStatusCode(500);
+                return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+            } catch (CensusEmptyException $e) {
+                $this->setStatusCode(404);
+                return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+            } catch (RedisStoreException $e) {
+                $this->setStatusCode(500);
+                return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+            }
         }
 
         // Now return the character the outfit injected
         if (! empty($character['data']['outfit'])) {
-            $outfit = $this->getOutfit($character['data']['outfit']);
+            try {
+                $outfit = $this->getOutfit($character['data']['outfit']);
+            }catch (CensusErrorException $e) {
+                $this->setStatusCode(500);
+                return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+            } catch (CensusEmptyException $e) {
+                $this->setStatusCode(404);
+                return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+            } catch (RedisStoreException $e) {
+                $this->setStatusCode(500);
+                return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+            }
+
             $character['data']['outfit'] = $outfit['data'];
         }
 
         return $this->respondWithArray($response, $character);
+    }
+
+    /**
+     * Gets an outfits's info, either from redis or db cache
+     *
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  array                                     $args
+     *
+     * @return \League\Fractal\TransformerAbstract
+     */
+    public function outfit(Request $request, Response $response, array $args)
+    {
+        try {
+            $outfit = $this->getOutfit($args['id']);
+        } catch (CensusErrorException $e) {
+            $this->setStatusCode(500);
+            return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+        } catch (CensusEmptyException $e) {
+            $this->setStatusCode(404);
+            return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+        } catch (RedisStoreException $e) {
+            $this->setStatusCode(500);
+            return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+        }
+
+        return $this->respondWithArray($response, $outfit);
     }
 
     /**
@@ -94,15 +147,13 @@ class DataEndpointController extends AbstractEndpointController implements
         try {
             $json = $this->sendCensusQuery($endpoint);
         } catch (\Exception $e) {
-            $this->setStatusCode(500);
-            return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+            throw new CensusErrorException();
         }
 
         // If the character is empty...
         // SCENARIOS: Character has been banned or deleted
         if ($json === null || empty($json->character_list)) {
-            $this->setStatusCode(404);
-            return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+            throw new CensusEmptyException();
         }
 
         $env = $json->environment;
@@ -122,21 +173,6 @@ class DataEndpointController extends AbstractEndpointController implements
         return $character;
     }
 
-    /**
-     * Gets an outfits's info, either from redis or db cache
-     *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
-     * @param  array                                     $args
-     *
-     * @return \League\Fractal\TransformerAbstract
-     */
-    public function outfit(Request $request, Response $response, array $args)
-    {
-        $outfit = $this->getOutfit($args['id']);
-
-        return $this->respondWithArray($response, $outfit);
-    }
 
     /**
      * Gets an outfit from either Redis or Census
@@ -158,21 +194,19 @@ class DataEndpointController extends AbstractEndpointController implements
         $endpoint = "outfit?outfit_id={$id}&c:resolve=leader";
 
         try {
-            $outfit = $this->sendCensusQuery($endpoint);
+            $json = $this->sendCensusQuery($endpoint);
         } catch (\Exception $e) {
-            $this->setStatusCode(500);
-            return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+            throw new CensusErrorException();
         }
 
-        // If the character is empty...
-        // SCENARIOS: Character has been banned or deleted
-        if ($outfit === null || empty($outfit->outfit_list)) {
-            $this->setStatusCode(404);
-            return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+        // If the outfit is empty...
+        // SCENARIOS: Outfit has been deleted
+        if ($json === null || empty($json->outfit_list)) {
+            throw new CensusEmptyException();
         }
 
-        $env = $outfit->environment;
-        $outfit = $outfit->outfit_list[0];
+        $env = $json->environment;
+        $outfit = $json->outfit_list[0];
         $outfit->environment = $env; // Inject the ENV to store
 
         $outfit = $this->createItem($outfit, new OutfitTransformer);
@@ -180,8 +214,7 @@ class DataEndpointController extends AbstractEndpointController implements
         try {
             $this->storeInRedis('outfit', $id, $outfit['data']);
         } catch (\Exception $e) {
-            $this->setStatusCode(500);
-            return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+            throw new RedisStoreException();
         }
 
         return $outfit;
