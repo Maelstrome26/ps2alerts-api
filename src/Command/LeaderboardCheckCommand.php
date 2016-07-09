@@ -67,6 +67,7 @@ class LeaderboardCheckCommand extends BaseCommand
             $statement->execute($query->getBindValues());
 
             $row = $statement->fetch(\PDO::FETCH_OBJ);
+            $force = false;
 
             if (! $this->redis->exists($resultKey)) {
                 $force = true;
