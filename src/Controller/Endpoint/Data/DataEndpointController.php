@@ -154,8 +154,6 @@ class DataEndpointController extends AbstractEndpointController implements
             return $redisCheck;
         }
 
-        var_dump('not in redis');
-
         // Since we don't have any data, let's grab it from Census.
         $endpoint = "outfit?outfit_id={$id}&c:resolve=leader";
 
