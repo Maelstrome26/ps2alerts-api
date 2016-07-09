@@ -6,6 +6,7 @@ use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Transformer\DataTransformer;
 use Ps2alerts\Api\Transformer\Data\CharacterTransformer;
+use Ps2alerts\Api\Transformer\Data\OutfitTransformer;
 use Ps2alerts\Api\Contract\HttpClientAwareInterface;
 use Ps2alerts\Api\Contract\HttpClientAwareTrait;
 use Ps2alerts\Api\Contract\RedisAwareInterface;
@@ -59,20 +60,39 @@ class DataEndpointController extends AbstractEndpointController implements
      *
      * @return \League\Fractal\TransformerAbstract
      */
-    public function player(Request $request, Response $response, array $args)
+    public function character(Request $request, Response $response, array $args)
     {
-        // First, check if we have the player in Redis
-        $redisCheck = $this->checkRedis('player', $args['id']);
+        // First, check if we have the character in Redis
+        $character = $this->checkRedis('character', $args['id']);
 
-        if (! empty($redisCheck)) {
-            return $this->respondWithArray($response, $redisCheck);
+        // If not, pull it from Census and store it
+        if (empty($character)) {
+            $character = $this->getCharacter($args['id']);
         }
 
+        // Now return the character the outfit injected
+        if (! empty($character['data']['outfit'])) {
+            $outfit = $this->getOutfit($character['data']['outfit']);
+            $character['data']['outfit'] = $outfit['data'];
+        }
+
+        return $this->respondWithArray($response, $character);
+    }
+
+    /**
+     * Gets the character from Census with a supplied ID
+     *
+     * @param  string $id
+     *
+     * @return array
+     */
+    public function getCharacter($id)
+    {
         // Since we don't have any data, let's grab it from Census.
-        $endpoint = "character?character_id={$args['id']}&c:resolve=outfit";
+        $endpoint = "character?character_id={$id}&c:resolve=outfit";
 
         try {
-            $character = $this->sendCensusQuery($endpoint);
+            $json = $this->sendCensusQuery($endpoint);
         } catch (\Exception $e) {
             $this->setStatusCode(500);
             return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
@@ -80,27 +100,102 @@ class DataEndpointController extends AbstractEndpointController implements
 
         // If the character is empty...
         // SCENARIOS: Character has been banned or deleted
-        if ($character === null || empty($character->character_list)) {
+        if ($json === null || empty($json->character_list)) {
             $this->setStatusCode(404);
             return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
         }
 
-        $env = $character->environment;
-        $character = $character->character_list[0];
-        $character->environment = $env; // Inject the ENV to store
+        $env = $json->environment;
+        $json = $json->character_list[0];
+        $json->environment = $env; // Inject the ENV to store
 
-        $character = $this->createItem($character, new CharacterTransformer);
+        $character = $this->createItem($json, new CharacterTransformer);
 
+        // First store the player without an outfit so we're not storing duplicated data
         try {
-            $this->storeInRedis('player', $args['id'], $character['data']);
+            $this->storeInRedis('character', $id, $character['data']);
         } catch (\Exception $e) {
             $this->setStatusCode(500);
             return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
         }
 
-        return $this->respondWithArray($response, $character);
+        return $character;
     }
 
+    /**
+     * Gets an outfits's info, either from redis or db cache
+     *
+     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  array                                     $args
+     *
+     * @return \League\Fractal\TransformerAbstract
+     */
+    public function outfit(Request $request, Response $response, array $args)
+    {
+        $outfit = $this->getOutfit($args['id']);
+
+        return $this->respondWithArray($response, $outfit);
+    }
+
+    /**
+     * Gets an outfit from either Redis or Census
+     *
+     * @param  string $id
+     *
+     * @return array
+     */
+    public function getOutfit($id)
+    {
+        // First, check if we have the outfit in Redis
+        $redisCheck = $this->checkRedis('outfit', $id);
+
+        if (! empty($redisCheck)) {
+            return $redisCheck;
+        }
+
+        var_dump('not in redis');
+
+        // Since we don't have any data, let's grab it from Census.
+        $endpoint = "outfit?outfit_id={$id}&c:resolve=leader";
+
+        try {
+            $outfit = $this->sendCensusQuery($endpoint);
+        } catch (\Exception $e) {
+            $this->setStatusCode(500);
+            return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+        }
+
+        // If the character is empty...
+        // SCENARIOS: Character has been banned or deleted
+        if ($outfit === null || empty($outfit->outfit_list)) {
+            $this->setStatusCode(404);
+            return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+        }
+
+        $env = $outfit->environment;
+        $outfit = $outfit->outfit_list[0];
+        $outfit->environment = $env; // Inject the ENV to store
+
+        $outfit = $this->createItem($outfit, new OutfitTransformer);
+
+        try {
+            $this->storeInRedis('outfit', $id, $outfit['data']);
+        } catch (\Exception $e) {
+            $this->setStatusCode(500);
+            return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+        }
+
+        return $outfit;
+    }
+
+    /**
+     * Allows the sending of queries to census, along with checking all environments
+     *
+     * @param  string $endpoint Endpoint string to get data from
+     *
+     * @return string|json
+     */
     public function sendCensusQuery($endpoint)
     {
         $config = $this->getConfig();
@@ -114,7 +209,8 @@ class DataEndpointController extends AbstractEndpointController implements
 
         // Loop through each environment and get the first result
         foreach($environments as $env) {
-            $url  = "https://census.daybreakgames.com/s:{$config['census_service_id']}/get/{$env}/{$endpoint}";
+            $url = "https://census.daybreakgames.com/s:{$config['census_service_id']}/get/{$env}/{$endpoint}";
+
             $req  = $guzzle->request('GET', $url);
             $body = $req->getBody();
             $json = json_decode($body);
@@ -148,7 +244,7 @@ class DataEndpointController extends AbstractEndpointController implements
         $key = "ps2alerts:cache:{$type}:{$id}";
 
         if ($redis->exists($key)) {
-            $data = json_decode($redis->get($key));
+            $data = json_decode($redis->get($key), true);
 
             $return['data'] = $data; // Format it like the rest of the endpoints
             return $return;
