@@ -158,7 +158,7 @@ class DataEndpointController extends AbstractEndpointController implements
 
         $env = $json->environment;
         $json = $json->character_list[0];
-        $json->environment = $env; // Inject the ENV to store
+        $json->environment = $env; // Re-inject the ENV to store
 
         $character = $this->createItem($json, new CharacterTransformer);
 
@@ -207,7 +207,7 @@ class DataEndpointController extends AbstractEndpointController implements
 
         $env = $json->environment;
         $outfit = $json->outfit_list[0];
-        $outfit->environment = $env; // Inject the ENV to store
+        $outfit->environment = $env; // Re-inject the ENV to store
 
         $outfit = $this->createItem($outfit, new OutfitTransformer);
 
