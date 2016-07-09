@@ -101,12 +101,12 @@ $route->get(
 
 $route->get(
     '/v2/leaderboards/update',
-    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::update'
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardLadderEndpointController::update'
 );
 
 $route->get(
     '/v2/leaderboards/lastUpdate',
-    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::lastUpdate'
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardLadderEndpointController::lastUpdate'
 );
 
 /**
