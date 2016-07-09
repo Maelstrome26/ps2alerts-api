@@ -110,6 +110,13 @@ $route->get(
 );
 
 /**
+ * Data
+ */
+$route->get(
+    '/v2/data/player/{id}',
+    'Ps2alerts\Api\Controller\Endpoint\Data\DataEndpointController::player'
+);
+
  * Return the dispatcher to the app loader
  */
 return $route->getDispatcher();
