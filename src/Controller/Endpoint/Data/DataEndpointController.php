@@ -88,7 +88,7 @@ class DataEndpointController extends AbstractEndpointController implements
         if (! empty($character['data']['outfit'])) {
             try {
                 $outfit = $this->getOutfit($character['data']['outfit']);
-            }catch (CensusErrorException $e) {
+            } catch (CensusErrorException $e) {
                 $this->setStatusCode(500);
                 return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
             } catch (CensusEmptyException $e) {
