@@ -59,6 +59,7 @@ class LeaderboardCheckCommand extends BaseCommand
             if ($server !== 0) {
                 $query->where('ResultServer = ?', $server);
             }
+            $query->where('InProgress = ?', 0);
             $query->orderBy(['ResultID DESC']);
             $query->limit(1);
 
