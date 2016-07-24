@@ -16,7 +16,20 @@ class LeaderboardLadderEndpointController extends AbstractEndpointController imp
 {
     use RedisAwareTrait;
 
-    
+    public function playerLadder(Request $request, Response $response, array $args)
+    {
+        $redis = $this->getRedisDriver();
+        $metric = $args['metric'];
+        $server = $args['server'];
+
+        $list = "ps2alerts:api:leaderboards:players:{$metric}:listById-{$server}";
+
+        var_dump($list);
+
+        $entries = $redis->get($list);
+
+        var_dump($entries);
+    }
 
     /**
      * Prompts the Leaderboard:Check command to resync the leaderboards

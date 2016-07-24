@@ -109,6 +109,11 @@ $route->get(
     'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardLadderEndpointController::lastUpdate'
 );
 
+$route->get(
+    '/v2/leaderboards/ladder/players/{metric}/{server}',
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardLadderEndpointController::playerLadder'
+);
+
 /**
  * Data
  */
