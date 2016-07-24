@@ -19,6 +19,12 @@ return [
         'password' => $_ENV['DB_PASS'],
         'schema'   => $_ENV['DB_NAME_DATA']
     ],
+    'database_archive' => [
+        'host'     => $_ENV['DB_ARCHIVE_HOST'],
+        'user'     => $_ENV['DB_ARCHIVE_USER'],
+        'password' => $_ENV['DB_ARCHIVE_PASS'],
+        'schema'   => $_ENV['DB_ARCHIVE_NAME']
+    ],
     'redis'        => [
         'enabled'  => $_ENV['REDIS_ENABLED'],
         'host'     => $_ENV['REDIS_HOST'],

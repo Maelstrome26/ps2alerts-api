@@ -21,7 +21,8 @@ $container->inflector('Ps2alerts\Api\Contract\ConfigAwareInterface')
           ->invokeMethod('setConfig', ['config']);
 $container->inflector('Ps2alerts\Api\Contract\DatabaseAwareInterface')
           ->invokeMethod('setDatabaseDriver', ['Database'])
-          ->invokeMethod('setDatabaseDataDriver', ['Database\Data']);
+          ->invokeMethod('setDatabaseDataDriver', ['Database\Data'])
+          ->invokeMethod('setDatabaseArchiveDriver', ['Database\Archive']);
 $container->inflector('Ps2alerts\Api\Contract\LogAwareInterface')
           ->invokeMethod('setLogDriver', ['Monolog\Logger']);
 $container->inflector('Ps2alerts\Api\Contract\HttpClientAwareInterface')
