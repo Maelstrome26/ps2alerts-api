@@ -17,6 +17,11 @@ trait DatabaseAwareTrait
     protected $dbData;
 
     /**
+     * @var \Aura\Sql\ExtendedPdo
+     */
+    protected $dbArchive;
+
+    /**
      * Set the Database driver
      *
      * @param \Aura\Sql\ExtendedPdo $db
@@ -39,11 +44,11 @@ trait DatabaseAwareTrait
     /**
      * Set the Database Data driver
      *
-     * @param \Aura\Sql\ExtendedPdo $dbData
+     * @param \Aura\Sql\ExtendedPdo $db
      */
-    public function setDatabaseDataDriver(DBDriver $dbData)
+    public function setDatabaseDataDriver(DBDriver $db)
     {
-        $this->dbData = $dbData;
+        $this->dbData = $db;
     }
 
     /**
@@ -54,5 +59,25 @@ trait DatabaseAwareTrait
     public function getDatabaseDataDriver()
     {
         return $this->dbData;
+    }
+
+    /**
+     * Set the Database Data driver
+     *
+     * @param \Aura\Sql\ExtendedPdo $db
+     */
+    public function setDatabaseArchiveDriver(DBDriver $db)
+    {
+        $this->dbArchive = $db;
+    }
+
+    /**
+     * Get the Database Data driver
+     *
+     * @return \Aura\Sql\ExtendedPdo
+     */
+    public function getDatabaseArchiveDriver()
+    {
+        return $this->dbArchive;
     }
 }
