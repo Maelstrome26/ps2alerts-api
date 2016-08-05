@@ -57,6 +57,16 @@ abstract class AbstractEndpointRepository implements
     }
 
     /**
+     * Allows the ability to overload and swap the DB driver if required
+     *
+     * @return \Aura\Sql\ExtendedPdo
+     */
+    protected function getDbArchiveDriver()
+    {
+        return $this->getDatabaseArchiveDriver();
+    }
+
+    /**
      * Builds a new query factory ready for use with the QueryObjects
      *
      * @return \Aura\SqlQuery\AbstractQuery
@@ -85,12 +95,19 @@ abstract class AbstractEndpointRepository implements
      *
      * @return array
      */
-    public function fireStatementAndReturn($query, $single = false, $object = false)
-    {
+    public function fireStatementAndReturn(
+        $query,
+        $single  = false,
+        $object  = false,
+        $archive = false
+    ) {
         $pdo = $this->getDbDriver();
-        $queryDebug = $this->getConfigItem('db_query_debug');
+        if ($archive === true) {
+            // If we've been bounced back to search the archive, load that driver
+            $pdo = $this->getDbArchiveDriver();
+        }
 
-        if ($queryDebug === true) {
+        if ($this->getConfigItem('db_query_debug') === true) {
             $pdo->setProfiler(new Profiler);
             $pdo->getProfiler()->setActive(true);
             var_dump($query->getStatement());
@@ -111,8 +128,18 @@ abstract class AbstractEndpointRepository implements
             }
         }
 
-        if ($queryDebug === true) {
+        if ($this->getConfigItem('db_query_debug') === true) {
             var_dump($pdo->getProfiler()->getProfiles());
+        }
+
+        // If no data, recall this function with archive flag
+        if (empty($return) && $archive === false) {
+            return $this->fireStatementAndReturn(
+                $query,
+                $single,
+                $object,
+                true
+            );
         }
 
         return $return;
