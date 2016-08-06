@@ -80,6 +80,10 @@ class ArchiveCommand extends BaseCommand
 
             for ($i=0; $i < $count; $i++) {
                 $this->archive($alerts[$i], $tables, $output);
+
+                $per = ($i / $count) * 100;
+                $per = round($per, 2);
+                $output->writeln("{$i} / {$count} ({$per}%) processed");
             }
 
             $output->writeln("Archived {$this->recordsArchived} records!");
