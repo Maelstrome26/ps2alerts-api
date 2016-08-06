@@ -64,7 +64,7 @@ class ArchiveCommand extends BaseCommand
         }
 
         if (! empty($input->getArgument('process'))) {
-            $query->limit($input->getArgument('process'));
+            $query->where('ResultID < ?', $input->getArgument('process'));
         }
 
         $alerts = $this->alertRepo->fireStatementAndReturn($query);
