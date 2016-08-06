@@ -124,7 +124,8 @@ class AlertTransformer extends TransformerAbstract
             'isDraw'       => (boolean) $data['ResultDraw'],
             'isDomination' => (boolean) $data['ResultDomination'],
             'isValid'      => (boolean) $data['Valid'],
-            'inProgress'   => (boolean) $data['InProgress']
+            'inProgress'   => (boolean) $data['InProgress'],
+            'archived'     => (boolean) $data['Archived']
         ];
     }
 

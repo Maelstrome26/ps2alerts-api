@@ -67,11 +67,15 @@ class LeaderboardPlayersCommand extends BaseCommand
 
                 $output->writeln("Running metric: {$metric} for server {$server}");
 
-                $list = "ps2alerts:api:leaderboards:players:{$metric}:list-{$server}";
+                $idList = "ps2alerts:api:leaderboards:players:{$metric}:listById-{$server}";
+                $nameList = "ps2alerts:api:leaderboards:players:{$metric}:listByName-{$server}";
 
-                // Delete the list for reprocessing
-                if ($this->redis->exists($list)) {
-                    $this->redis->del($list);
+                // Delete the lists for reprocessing
+                if ($this->redis->exists($idList)) {
+                    $this->redis->del($idList);
+                }
+                if ($this->redis->exists($nameList)) {
+                    $this->redis->del($nameList);
                 }
 
                 // Continue with loop until we don't have a count % modulus returning from the query
@@ -119,18 +123,27 @@ class LeaderboardPlayersCommand extends BaseCommand
                         ];
 
                         foreach($deadlines as $deadline) {
-                            // If new record for the metric
+                            // Create the array if empty
                             if (empty($data[$server][$metric][$deadline])) {
-                                $data[$server][$metric][$deadline]['old'] = 0;
-                                $data[$server][$metric][$deadline]['new'] = 0;
+                                $data[$server][$metric][$deadline] = [];
+                            }
+
+                            $row = $data[$server][$metric][$deadline];
+                            // If new record for the metric
+                            if (empty($row)) {
+                                $row['old']['pos'] = 0;
+                                $row['old']['val'] = 0;
+                                $row['new']['pos'] = 0;
+                                $row['new']['val'] = 0;
                             }
 
                             // Flip new to old
-                            if (! empty($data[$server][$metric][$deadline])) {
-                                $data[$server][$metric][$deadline]['old'] = $data[$server][$metric][$deadline]['new'];
+                            if (! empty($row)) {
+                                $row['old']['pos'] = $row['new']['pos'];
+                                $row['old']['val'] = $row['new']['val'];
                             }
 
-                            $dateObj = new \DateTime('now');
+                            $dateObj  = new \DateTime('now');
                             $interval = 'PT0H'; // Default to now.
 
                             if ($deadline === 'weekly') {
@@ -144,14 +157,23 @@ class LeaderboardPlayersCommand extends BaseCommand
 
                             if ($data['updated'][$deadline] <= $deadlineTime) {
                                 // Update with new data
-                                $data[$server][$metric][$deadline]['new'] = $pos;
+                                $col = $metric;
+                                if ($metric === 'playerTeamkills') {
+                                    $col = 'playerTeamKills'; #fml
+                                }
+
+                                $row['new']['pos'] = $pos;
+                                $row['new']['val'] = (int) $player->$col;
                                 $data['updated'][$deadline] = date('U');
+
+                                $data[$server][$metric][$deadline] = $row; // Replace
 
                                 $this->redis->set($playerPosKey, json_encode($data));
                             }
                         }
 
-                        $this->redis->rpush($list, $player->playerID);
+                        $this->redis->rpush($idList, $player->playerID);
+                        $this->redis->rpush($nameList, $player->playerName);
                         $pos++;
                     }
                 }
