@@ -125,13 +125,21 @@ class ArchiveCommand extends BaseCommand
             $stm->bindParam(':result', $alert['ResultID']);
             $stm->execute();
 
-            #Start the transaction
-            #Yields were way too slow.
-            while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
-                $cols   = $this->buildCols($row);
-                $values = $this->buildValues($row);
+            if ($stm->rowCount() > 0) {
+                $values = '';
+                $cols = '';
 
-                $sql = "INSERT INTO {$table} ({$cols}) VALUES ('{$values}')";
+                // Build the values so we can do all of this in one huge query,
+                // which helps with transmission over the internet greatly.
+                while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
+                    $cols = $this->buildCols($row);
+                    $data = $this->buildValues($row);
+                    $values .= "('{$data}'),";
+                }
+
+                $values = rtrim($values, ',');
+                $sql  = "INSERT INTO {$table} ({$cols}) VALUES {$values}";
+
                 $this->dbArchive->exec($sql);
             }
         }
