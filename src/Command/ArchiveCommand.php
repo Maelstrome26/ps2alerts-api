@@ -113,34 +113,57 @@ class ArchiveCommand extends BaseCommand
     {
         $output->writeln("Processing Alert #{$alert['ResultID']}");
 
+        $this->dbArchive->beginTransaction();
+
         // Get all data and insert it into the archive DB
         foreach($tables as $table) {
             $output->writeln("Alert #{$alert['ResultID']} - Table: {$table}");
-            $sql = "SELECT * FROM {$table} WHERE resultID = :result";
-            $binds = [
-                'result' => $alert['ResultID']
-            ];
 
-            foreach ($this->db->yieldAll($sql, $binds) as $row) {
+            $sql = "SELECT * FROM {$table} WHERE resultID = :result";
+
+            $stm = $this->db->prepare($sql);
+            $stm->bindParam(':result', $alert['ResultID']);
+            $stm->execute();
+
+            #Start the transaction
+            #Yields were way too slow.
+            while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
                 $cols   = $this->buildCols($row);
                 $values = $this->buildValues($row);
 
                 $sql = "INSERT INTO {$table} ({$cols}) VALUES ('{$values}')";
-
-                $stm = $this->dbArchive->prepare($sql);
-                $stm->execute();
+                $this->dbArchive->exec($sql);
             }
         }
+
+        try {
+            $output->writeln('Committing...');
+            $this->dbArchive->commit();
+        } catch (\Exception $e) {
+            var_dump($e->getMessage());
+            $this->dbArchive->rollBack();
+            die;
+        }
+
+        $records = 0;
+
+        $this->db->beginTransaction();
 
         // Loop through all tables and delete the alert's data from the DB
         foreach($tables as $table) {
             $sql = "DELETE FROM {$table} WHERE resultID = :result";
             $stm = $this->db->prepare($sql);
             $stm->execute(['result' => $alert['ResultID']]);
-            $output->writeln("Archived {$stm->rowCount()} from Alert #{$alert['ResultID']} - Table {$table}");
 
             $this->recordsArchived += $stm->rowCount();
+            $records += $stm->rowCount();
+
+            $output->writeln("Archived {$stm->rowCount()} from Alert #{$alert['ResultID']} - Table {$table}");
         }
+
+        $this->db->commit();
+
+        $output->writeln("{$records} records archived for Alert #{$alert['ResultID']}");
 
         // Set the alert as archived in the resultset
         $sql = "UPDATE ws_results SET Archived = '1' WHERE ResultID = :result";
