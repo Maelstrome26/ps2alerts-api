@@ -12,6 +12,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ArchiveCommand extends BaseCommand
 {
+    protected $recordsArchived = 0;
+
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
@@ -53,27 +55,34 @@ class ArchiveCommand extends BaseCommand
         $query = $this->alertRepo->newQuery();
         $query->cols(['*']);
         $query->where('ResultStartTime < ?', $obj->format('U'));
+        $query->where('Archived = 0');
 
         $alerts = $this->alertRepo->fireStatementAndReturn($query);
         $count = count($alerts);
 
-        $tables = [
-            'ws_classes',
-            'ws_classes_totals',
-            'ws_combat_history',
-            'ws_factions',
-            'ws_map',
-            'ws_map_initial',
-            'ws_outfits',
-            'ws_players',
-            'ws_pops',
-            'ws_vehicles',
-            'ws_weapons',
-            'ws_xp'
-        ];
+        $output->writeln("Detected {$count} alerts to be archived");
 
-        for ($i=0; $i < $count; $i++) {
-            $this->archive($alerts[$i], $tables, $output);
+        if ($count > 0) {
+            $tables = [
+                'ws_classes',
+                'ws_classes_totals',
+                'ws_combat_history',
+                'ws_factions',
+                'ws_map',
+                'ws_map_initial',
+                'ws_outfits',
+                'ws_players',
+                'ws_pops',
+                'ws_vehicles',
+                'ws_weapons',
+                'ws_xp'
+            ];
+
+            for ($i=0; $i < $count; $i++) {
+                $this->archive($alerts[$i], $tables, $output);
+            }
+
+            $output->writeln("Archived {$this->recordsArchived} records!");
         }
     }
 
@@ -88,6 +97,8 @@ class ArchiveCommand extends BaseCommand
      */
     public function archive($alert, $tables, OutputInterface $output)
     {
+        $output->writeln("Processing Alert #{$alert['ResultID']}");
+
         // Get all data and insert it into the archive DB
         foreach($tables as $table) {
             $output->writeln("Alert #{$alert['ResultID']} - Table: {$table}");
@@ -109,11 +120,12 @@ class ArchiveCommand extends BaseCommand
 
         // Loop through all tables and delete the alert's data from the DB
         foreach($tables as $table) {
-            $output->writeln("Deleting from Alert #{$alert['ResultID']} - Table {$table}");
-
             $sql = "DELETE FROM {$table} WHERE resultID = :result";
             $stm = $this->db->prepare($sql);
             $stm->execute(['result' => $alert['ResultID']]);
+            $output->writeln("Archived {$stm->rowCount()} from Alert #{$alert['ResultID']} - Table {$table}");
+
+            $this->recordsArchived += $stm->rowCount();
         }
 
         // Set the alert as archived in the resultset
