@@ -19,7 +19,9 @@ class ArchiveCommand extends BaseCommand
         parent::configure(); // See BaseCommand.php
         $this
             ->setName('Archive')
-            ->setDescription('Archives old alerts');
+            ->setDescription('Archives old alerts')
+            ->addArgument('start', InputArgument::OPTIONAL, 'ResultID to start from')
+            ->addArgument('process', InputArgument::OPTIONAL, 'Number of results to process');
         global $container; // Inject container
         $this->dbArchive = $container->get('Database\Archive');
         $this->alertRepo = $container->get('Ps2alerts\Api\Repository\AlertRepository');
@@ -37,7 +39,7 @@ class ArchiveCommand extends BaseCommand
     {
         $output->writeln('Executing archive operations...');
 
-        $this->check($output);
+        $this->check($input, $output);
     }
 
     /**
@@ -47,7 +49,7 @@ class ArchiveCommand extends BaseCommand
      *
      * @return void
      */
-    public function check(OutputInterface $output)
+    public function check(InputInterface $input, OutputInterface $output)
     {
         $obj = new \DateTime();
         $obj->sub(new \DateInterval('P14D')); // Two weeks ago
@@ -56,6 +58,14 @@ class ArchiveCommand extends BaseCommand
         $query->cols(['*']);
         $query->where('ResultStartTime < ?', $obj->format('U'));
         $query->where('Archived = 0');
+
+        if (! empty($input->getArgument('start'))) {
+            $query->where('ResultID > ?', $input->getArgument('start'));
+        }
+
+        if (! empty($input->getArgument('process'))) {
+            $query->limit($input->getArgument('process'));
+        }
 
         $alerts = $this->alertRepo->fireStatementAndReturn($query);
         $count = count($alerts);
