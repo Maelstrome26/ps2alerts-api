@@ -60,11 +60,11 @@ class ArchiveCommand extends BaseCommand
         $query->where('Archived = 0');
 
         if (! empty($input->getArgument('start'))) {
-            $query->where('ResultID > ?', $input->getArgument('start'));
+            $query->where('ResultID >= ?', $input->getArgument('start'));
         }
 
         if (! empty($input->getArgument('process'))) {
-            $query->where('ResultID < ?', $input->getArgument('process'));
+            $query->where('ResultID <= ?', $input->getArgument('process'));
         }
 
         $alerts = $this->alertRepo->fireStatementAndReturn($query);
