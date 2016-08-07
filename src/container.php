@@ -43,4 +43,14 @@ $container->inflector('League\Container\ContainerAwareInterface')
 $container->add('Ps2alerts\Api\Factory\AuraFactory')
           ->withArgument('Aura\SqlQuery\QueryFactory');
 
+$container->add('Ps2alerts\Api\Transformer\DataTransformer')
+          ->withArgument('Ps2alerts\Api\Repository\Data\FacilityDataRepository')
+          ->withArgument('Ps2alerts\Api\Repository\Data\VehicleDataRepository')
+          ->withArgument('Ps2alerts\Api\Repository\Data\WeaponDataRepository')
+          ->withArgument('Ps2alerts\Api\Repository\Data\XpDataRepository');
+
+$container->add('Ps2alerts\Api\Controller\Endpoint\Data\DataEndpointController')
+          ->withArgument('League\Fractal\Manager')
+          ->withArgument('Ps2alerts\Api\Transformer\DataTransformer');
+
 return $container;

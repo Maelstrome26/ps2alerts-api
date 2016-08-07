@@ -24,13 +24,19 @@ class DataEndpointController extends AbstractEndpointController implements
     use HttpClientAwareTrait;
     use RedisAwareTrait;
 
+    protected $dataTransformer;
+
     /**
      * Construct
      *
      * @param League\Fractal\Manager                    $fractal
      */
-    public function __construct(Manager $fractal) {
+    public function __construct(
+        Manager $fractal,
+        DataTransformer $dataTransformer
+    ) {
         $this->fractal = $fractal;
+        $this->dataTransformer = $dataTransformer;
     }
 
     /**
@@ -48,7 +54,7 @@ class DataEndpointController extends AbstractEndpointController implements
         return $this->respond(
             'item',
             null,
-            new DataTransformer,
+            $this->dataTransformer,
             $request,
             $response
         );

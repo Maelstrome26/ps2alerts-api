@@ -7,12 +7,10 @@ use Ps2alerts\Api\Repository\Data\FacilityDataRepository;
 use Ps2alerts\Api\Repository\Data\VehicleDataRepository;
 use Ps2alerts\Api\Repository\Data\WeaponDataRepository;
 use Ps2alerts\Api\Repository\Data\XpDataRepository;
-
 use Ps2alerts\Api\Transformer\Data\FacilityDataTransformer;
 use Ps2alerts\Api\Transformer\Data\VehicleDataTransformer;
 use Ps2alerts\Api\Transformer\Data\WeaponDataTransformer;
 use Ps2alerts\Api\Transformer\Data\XpDataTransformer;
-
 
 class DataTransformer extends TransformerAbstract
 {
