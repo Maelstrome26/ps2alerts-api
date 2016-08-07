@@ -134,7 +134,7 @@ class ArchiveCommand extends BaseCommand
                 while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
                     $cols = $this->buildCols($row);
                     $data = $this->buildValues($row);
-                    $values .= "(\"{$data}\"),";
+                    $values .= "('{$data}'),";
                 }
 
                 $values = rtrim($values, ',');
@@ -207,6 +207,7 @@ class ArchiveCommand extends BaseCommand
     {
         $values = [];
         foreach($row as $key => $val) {
+            $val = str_replace("'", '', $val); // Remove any apostophies from char names
             $values[] = $val;
         }
 
