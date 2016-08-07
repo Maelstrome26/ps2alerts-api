@@ -52,7 +52,7 @@ class ArchiveCommand extends BaseCommand
     public function check(InputInterface $input, OutputInterface $output)
     {
         $obj = new \DateTime();
-        $obj->sub(new \DateInterval('P14D')); // Two weeks ago
+        $obj->sub(new \DateInterval('P3D'));
 
         $query = $this->alertRepo->newQuery();
         $query->cols(['*']);
