@@ -134,7 +134,7 @@ class ArchiveCommand extends BaseCommand
                 while ($row = $stm->fetch(\PDO::FETCH_ASSOC)) {
                     $cols = $this->buildCols($row);
                     $data = $this->buildValues($row);
-                    $values .= "('{$data}'),";
+                    $values .= "(\"{$data}\"),";
                 }
 
                 $values = rtrim($values, ',');
