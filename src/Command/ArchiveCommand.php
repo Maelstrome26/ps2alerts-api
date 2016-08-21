@@ -13,6 +13,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 class ArchiveCommand extends BaseCommand
 {
     protected $recordsArchived = 0;
+    protected $alertsArchived = 0;
 
     protected function configure()
     {
@@ -25,6 +26,7 @@ class ArchiveCommand extends BaseCommand
         global $container; // Inject container
         $this->dbArchive = $container->get('Database\Archive');
         $this->alertRepo = $container->get('Ps2alerts\Api\Repository\AlertRepository');
+        $this->guzzle = $container->get('GuzzleHttp\Client');
     }
 
     /**
@@ -96,7 +98,19 @@ class ArchiveCommand extends BaseCommand
                 $output->writeln("{$i} / {$count} ({$per}%) processed");
             }
 
+            $payload = [
+                'channel' => '#logs',
+                'username' => 'ps2alerts-archives',
+                'text' => "Alerts archived: {$this->alertsArchived} - Records archived: {$this->recordsArchived}",
+                'icon_emoji' => ':white_check_mark:'
+            ];
+
             $output->writeln("Archived {$this->recordsArchived} records!");
+            $this->guzzle->request(
+                'POST',
+                'https://hooks.slack.com/services/T0HK28YAV/B0J2NFA68/IlcGAzEiXZGJ46HaeReVrB4',
+                json_encode($payload)
+            );
         }
     }
 
@@ -172,6 +186,7 @@ class ArchiveCommand extends BaseCommand
         $this->db->commit();
 
         $output->writeln("{$records} records archived for Alert #{$alert['ResultID']}");
+        $this->alertsArchived++;
 
         // Set the alert as archived in the resultset
         $sql = "UPDATE ws_results SET Archived = '1' WHERE ResultID = :result";
