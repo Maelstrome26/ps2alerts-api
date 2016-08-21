@@ -99,19 +99,22 @@ class ArchiveCommand extends BaseCommand
             }
         }
 
+        $records = number_format($this->recordsArchived, 2);
+
         $payload = [
             'channel' => '#logs',
             'username' => 'ps2alerts-archive',
-            'text' => "Alerts archived: {$this->alertsArchived} - Records archived: {$this->recordsArchived}",
+            'text' => "Alerts archived: {$this->alertsArchived} - Records archived: {$records}",
             'icon_emoji' => ':open_file_folder:'
         ];
 
-        $output->writeln("Archived {$this->recordsArchived} records!");
         $this->guzzle->request(
             'POST',
             'https://hooks.slack.com/services/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',
             ['json' => $payload ]
         );
+        
+        $output->writeln("Archived {$records} records!");
     }
 
     /**
