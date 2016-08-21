@@ -97,21 +97,21 @@ class ArchiveCommand extends BaseCommand
                 $per = round($per, 2);
                 $output->writeln("{$i} / {$count} ({$per}%) processed");
             }
-
-            $payload = [
-                'channel' => '#logs',
-                'username' => 'ps2alerts-archives',
-                'text' => "Alerts archived: {$this->alertsArchived} - Records archived: {$this->recordsArchived}",
-                'icon_emoji' => ':white_check_mark:'
-            ];
-
-            $output->writeln("Archived {$this->recordsArchived} records!");
-            $this->guzzle->request(
-                'POST',
-                'https://hooks.slack.com/services/T0HK28YAV/B0J2NFA68/IlcGAzEiXZGJ46HaeReVrB4',
-                json_encode($payload)
-            );
         }
+
+        $payload = [
+            'channel' => '#logs',
+            'username' => 'ps2alerts-archive',
+            'text' => "Alerts archived: {$this->alertsArchived} - Records archived: {$this->recordsArchived}",
+            'icon_emoji' => ':open_file_folder:'
+        ];
+
+        $output->writeln("Archived {$this->recordsArchived} records!");
+        $this->guzzle->request(
+            'POST',
+            'https://hooks.slack.com/services/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',
+            ['json' => $payload ]
+        );
     }
 
     /**
