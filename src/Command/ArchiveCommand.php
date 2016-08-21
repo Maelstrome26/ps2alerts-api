@@ -99,7 +99,7 @@ class ArchiveCommand extends BaseCommand
             }
         }
 
-        $records = number_format($this->recordsArchived, 2);
+        $records = number_format($this->recordsArchived, 0);
 
         $payload = [
             'channel' => '#logs',
@@ -113,7 +113,7 @@ class ArchiveCommand extends BaseCommand
             'https://hooks.slack.com/services/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',
             ['json' => $payload ]
         );
-        
+
         $output->writeln("Archived {$records} records!");
     }
 
