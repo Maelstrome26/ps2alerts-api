@@ -33,18 +33,10 @@ class TemplateServiceProvider extends ServiceProvider
 
         // Register the singleton with the container
         $this->getContainer()->singleton('Twig_Environment', function () use ($globals, $config) {
-            $cache = false;
-            $debug = true;
-
-            if ($config['environment'] === "production" || $config['environment'] === "staging") {
-                $cache = __DIR__ . '/../../cache';
-                $debug = false;
-            }
-
             $loader = new Twig_Loader_Filesystem(__DIR__ . '/../../template');
             $twig   = new Twig_Environment($loader, [
-                'cache' => $cache,
-                'debug' => $debug
+                'cache' => false,
+                'debug' => $config['environment'] === 'development' ? true : false
             ]);
 
             // Add Globals
