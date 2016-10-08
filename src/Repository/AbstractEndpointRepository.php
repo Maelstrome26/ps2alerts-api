@@ -110,6 +110,7 @@ abstract class AbstractEndpointRepository implements
         if ($this->getConfigItem('db_query_debug') === true) {
             $pdo->setProfiler(new Profiler);
             $pdo->getProfiler()->setActive(true);
+            var_dump($pdo);
             var_dump($query->getStatement());
             var_dump($query->getBindValues());
         }
@@ -168,10 +169,13 @@ abstract class AbstractEndpointRepository implements
      * Reads a single record from the database
      *
      * @param  string $id
+     * @param  string $keyType
+     * @param  boolean $object
+     * @param  boolean $archive
      *
      * @return array
      */
-    public function readSinglebyId($id, $keyType = 'primary', $object = false)
+    public function readSinglebyId($id, $keyType = 'primary', $object = false, $archive = false)
     {
         $query = $this->newQuery();
         $key = $this->returnKeyType($keyType);
@@ -179,18 +183,36 @@ abstract class AbstractEndpointRepository implements
         $query->cols(['*'])
               ->where("{$key} = ?", $id);
 
-        return $this->fireStatementAndReturn($query, true, $object);
+        return $this->fireStatementAndReturn($query, true, $object, $archive);
+    }
+
+    /**
+     * Allows reading of elements by ID including those from the archive
+     *
+     * @param  string $id
+     * @param  string $keyType
+     * @param  boolean $object
+     *
+     * @return array
+     */
+    public function readSingleByIdWithArchive($id, $keyType = 'primary', $object = false)
+    {
+        return array_merge(
+            $this->readSingleById($id, $keyType, $object),
+            $this->readSingleById($id, $keyType, $object, true)
+        );
     }
 
     /**
      * Reads all related records from the database
      *
-     * @param  string $id
-     * @param  string $keyType Field to search on
+     * @param  string  $id
+     * @param  string  $keyType Field to search on
+     * @param  boolean $archive
      *
      * @return array
      */
-    public function readAllById($id, $keyType = 'primary')
+    public function readAllById($id, $keyType = 'primary', $archive = false)
     {
         $query = $this->newQuery();
         $key = $this->returnKeyType($keyType);
@@ -198,7 +220,23 @@ abstract class AbstractEndpointRepository implements
         $query->cols(['*'])
               ->where("{$key} = ?", $id);
 
-        return $this->fireStatementAndReturn($query);
+        return $this->fireStatementAndReturn($query, false, false, $archive);
+    }
+
+    /**
+     * Grab all data from the database including from the archive
+     *
+     * @param  string $id
+     * @param  string $keyType
+     *
+     * @return array
+     */
+    public function readAllByIdWithArchive($id, $keyType = 'primary')
+    {
+        return array_merge(
+            $this->readAllById($id, $keyType),
+            $this->readAllById($id, $keyType, true)
+        );
     }
 
     /**

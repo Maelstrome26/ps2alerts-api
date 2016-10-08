@@ -136,7 +136,8 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
      */
     public function includeInvolvement($data)
     {
-        $data = $this->playerRepo->readAllById($data['playerID'], 'playerID');
+        $data = $this->playerRepo->readAllByIdWithArchive($data['playerID'], 'playerID');
+
         return $this->collection($data, new PlayerInvolvementTransformer);
     }
 
@@ -157,7 +158,7 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
             'headshots' => 0
         ];
 
-        $alerts = $this->playerRepo->readAllById($data['playerID'], 'playerID');
+        $alerts = $this->playerRepo->readAllByIdWithArchive($data['playerID'], 'playerID');
         $count = count($alerts);
         $metrics['involvement'] = $count;
 
@@ -196,7 +197,7 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
     public function includeVehicles($data)
     {
         $metrics = [];
-        $data = $this->vehicleRepo->readAllById($data['playerID'], 'playerID');
+        $data = $this->vehicleRepo->readAllByIdWithArchive($data['playerID'], 'playerID');
         $count = count($data);
 
         // Calculate metrics
@@ -237,7 +238,7 @@ class PlayerProfileTransformer extends TransformerAbstract implements HttpClient
     public function includeWeapons($data)
     {
         $metrics = [];
-        $data = $this->weaponRepo->readAllById($data['playerID'], 'playerID');
+        $data = $this->weaponRepo->readAllByIdWithArchive($data['playerID'], 'playerID');
         $count = count($data);
 
         // Calculate metrics

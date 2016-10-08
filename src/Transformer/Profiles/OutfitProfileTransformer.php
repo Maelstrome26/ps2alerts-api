@@ -131,7 +131,7 @@ class OutfitProfileTransformer extends TransformerAbstract
 
     public function includeInvolvement($data)
     {
-        $data = $this->outfitRepo->readAllById($data['outfitID'], 'outfitID');
+        $data = $this->outfitRepo->readAllByIdWithArchive($data['outfitID'], 'outfitID');
         return $this->collection($data, new OutfitInvolvementTransformer);
     }
 
