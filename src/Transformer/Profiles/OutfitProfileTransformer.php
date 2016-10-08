@@ -145,7 +145,7 @@ class OutfitProfileTransformer extends TransformerAbstract
             'headshots' => 0
         ];
 
-        $alerts = $this->outfitRepo->readAllById($data['outfitID'], 'outfitID');
+        $alerts = $this->outfitRepo->readAllByIdWithArchive($data['outfitID'], 'outfitID');
         $count = count($alerts);
         $metrics['involvement'] = $count;
 
