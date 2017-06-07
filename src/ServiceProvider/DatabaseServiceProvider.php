@@ -27,7 +27,7 @@ class DatabaseServiceProvider extends ServiceProvider
             $config = $this->getContainer()->get('config')['database'];
 
             $pdo = new ExtendedPdo(
-                "mysql:host={$config['host']};dbname={$config['schema']}",
+                "mysql:host={$config['host']};port={$config['port']};dbname={$config['schema']}",
                 $config['user'],
                 $config['password']
             );
@@ -39,7 +39,7 @@ class DatabaseServiceProvider extends ServiceProvider
             $config = $this->getContainer()->get('config')['database_data'];
 
             $pdo = new ExtendedPdo(
-                "mysql:host={$config['host']};dbname={$config['schema']}",
+                "mysql:host={$config['host']};port={$config['port']};dbname={$config['schema']}",
                 $config['user'],
                 $config['password']
             );
@@ -51,7 +51,7 @@ class DatabaseServiceProvider extends ServiceProvider
             $config = $this->getContainer()->get('config')['database_archive'];
 
             $pdo = new ExtendedPdo(
-                "mysql:host={$config['host']};dbname={$config['schema']}",
+                "mysql:host={$config['host']};port={$config['port']};dbname={$config['schema']}",
                 $config['user'],
                 $config['password']
             );

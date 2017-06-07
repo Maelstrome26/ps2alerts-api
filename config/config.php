@@ -9,18 +9,21 @@ return [
     'slack_bot_name' => $_ENV['SLACK_BOT_NAME'],
     'database'     => [
         'host'     => $_ENV['DB_HOST'],
+        'port'     => $_ENV['DB_PORT'],
         'user'     => $_ENV['DB_USER'],
         'password' => $_ENV['DB_PASS'],
         'schema'   => $_ENV['DB_NAME']
     ],
     'database_data' => [
         'host'     => $_ENV['DB_HOST'],
+        'port'     => $_ENV['DB_PORT'],
         'user'     => $_ENV['DB_USER'],
         'password' => $_ENV['DB_PASS'],
         'schema'   => $_ENV['DB_NAME_DATA']
     ],
     'database_archive' => [
         'host'     => $_ENV['DB_ARCHIVE_HOST'],
+        'port'     => $_ENV['DB_ARCHIVE_PORT'],
         'user'     => $_ENV['DB_ARCHIVE_USER'],
         'password' => $_ENV['DB_ARCHIVE_PASS'],
         'schema'   => $_ENV['DB_ARCHIVE_NAME']
