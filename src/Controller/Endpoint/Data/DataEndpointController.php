@@ -14,8 +14,8 @@ use Ps2alerts\Api\Contract\RedisAwareTrait;
 use Ps2alerts\Api\Exception\CensusErrorException;
 use Ps2alerts\Api\Exception\CensusEmptyException;
 use Ps2alerts\Api\Exception\RedisStoreException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class DataEndpointController extends AbstractEndpointController implements
     HttpClientAwareInterface,
@@ -42,34 +42,32 @@ class DataEndpointController extends AbstractEndpointController implements
     /**
      * Gets supplemental data
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      * @param  array                                     $args
      *
      * @return \League\Fractal\TransformerAbstract
      */
-    public function getSupplementalData(Request $request, Response $response, array $args)
+    public function getSupplementalData(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         // All data handling is done within the transformer.
         return $this->respond(
             'item',
             null,
-            $this->dataTransformer,
-            $request,
-            $response
+            $this->dataTransformer
         );
     }
 
     /**
      * Gets a player's info, either from redis or db cache
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      * @param  array                                     $args
      *
      * @return \League\Fractal\TransformerAbstract
      */
-    public function character(Request $request, Response $response, array $args)
+    public function character(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         // First, check if we have the character in Redis
         $character = $this->checkRedis('character', $args['id']);
@@ -80,13 +78,13 @@ class DataEndpointController extends AbstractEndpointController implements
                 $character = $this->getCharacter($args['id']);
             } catch (CensusErrorException $e) {
                 $this->setStatusCode(500);
-                return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+                return $this->respondWithError('Census returned garbage!', 'CENSUS_ERROR');
             } catch (CensusEmptyException $e) {
                 $this->setStatusCode(404);
-                return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+                return $this->respondWithError('Census returned no data!', 'CENSUS_ERROR');
             } catch (RedisStoreException $e) {
                 $this->setStatusCode(500);
-                return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+                return $this->respondWithError('Redis store failed!', 'INTERNAL_ERROR');
             }
         }
 
@@ -96,46 +94,46 @@ class DataEndpointController extends AbstractEndpointController implements
                 $outfit = $this->getOutfit($character['data']['outfit']);
             } catch (CensusErrorException $e) {
                 $this->setStatusCode(500);
-                return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+                return $this->respondWithError('Census returned garbage!', 'CENSUS_ERROR');
             } catch (CensusEmptyException $e) {
                 $this->setStatusCode(404);
-                return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+                return $this->respondWithError('Census returned no data!', 'CENSUS_ERROR');
             } catch (RedisStoreException $e) {
                 $this->setStatusCode(500);
-                return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+                return $this->respondWithError('Redis store failed!', 'INTERNAL_ERROR');
             }
 
             $character['data']['outfit'] = $outfit['data'];
         }
 
-        return $this->respondWithArray($response, $character);
+        return $this->respondWithArray($character);
     }
 
     /**
      * Gets an outfits's info, either from redis or db cache
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      * @param  array                                     $args
      *
      * @return \League\Fractal\TransformerAbstract
      */
-    public function outfit(Request $request, Response $response, array $args)
+    public function outfit(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         try {
             $outfit = $this->getOutfit($args['id']);
         } catch (CensusErrorException $e) {
             $this->setStatusCode(500);
-            return $this->respondWithError($response, 'Census returned garbage!', 'CENSUS_ERROR');
+            return $this->respondWithError('Census returned garbage!', 'CENSUS_ERROR');
         } catch (CensusEmptyException $e) {
             $this->setStatusCode(404);
-            return $this->respondWithError($response, 'Census returned no data!', 'CENSUS_ERROR');
+            return $this->respondWithError('Census returned no data!', 'CENSUS_ERROR');
         } catch (RedisStoreException $e) {
             $this->setStatusCode(500);
-            return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+            return $this->respondWithError('Redis store failed!', 'INTERNAL_ERROR');
         }
 
-        return $this->respondWithArray($response, $outfit);
+        return $this->respondWithArray($outfit);
     }
 
     /**
@@ -173,7 +171,7 @@ class DataEndpointController extends AbstractEndpointController implements
             $this->storeInRedis('character', $id, $character['data']);
         } catch (\Exception $e) {
             $this->setStatusCode(500);
-            return $this->respondWithError($response, 'Redis store failed!', 'INTERNAL_ERROR');
+            return $this->respondWithError('Redis store failed!', 'INTERNAL_ERROR');
         }
 
         return $character;

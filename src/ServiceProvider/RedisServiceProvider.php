@@ -2,12 +2,12 @@
 
 namespace Ps2alerts\Api\ServiceProvider;
 
-use League\Container\ServiceProvider;
+use League\Container\ServiceProvider\AbstractServiceProvider;
 use Ps2alerts\Api\Contract\ConfigAwareInterface;
 use Ps2alerts\Api\Contract\ConfigAwareTrait;
 use Predis\Client;
 
-class RedisServiceProvider extends ServiceProvider implements
+class RedisServiceProvider extends AbstractServiceProvider implements
     ConfigAwareInterface
 {
     use ConfigAwareTrait;
@@ -24,11 +24,12 @@ class RedisServiceProvider extends ServiceProvider implements
      */
     public function register()
     {
-        $this->getContainer()->singleton('redis', function () {
+        $this->getContainer()->add('redis', function () {
             $redisConfig = $this->getContainer()->get('config')['redis'];
 
             $client = new Client([
                 'host'     => $redisConfig['host'],
+                'port'     => $redisConfig['port'],
                 'database' => intval($redisConfig['db']),
                 'scheme'   => 'tcp'
             ]);
@@ -36,7 +37,7 @@ class RedisServiceProvider extends ServiceProvider implements
             return $client;
         });
 
-        $this->getContainer()->singleton('redisCache', function () {
+        $this->getContainer()->add('redisCache', function () {
             $redisConfig = $this->getContainer()->get('config')['redis'];
 
             $client = new Client([

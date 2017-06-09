@@ -3,15 +3,15 @@
 namespace Ps2alerts\Api\ServiceProvider;
 
 use League\Container\ServiceProvider\AbstractServiceProvider;
-use Ramsey\Uuid\Uuid;
+use League\Fractal\Manager;
 
-class UuidServiceProvider extends AbstractServiceProvider
+class FractalServiceProvider extends AbstractServiceProvider
 {
     /**
      * @var array
      */
     protected $provides = [
-        'Ramsey\Uuid\Uuid',
+        'League\Fractal\Manager'
     ];
 
     /**
@@ -19,9 +19,8 @@ class UuidServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->add('Ramsey\Uuid\Uuid', function () {
-            $uuid = Uuid::Uuid4();
-            return $uuid;
+        $this->getContainer()->share('League\Fractal\Manager', function () {
+            return new Manager;
         });
     }
 }

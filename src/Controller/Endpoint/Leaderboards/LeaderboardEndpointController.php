@@ -14,8 +14,8 @@ use Ps2alerts\Api\Transformer\Leaderboards\OutfitLeaderboardTransformer;
 use Ps2alerts\Api\Transformer\Leaderboards\PlayerLeaderboardTransformer;
 use Ps2alerts\Api\Transformer\Leaderboards\WeaponLeaderboardTransformer;
 use Ps2alerts\Api\Transformer\Leaderboards\LeaderboardUpdatedTransformer;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class LeaderboardEndpointController extends AbstractEndpointController implements
     RedisAwareInterface
@@ -43,12 +43,12 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
     /**
      * Get Player Leaderboard
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      *
      * @return League\Fractal\Manager
      */
-    public function players(Request $request, Response $response)
+    public function players(ServerRequestInterface $request, ResponseInterface $response)
     {
         $valid = $this->validateRequestVars($request);
 
@@ -136,21 +136,19 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
         return $this->respond(
             'collection',
             $players,
-            new PlayerLeaderboardTransformer,
-            $request,
-            $response
+            new PlayerLeaderboardTransformer
         );
     }
 
     /**
      * Get Outfit Leaderboard
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      *
      * @return League\Fractal\Manager
      */
-    public function outfits(Request $request, Response $response)
+    public function outfits(ServerRequestInterface $request, ResponseInterface $response)
     {
         $valid = $this->validateRequestVars($request);
 
@@ -217,21 +215,19 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
         return $this->respond(
             'collection',
             $this->outfitTotalRepository->fireStatementAndReturn($query),
-            new OutfitLeaderboardTransformer,
-            $request,
-            $response
+            new OutfitLeaderboardTransformer
         );
     }
 
     /**
      * Get Weapon Leaderboard
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      *
      * @return League\Fractal\Manager
      */
-    public function weapons(Request $request, Response $response)
+    public function weapons(ServerRequestInterface $request, ResponseInterface $response)
     {
         $valid = $this->validateRequestVars($request);
 
@@ -291,9 +287,7 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
         return $this->respond(
             'collection',
             $weapons,
-            new WeaponLeaderboardTransformer,
-            $request,
-            $response
+            new WeaponLeaderboardTransformer
         );
     }
 
@@ -325,7 +319,7 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
     /**
      * Validates the request variables
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
      *
      * @return boolean|InvalidArgumentException
      */

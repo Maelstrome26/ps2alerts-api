@@ -6,8 +6,8 @@ use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Transformer\Profiles\PlayerProfileTransformer;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class PlayerProfileEndpointController extends AbstractEndpointController
 {
@@ -31,22 +31,20 @@ class PlayerProfileEndpointController extends AbstractEndpointController
     /**
      * Gets a player
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      * @param  array                                     $args
      *
      * @return array
      */
-    public function getPlayer(Request $request, Response $response, array $args)
+    public function getPlayer(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         $player = $this->playerTotalRepo->readSinglebyId($args['id']);
 
         return $this->respond(
             'item',
             $player,
-            $this->playerProfileTransformer,
-            $request,
-            $response
+            $this->playerProfileTransformer
         );
     }
 }

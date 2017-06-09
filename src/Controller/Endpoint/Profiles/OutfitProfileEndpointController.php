@@ -6,8 +6,8 @@ use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Transformer\Profiles\OutfitProfileTransformer;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class OutfitProfileEndpointController extends AbstractEndpointController
 {
@@ -31,22 +31,20 @@ class OutfitProfileEndpointController extends AbstractEndpointController
     /**
      * Gets a outfit
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      * @param  array                                     $args
      *
      * @return array
      */
-    public function getOutfit(Request $request, Response $response, array $args)
+    public function getOutfit(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         $outfit = $this->outfitTotalRepo->readSinglebyId($args['id']);
 
         return $this->respond(
             'item',
             $outfit,
-            $this->outfitProfileTransformer,
-            $request,
-            $response
+            $this->outfitProfileTransformer
         );
     }
 }

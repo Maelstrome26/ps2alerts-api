@@ -8,8 +8,8 @@ use Ps2alerts\Api\Repository\AlertRepository;
 use Ps2alerts\Api\Transformer\AlertTotalTransformer;
 use Ps2alerts\Api\Transformer\AlertTransformer;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class AlertCountsEndpointController extends AlertEndpointController
 {
@@ -33,43 +33,43 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Returns the victories of each faction and the totals
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      *
      * @return array
      */
-    public function getVictories(Request $request, Response $response)
+    public function getVictories(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $this->getCountData($request, $response, 'victories');
+        return $this->getCountData('victories');
     }
 
     /**
      * Returns the dominations of each faction and the totals
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ServerRequestInterface  $request
+     * @param  \Psr\Http\Message\ResponseInterface $response
      *
      * @return array
      */
-    public function getDominations(Request $request, Response $response)
+    public function getDominations(ServerRequestInterface $request, ResponseInterface $response)
     {
-        return $this->getCountData($request, $response, 'dominations');
+        return $this->getCountData('dominations');
     }
 
     /**
      * Gets the required count data and returns
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ServerRequestInterface  $request
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $mode     The type of data we're getting (victory / domination)
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getCountData(Request $request, Response $response, $mode)
+    public function getCountData($mode)
     {
         try {
-            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
-            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
+            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
         } catch (InvalidArgumentException $e) {
             return $this->errorWrongArgs($response, $e->getMessage());
         }
@@ -96,22 +96,22 @@ class AlertCountsEndpointController extends AlertEndpointController
         }
 
         // Return the now formatted array to the response
-        return $this->respondWithArray($response, $counts);
+        return $this->respondWithArray($counts);
     }
 
     /**
      * Get Daily totals over a range of dates
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ServerRequestInterface  $request
+     * @param  \Psr\Http\Message\ResponseInterface $response
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getDailyTotals(Request $request, Response $response)
+    public function getDailyTotals(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
-            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
-            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
+            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
         } catch (InvalidArgumentException $e) {
             return $this->errorWrongArgs($response, $e->getMessage());
         }
@@ -130,22 +130,22 @@ class AlertCountsEndpointController extends AlertEndpointController
         }
 
         // Return the now formatted array to the response
-        return $this->respondWithArray($response, $data);
+        return $this->respondWithArray($data);
     }
 
     /**
      * Get Daily totals over a range of dates broken down by server
      *
-     * @param  \Symfony\Component\HttpFoundation\Request  $request
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ServerRequestInterface  $request
+     * @param  \Psr\Http\Message\ResponseInterface $response
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getDailyTotalsByServer(Request $request, Response $response)
+    public function getDailyTotalsByServer(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
-            $servers = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
-            $zones   = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
+            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
+            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
         } catch (InvalidArgumentException $e) {
             return $this->errorWrongArgs($response, $e->getMessage());
         }
@@ -167,7 +167,7 @@ class AlertCountsEndpointController extends AlertEndpointController
         }
 
         // Return the now formatted array to the response
-        return $this->respondWithArray($response, $data);
+        return $this->respondWithArray($data);
     }
 
     /**

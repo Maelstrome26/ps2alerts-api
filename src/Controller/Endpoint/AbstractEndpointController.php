@@ -8,16 +8,20 @@ use Ps2alerts\Api\Contract\ConfigAwareInterface;
 use Ps2alerts\Api\Contract\ConfigAwareTrait;
 use Ps2alerts\Api\Contract\DatabaseAwareInterface;
 use Ps2alerts\Api\Contract\DatabaseAwareTrait;
+use Ps2alerts\Api\Contract\HttpMessageAwareInterface;
+use Ps2alerts\Api\Contract\HttpMessageAwareTrait;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 abstract class AbstractEndpointController implements
     ConfigAwareInterface,
-    DatabaseAwareInterface
+    DatabaseAwareInterface,
+    HttpMessageAwareInterface
 {
     use ConfigAwareTrait;
     use DatabaseAwareTrait;
+    use HttpMessageAwareTrait;
 
     /**
      * Contains the repository used for interfacing with the database
@@ -83,20 +87,20 @@ abstract class AbstractEndpointController implements
      * @param  string                                     $kind     The kind of data we wish to return
      * @param  array                                      $data     The data itself
      * @param  \League\Fractal\TransformerAbstract        $callback The transformer class to call
-     * @param  \Symfony\Component\HttpFoundation\Request  $request  The request itself
-     * @param  \Symfony\Component\HttpFoundation\Response $response The response object to eventually call
+     * @param  \Psr\Http\Message\ServerRequestInterface  $request  The request itself
+     * @param  \Psr\Http\Message\ResponseInterface $response The response object to eventually call
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function respond($kind, $data, $callback, Request $request, Response $response)
+    protected function respond($kind, $data, $callback)
     {
         // Detect what embeds we need
-        $this->getIncludesFromRequest($request);
+        $this->getIncludesFromRequest();
         switch ($kind) {
             case 'item':
-                return $this->respondWithItem($data, $callback, $response);
+                return $this->respondWithItem($data, $callback);
             case 'collection':
-                return $this->respondWithCollection($data, $callback, $response);
+                return $this->respondWithCollection($data, $callback);
             default:
                 return $this->errorInternalError('No Response was defined. Please report this.');
         }
@@ -107,13 +111,13 @@ abstract class AbstractEndpointController implements
      *
      * @param  array                                      $item        The item to transform
      * @param  \League\Fractal\TransformerAbstract        $transformer The Transformer to pass through to Fractal
-     * @param  \Symfony\Component\HttpFoundation\Response $response    The client's response
+     * @param  \Psr\Http\Message\ResponseInterface $response    The client's response
      *
      * @return array
      */
-    protected function respondWithItem($item, $transformer, Response $response)
+    protected function respondWithItem($item, $transformer)
     {
-        return $this->respondWithArray($response, $this->createItem($item, $transformer));
+        return $this->respondWithArray($this->createItem($item, $transformer));
     }
 
     /**
@@ -137,13 +141,13 @@ abstract class AbstractEndpointController implements
      *
      * @param  array                                      $collection  The collection to transform
      * @param  \League\Fractal\TransformerAbstract        $transformer The Transformer to pass through to Fractal
-     * @param  \Symfony\Component\HttpFoundation\Response $response    The client's response
+     * @param  \Psr\Http\Message\ResponseInterface $response    The client's response
      *
      * @return array
      */
-    protected function respondWithCollection($collection, $transformer, Response $response)
+    protected function respondWithCollection($collection, $transformer)
     {
-        return $this->respondWithArray($response, $this->createCollection($collection, $transformer));
+        return $this->respondWithArray($this->createCollection($collection, $transformer));
     }
 
     /**
@@ -165,16 +169,20 @@ abstract class AbstractEndpointController implements
     /**
      * The final step where the formatted array is now sent back as a response in JSON form
      *
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  array                                      $array
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    protected function respondWithArray(Response $response, array $array)
+    protected function respondWithArray(array $array)
     {
-        $response->setStatusCode($this->getStatusCode());
-        $response->setContent(json_encode($array));
-        $response->headers->set('Content-Type', 'application/json');
+        $response = $this->getResponse();
+        $request = $this->getRequest();
+
+        $response->getBody()->write(json_encode($array));
+
+        $response = $response->withStatus($this->getStatusCode());
+        $response = $response->withHeader('Content-Type', 'application/json');
 
         // This is the end of the road. FIRE ZE RESPONSE!
         return $response;
@@ -183,13 +191,13 @@ abstract class AbstractEndpointController implements
     /**
      * Responds gracefully with an error.
      *
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message   Response message to put in the error
      * @param  int                                        $errorCode Error code to set
      *
      * @return array
      */
-    protected function respondWithError(Response $response, $message, $errorCode)
+    protected function respondWithError($message, $errorCode)
     {
         if ($this->statusCode === 200) {
             trigger_error(
@@ -199,7 +207,7 @@ abstract class AbstractEndpointController implements
         }
 
         // Pass to responder
-        return $this->respondWithArray($response, [
+        return $this->respondWithArray([
             'error' => [
                 'code'      => $errorCode,
                 'http_code' => $this->statusCode,
@@ -211,100 +219,98 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a response with a 404 HTTP error and a given message.
      *
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
      * @return void
      */
-    public function errorEmpty(Response $response, $message = 'No data / Empty')
+    public function errorEmpty($message = 'No data / Empty')
     {
         return $this->setStatusCode(404)
-                    ->respondWithError($response, $message, self::CODE_EMPTY);
+                    ->respondWithError($message, self::CODE_EMPTY);
     }
 
     /**
      * Generates a Response with a 403 HTTP header and a given message.
      *
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
      * @return void
      */
-    public function errorForbidden(Response $response, $message = 'Forbidden')
+    public function errorForbidden($message = 'Forbidden')
     {
         return $this->setStatusCode(403)
-                    ->respondWithError($response, $message, self::CODE_FORBIDDEN);
+                    ->respondWithError($message, self::CODE_FORBIDDEN);
     }
 
     /**
      * Generates a Response with a 500 HTTP header and a given message.
      *
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
      * @return void
      */
-    public function errorInternalError(Response $response, $message = 'Internal Error')
+    public function errorInternalError($message = 'Internal Error')
     {
         return $this->setStatusCode(500)
-                    ->respondWithError($response, $message, self::CODE_INTERNAL_ERROR);
+                    ->respondWithError($message, self::CODE_INTERNAL_ERROR);
     }
 
     /**
      * Generates a Response with a 404 HTTP header and a given message.
      *
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
      * @return void
      */
-    public function errorNotFound(Response $response, $message = 'Resource Not Found')
+    public function errorNotFound($message = 'Resource Not Found')
     {
         return $this->setStatusCode(404)
-                    ->respondWithError($response, $message, self::CODE_NOT_FOUND);
+                    ->respondWithError($message, self::CODE_NOT_FOUND);
     }
 
     /**
      * Generates a Response with a 401 HTTP header and a given message.
      *
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
      * @return void
      */
-    public function errorUnauthorized(Response $response, $message = 'Unauthorized')
+    public function errorUnauthorized($message = 'Unauthorized')
     {
         return $this->setStatusCode(401)
-                    ->respondWithError($response, $message, self::CODE_UNAUTHORIZED);
+                    ->respondWithError($message, self::CODE_UNAUTHORIZED);
     }
 
     /**
      * Generates a Response with a 400 HTTP header and a given message.
      *
-     * @param \Symfony\Component\HttpFoundation\Response $response
+     * @param \Psr\Http\Message\ResponseInterface $response
      * @param string                                     $message
      *
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return \Psr\Http\Message\ResponseInterface
      */
-    public function errorWrongArgs(Response $response, $message = 'Wrong Arguments')
+    public function errorWrongArgs($message = 'Wrong Arguments')
     {
         return $this->setStatusCode(400)
-                    ->respondWithError($response, $message, self::CODE_WRONG_ARGS);
+                    ->respondWithError($message, self::CODE_WRONG_ARGS);
     }
 
     /**
      * Reads any requested includes and adds them to the item / collection
      *
-     * @param  Symfony\Component\HttpFoundation\Request $request
+     * @param  Psr\Http\Message\ServerRequestInterface $request
      *
      * @return void
      */
-    public function getIncludesFromRequest(Request $request)
+    public function getIncludesFromRequest()
     {
-        $queryString = $request->query->get('embed');
-
-        if (! empty($queryString)) {
-            $this->fractal->parseIncludes($request->query->get('embed'));
+        if (! empty($_GET['embed'])) {
+            $this->fractal->parseIncludes($_GET['embed']);
         }
     }
 }

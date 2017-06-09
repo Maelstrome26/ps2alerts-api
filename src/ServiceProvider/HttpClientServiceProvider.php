@@ -2,10 +2,10 @@
 
 namespace Ps2alerts\Api\ServiceProvider;
 
-use League\Container\ServiceProvider;
+use League\Container\ServiceProvider\AbstractServiceProvider;
 use GuzzleHttp\Client;
 
-class HttpClientServiceProvider extends ServiceProvider
+class HttpClientServiceProvider extends AbstractServiceProvider
 {
     /**
      * @var array

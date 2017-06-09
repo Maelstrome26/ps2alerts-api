@@ -26,7 +26,7 @@ class MapTransformer extends TransformerAbstract
             'controlTR'          => (int) $data['controlTR'],
             'server'             => (int) $data['world'],
             'zone'               => (int) $data['zone'],
-            'outfitCaptured'     => (string) $data['outfitCaptured'],
+            'outfitCaptured'     => is_numeric($data['outfitCaptured']) ? (string) $data['outfitCaptured'] : null,
             'isDefence'          => (boolean) $data['defence']
         ];
     }

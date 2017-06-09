@@ -2,12 +2,12 @@
 
 namespace Ps2alerts\Api\ServiceProvider;
 
-use League\Container\ServiceProvider;
+use League\Container\ServiceProvider\AbstractServiceProvider;
 use Monolog\Logger;
 use Monolog\Handler\StreamHandler;
 use Monolog\Handler\SlackHandler;
 
-class LogServiceProvider extends ServiceProvider
+class LogServiceProvider extends AbstractServiceProvider
 {
     /**
      * @var array
@@ -21,7 +21,7 @@ class LogServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->singleton('Monolog\Logger', function () {
+        $this->getContainer()->share('Monolog\Logger', function () {
             $log = new Logger('app');
 
             $config = $this->getContainer()->get('config');

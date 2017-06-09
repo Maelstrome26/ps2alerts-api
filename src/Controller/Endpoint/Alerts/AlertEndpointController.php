@@ -7,8 +7,8 @@ use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Repository\AlertRepository;
 use Ps2alerts\Api\Transformer\AlertTotalTransformer;
 use Ps2alerts\Api\Transformer\AlertTransformer;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class AlertEndpointController extends AbstractEndpointController
 {
@@ -32,13 +32,13 @@ class AlertEndpointController extends AbstractEndpointController
     /**
      * Returns a single alert's information
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface  $response
      * @param  array                                     $args
      *
      * @return \League\Fractal\TransformerAbstract
      */
-    public function getSingle(Request $request, Response $response, array $args)
+    public function getSingle(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         $alert = $this->repository->readSingleById($args['id']);
 
@@ -49,21 +49,19 @@ class AlertEndpointController extends AbstractEndpointController
         return $this->respond(
             'item',
             $alert,
-            $this->transformer,
-            $request,
-            $response
+            $this->transformer
         );
     }
 
     /**
      * Returns all currently running alerts
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      *
      * @return \League\Fractal\TransformerAbstract
      */
-    public function getActives(Request $request, Response $response)
+    public function getActives(ServerRequestInterface $request, ResponseInterface $response)
     {
         $actives = $this->repository->readAllByFields(['InProgress' => 1]);
 
@@ -83,26 +81,26 @@ class AlertEndpointController extends AbstractEndpointController
     /**
      * Returns all alerts in historial order
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      *
      * @return \League\Fractal\TransformerAbstract
      */
-    public function getHistoryByDate(Request $request, Response $response)
+    public function getHistoryByDate(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
-            $servers  = $this->getFiltersFromQueryString($request->get('servers'), 'servers', $response);
-            $zones    = $this->getFiltersFromQueryString($request->get('zones'), 'zones', $response);
-            $factions = $this->getFiltersFromQueryString($request->get('factions'), 'factions', $response);
-            $brackets = $this->getFiltersFromQueryString($request->get('brackets'), 'brackets', $response);
+            $servers  = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
+            $zones    = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
+            $factions = $this->getFiltersFromQueryString($_GET['factions'], 'factions', $response);
+            $brackets = $this->getFiltersFromQueryString($_GET['brackets'], 'brackets', $response);
         } catch (InvalidArgumentException $e) {
             return $this->errorWrongArgs($response, $e->getMessage());
         }
 
-        $dateFrom = $request->get('dateFrom');
-        $dateTo   = $request->get('dateTo');
-        $offset   = (int) $request->get('offset');
-        $limit    = (int) $request->get('limit');
+        $dateFrom = $_GET['dateFrom'];
+        $dateTo   = $_GET['dateTo'];
+        $offset   = (int) $_GET['offset'];
+        $limit    = (int) $_GET['limit'];
 
         // Set defaults if not supplied
         if ($offset === null || ! is_numeric($offset)) {
@@ -158,7 +156,7 @@ class AlertEndpointController extends AbstractEndpointController
      *
      * @param  string                                     $queryString
      * @param  string                                     $mode
-     * @param  \Symfony\Component\HttpFoundation\Response $response
+     * @param  \Psr\Http\Message\ResponseInterface $response
      *
      * @return string
      */

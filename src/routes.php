@@ -128,6 +128,17 @@ $route->get(
 );
 
 /**
+ * Admin
+ */
+$route->group('/admin', function ($route) {
+    $route->post(
+        '/v2/admin/createAlert',
+        'Ps2alerts\Api\Controller\Endpoint\Admin\AdminEndpointController::createAlert'
+    );
+});
+
+
+/**
  * Return the dispatcher to the app loader
  */
-return $route->getDispatcher();
+return $route;

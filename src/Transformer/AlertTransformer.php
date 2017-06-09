@@ -74,8 +74,8 @@ class AlertTransformer extends TransformerAbstract
      * @param OutfitRepository        $outfitRepo
      * @param PlayerRepository        $playerRepo
      * @param PopulationRepository    $populationRepo
-     * @param VehicleTotalRepository       $vehicleRepo
-     * @param WeaponTotalRepository        $weaponRepo
+     * @param VehicleTotalRepository  $vehicleRepo
+     * @param WeaponTotalRepository   $weaponRepo
      * @param XpRepository            $xpRepo
      */
     public function __construct(
@@ -87,8 +87,8 @@ class AlertTransformer extends TransformerAbstract
         OutfitRepository        $outfitRepo,
         PlayerRepository        $playerRepo,
         PopulationRepository    $populationRepo,
-        VehicleTotalRepository       $vehicleRepo,
-        WeaponTotalRepository        $weaponRepo,
+        VehicleTotalRepository  $vehicleRepo,
+        WeaponTotalRepository   $weaponRepo,
         XpRepository            $xpRepo
     ) {
         $this->classRepo         = $classRepo;

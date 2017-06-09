@@ -8,15 +8,15 @@ use Ps2alerts\Api\Contract\RedisAwareTrait;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
-use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpFoundation\Response;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Message\ResponseInterface;
 
 class LeaderboardLadderEndpointController extends AbstractEndpointController implements
     RedisAwareInterface
 {
     use RedisAwareTrait;
 
-    public function playerLadder(Request $request, Response $response, array $args)
+    public function playerLadder(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         $redis = $this->getRedisDriver();
         $metric = $args['metric'];
@@ -34,12 +34,12 @@ class LeaderboardLadderEndpointController extends AbstractEndpointController imp
     /**
      * Prompts the Leaderboard:Check command to resync the leaderboards
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      *
      * @return Symfony\Component\HttpFoundation\Response
      */
-    public function update(Request $request, Response $response)
+    public function update(ServerRequestInterface $request, ResponseInterface $response)
     {
         $config = $this->getConfig();
 
@@ -69,19 +69,19 @@ class LeaderboardLadderEndpointController extends AbstractEndpointController imp
             // Panic.
         }
 
-        $response->setStatusCode(202);
+        $response = $response->withStatus(202);
         return $response;
     }
 
     /**
      * Returns a list of times that a server leaderboard has been updated
      *
-     * @param  Symfony\Component\HttpFoundation\Request  $request
-     * @param  Symfony\Component\HttpFoundation\Response $response
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
      *
      * @return Symfony\Component\HttpFoundation\Response
      */
-    public function lastUpdate(Request $request, Response $response)
+    public function lastUpdate(ServerRequestInterface $request, ResponseInterface $response)
     {
         $config = $this->getConfig();
         $redis = $this->getRedisDriver();
@@ -97,6 +97,6 @@ class LeaderboardLadderEndpointController extends AbstractEndpointController imp
             }
         }
 
-        return $this->respondWithArray($response, $data);
+        return $this->respondWithArray($data);
     }
 }
