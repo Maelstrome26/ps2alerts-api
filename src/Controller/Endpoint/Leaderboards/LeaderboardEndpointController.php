@@ -54,7 +54,7 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
-            return $this->errorWrongArgs($response, $valid->getMessage());
+            return $this->errorWrongArgs($valid->getMessage());
         }
 
         $field  = $_GET['field'];
@@ -154,7 +154,7 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
-            return $this->errorWrongArgs($response, $valid->getMessage());
+            return $this->errorWrongArgs($valid->getMessage());
         }
 
         $field  = $_GET['field'];
@@ -233,7 +233,7 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
-            return $this->errorWrongArgs($response, $valid->getMessage());
+            return $this->errorWrongArgs($valid->getMessage());
         }
 
         $field  = $_GET['field'];
