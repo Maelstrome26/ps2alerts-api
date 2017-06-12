@@ -57,10 +57,10 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
             return $this->errorWrongArgs($response, $valid->getMessage());
         }
 
-        $field  = $request->get('field');
-        $server = $request->get('server');
-        $limit  = $request->get('limit');
-        $offset = $request->get('offset');
+        $field  = $_GET['field'];
+        $server = $_GET['server'];
+        $limit  = $_GET['limit'];
+        $offset = $_GET['offset'];
 
         // Translate field into table specific columns
 
@@ -157,10 +157,10 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
             return $this->errorWrongArgs($response, $valid->getMessage());
         }
 
-        $field  = $request->get('field');
-        $server = $request->get('server');
-        $limit  = $request->get('limit');
-        $offset = $request->get('offset');
+        $field  = $_GET['field'];
+        $server = $_GET['server'];
+        $limit  = $_GET['limit'];
+        $offset = $_GET['offset'];
 
         // Translate field into table specific columns
 
@@ -236,7 +236,7 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
             return $this->errorWrongArgs($response, $valid->getMessage());
         }
 
-        $field  = $request->get('field');
+        $field  = $_GET['field'];
 
         // Translate field into table specific columns
 
@@ -326,20 +326,20 @@ class LeaderboardEndpointController extends AbstractEndpointController implement
     public function validateRequestVars($request)
     {
         try {
-            if (! empty($request->get('field'))) {
-                $this->parseField($request->get('field'));
+            if (! empty($_GET['field'])) {
+                $this->parseField($_GET['field']);
             }
 
-            if (! empty($request->get('server'))) {
-                $this->parseServer($request->get('server'));
+            if (! empty($_GET['server'])) {
+                $this->parseServer($_GET['server']);
             }
 
-            if (! empty($request->get('limit'))) {
-                $this->parseOffset($request->get('limit'));
+            if (! empty($_GET['limit'])) {
+                $this->parseOffset($_GET['limit']);
             }
 
-            if (! empty($request->get('offset'))) {
-                $this->parseOffset($request->get('offset'));
+            if (! empty($_GET['offset'])) {
+                $this->parseOffset($_GET['offset']);
             }
         } catch (InvalidArgumentException $e) {
             return $e;

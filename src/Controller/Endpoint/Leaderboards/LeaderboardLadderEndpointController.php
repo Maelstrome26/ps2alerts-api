@@ -51,7 +51,7 @@ class LeaderboardLadderEndpointController extends AbstractEndpointController imp
             return $response;
         }
 
-        $server = $request->get('server');
+        $server = $_GET['server'];
 
         $redis = $this->getRedisDriver();
         $key = "ps2alerts:api:leaderboards:status:{$server}";
