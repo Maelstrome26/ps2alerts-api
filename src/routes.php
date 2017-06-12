@@ -14,7 +14,9 @@ $route = new RouteCollection(
  */
 $route->get('/', 'Ps2alerts\Api\Controller\MainController::index');
 
-// Alert Endpoint
+/**
+ * Alerts
+ */
 $route->get(
     '/v2/alerts/active',
     'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getActives'
@@ -53,6 +55,12 @@ $route->get(
 $route->get(
     '/v2/data',
     'Ps2alerts\Api\Controller\Endpoint\Data\DataEndpointController::getSupplementalData'
+);
+
+// Alert Combat Endpoint
+$route->get(
+    '/v2/alerts/combat/totals',
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertCombatEndpointController::getCombatTotals'
 );
 
 /**
