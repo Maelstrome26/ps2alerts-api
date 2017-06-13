@@ -191,4 +191,42 @@ class AlertCountsEndpointController extends AlertEndpointController
 
         return $metrics = $this->repository->readRaw($query->getStatement());
     }
+
+    /**
+     * Generates the SELECT CASE statements required to filter down by Faction and Server
+     *
+     * @param  string $server
+     * @param  string $zones
+     * @param  string $mode
+     *
+     * @return string
+     */
+    public function generateFactionCaseSql($server = null, $zones = null, $mode = null)
+    {
+        $sql = '';
+
+        foreach ($this->getConfigItem('factions') as $faction) {
+            $factionAbv = strtoupper($faction);
+            $sql .= "SUM(CASE WHEN `ResultWinner`='{$factionAbv}' ";
+            if (! empty($server)) {
+                $sql .= "AND `ResultServer` IN ({$server}) ";
+            }
+
+            if (! empty($zones)) {
+                $sql .= "AND `ResultAlertCont` IN ({$zones}) ";
+            }
+
+            if ($mode === 'dominations') {
+                $sql .= "AND `ResultDomination` = 1 ";
+            }
+
+            $sql .= "THEN 1 ELSE 0 END) {$faction}";
+
+            if ($factionAbv !== 'DRAW') {
+                $sql .= ", ";
+            }
+        }
+
+        return $sql;
+    }
 }

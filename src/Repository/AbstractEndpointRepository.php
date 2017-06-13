@@ -71,13 +71,16 @@ abstract class AbstractEndpointRepository implements
      *
      * @return \Aura\SqlQuery\AbstractQuery
      */
-    public function newQuery($type = 'single')
+    public function newQuery($type = 'single', $newOnly = false)
     {
         $factory = new QueryFactory('mysql');
 
         if ($type === 'single') {
             $query = $factory->newSelect();
-            $query->from($this->getTable());
+
+            if (!$newOnly) {
+                $query->from($this->getTable());
+            }
         } elseif ($type === 'update') {
             $query = $factory->newUpdate();
         } elseif ($type === 'delete') {
