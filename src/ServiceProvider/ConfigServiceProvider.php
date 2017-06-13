@@ -56,6 +56,15 @@ class ConfigServiceProvider extends AbstractServiceProvider
                 ],
                 'servers'           => [1, 10, 13, 17, 25, 1000, 2000],
                 'zones'             => [2, 4, 6, 8],
+                'classes'           => [1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21],
+                'classesGroups' => [
+                    'infiltrator' => [1, 8, 15],
+                    'la'          => [3, 10, 17],
+                    'medic'       => [4, 11, 18],
+                    'engineer'    => [5, 12, 19],
+                    'ha'          => [6, 13, 20],
+                    'max'         => [7, 14, 21]
+                ],
                 'factions'          => ['vs', 'nc', 'tr', 'draw'],
                 'brackets'          => ['MOR', 'AFT', 'PRI'],
                 'db_query_debug'    => $_ENV['DB_QUERY_DEBUG'],

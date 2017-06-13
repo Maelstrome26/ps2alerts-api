@@ -63,6 +63,11 @@ $route->get(
     'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertCombatEndpointController::getCombatTotals'
 );
 
+$route->get(
+    '/v2/alerts/combat/classTotals',
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertCombatEndpointController::getClassTotals'
+);
+
 /**
  * Searches
  */
