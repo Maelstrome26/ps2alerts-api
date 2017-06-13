@@ -27,6 +27,9 @@ class AlertCombatEndpointController extends AlertEndpointController
         }
 
         $serversExploded = explode(',', $servers);
+        $zonesExploded = explode(',', $zones);
+        $zonesIn = $this->combatRepository->generateWhereInString($zonesExploded);
+
         $totals = [];
         $totals['all']['totals'] = [
             'kills'     => 0,
@@ -63,10 +66,11 @@ class AlertCombatEndpointController extends AlertEndpointController
             $query->join(
                 'INNER',
                 'ws_results AS results',
-                "factions.resultID = results.ResultID AND results.ResultServer = :resultServer"
+                "factions.resultID = results.ResultID"
             );
             $query->where('results.ResultServer = ?', $server);
-            $query->bindValue('resultServer', $server);
+            $query->where("results.ResultAlertCont IN {$zonesIn}");
+            $query->where('results.Valid = ?', 1);
 
             $data = $this->combatRepository->fireStatementAndReturn($query, true);
             $dataArchive = $this->combatRepository->fireStatementAndReturn($query, true, false, true);
@@ -144,6 +148,6 @@ class AlertCombatEndpointController extends AlertEndpointController
             $totals[$server] = $mergedArray;
         }
 
-        var_dump($totals);die;
+        return $this->respondWithArray($totals);
     }
 }
