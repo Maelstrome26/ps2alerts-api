@@ -94,7 +94,7 @@ class AlertEndpointController extends AbstractEndpointController
             $factions = $this->getFiltersFromQueryString($_GET['factions'], 'factions', $response);
             $brackets = $this->getFiltersFromQueryString($_GET['brackets'], 'brackets', $response);
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($response, $e->getMessage());
+            return $this->errorWrongArgs($e->getMessage());
         }
 
         $dateFrom = $_GET['dateFrom'];
@@ -156,11 +156,10 @@ class AlertEndpointController extends AbstractEndpointController
      *
      * @param  string                                     $queryString
      * @param  string                                     $mode
-     * @param  \Psr\Http\Message\ResponseInterface $response
      *
      * @return string
      */
-    public function getFiltersFromQueryString($queryString, $mode, $response)
+    public function getFiltersFromQueryString($queryString, $mode)
     {
         $filters = $this->getConfigItem($mode);
         $numericals = ['servers', 'zones'];
