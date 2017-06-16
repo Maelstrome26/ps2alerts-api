@@ -36,17 +36,5 @@ class RedisServiceProvider extends AbstractServiceProvider implements
 
             return $client;
         });
-
-        $this->getContainer()->add('redisCache', function () {
-            $redisConfig = $this->getContainer()->get('config')['redis'];
-
-            $client = new Client([
-                'host'     => $redisConfig['host'],
-                'database' => intval($redisConfig['db_cache']),
-                'scheme'   => 'tcp'
-            ]);
-
-            return $client;
-        });
     }
 }

@@ -6,17 +6,26 @@ use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Ps2alerts\Api\Repository\Metrics\CombatRepository;
+use Ps2alerts\Api\Repository\Metrics\ClassRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class AlertCombatEndpointController extends AlertEndpointController
 {
     public function __construct(
+        classRepository $classRepository,
         combatRepository $combatRepository
     ) {
-        $this->combatRepository  = $combatRepository;
+        $this->classRepository  = $classRepository;
+        $this->combatRepository = $combatRepository;
     }
 
+    /**
+     * Retrieves combat totals on a global and per-server basis
+     * @param  ServerRequestInterface $request
+     * @param  ResponseInterface      $response
+     * @return array
+     */
     public function getCombatTotals(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
@@ -27,123 +36,247 @@ class AlertCombatEndpointController extends AlertEndpointController
         }
 
         $serversExploded = explode(',', $servers);
-        $totals = [];
-        $totals['all']['totals'] = [
-            'kills'     => 0,
-            'deaths'    => 0,
-            'teamkills' => 0,
-            'suicides'  => 0
-        ];
+        $zonesExploded = explode(',', $zones);
+        $zonesIn = $this->combatRepository->generateWhereInString($zonesExploded);
+
+        $results = [];
 
         foreach ($serversExploded as $server) {
-            $query = $this->combatRepository->newQuery('single', true);
-            $query->cols([
-                'SUM(factions.killsVS) AS killsVS',
-                'SUM(factions.killsNC) AS killsNC',
-                'SUM(factions.killsTR) AS killsTR',
-                'SUM(factions.deathsVS) AS deathsVS',
-                'SUM(factions.deathsNC) AS deathsNC',
-                'SUM(factions.deathsTR) AS deathsTR',
-                'SUM(factions.teamKillsVS) AS teamkillsVS',
-                'SUM(factions.teamKillsNC) AS teamkillsNC',
-                'SUM(factions.teamKillsTR) AS teamkillsTR',
-                'SUM(factions.suicidesVS) AS suicidesVS',
-                'SUM(factions.suicidesNC) AS suicidesNC',
-                'SUM(factions.suicidesTR) AS suicidesTR',
-                'SUM(factions.headshotsVS) AS headshotsVS',
-                'SUM(factions.headshotsNC) AS headshotsNC',
-                'SUM(factions.headshotsTR) AS headshotsTR',
-                'SUM(factions.totalKills) AS totalKills',
-                'SUM(factions.totalDeaths) AS totalDeaths',
-                'SUM(factions.totalTKs) AS totalTKs',
-                'SUM(factions.totalSuicides) AS totalSuicides',
-                'SUM(factions.totalHeadshots) AS totalHeadshots'
-            ]);
-            $query->from('ws_factions AS factions');
-            $query->join(
-                'INNER',
-                'ws_results AS results',
-                "factions.resultID = results.ResultID AND results.ResultServer = :resultServer"
-            );
-            $query->where('results.ResultServer = ?', $server);
-            $query->bindValue('resultServer', $server);
+            $metrics = ['kills', 'deaths', 'teamkills', 'suicides', 'headshots'];
+            $factions = ['vs', 'nc', 'tr'];
 
-            $data = $this->combatRepository->fireStatementAndReturn($query, true);
-            $dataArchive = $this->combatRepository->fireStatementAndReturn($query, true, false, true);
+            // Check if we have an entry in Redis
+            $data = $this->checkRedis('api', 'combatTotals', "{$server}-data");
+            $dataArchive = $this->checkRedis('api', 'combatTotals', "{$server}-dataArchive");
 
-            $mergedArray = [
-                'kills' => [
-                    'vs' => (int) $data['killsVS'] + (int) $dataArchive['killsVS'],
-                    'nc' => (int) $data['killsNC'] + (int) $dataArchive['killsNC'],
-                    'tr' => (int) $data['killsTR'] + (int) $dataArchive['killsTR']
-                ],
-                'deaths' => [
-                    'vs' => (int) $data['deathsVS'] + (int) $dataArchive['deathsVS'],
-                    'nc' => (int) $data['deathsNC'] + (int) $dataArchive['deathsNC'],
-                    'tr' => (int) $data['deathsTR'] + (int) $dataArchive['deathsTR']
-                ],
-                'teamkills' => [
-                    'vs' => (int) $data['teamkillsVS'] + (int) $dataArchive['teamkillsVS'],
-                    'nc' => (int) $data['teamkillsNC'] + (int) $dataArchive['teamkillsNC'],
-                    'tr' => (int) $data['teamkillsTR'] + (int) $dataArchive['teamkillsTR']
-                ],
-                'suicides' => [
-                    'vs' => (int) $data['suicidesVS'] + (int) $dataArchive['suicidesVS'],
-                    'nc' => (int) $data['suicidesNC'] + (int) $dataArchive['suicidesNC'],
-                    'tr' => (int) $data['suicidesTR'] + (int) $dataArchive['suicidesTR']
-                ],
-                'headshots' => [
-                    'vs' => (int) $data['headshotsVS'] + (int) $dataArchive['headshotsVS'],
-                    'nc' => (int) $data['headshotsNC'] + (int) $dataArchive['headshotsNC'],
-                    'tr' => (int) $data['headshotsTR'] + (int) $dataArchive['headshotsTR']
-                ],
-                'totals' => [
-                    'kills'     => (int) $data['totalKills'] + (int) $dataArchive['totalKills'],
-                    'deaths'    => (int) $data['totalDeaths'] + (int) $dataArchive['totalDeaths'],
-                    'teamkills' => (int) $data['totalTKs'] + (int) $dataArchive['totalTKs'],
-                    'suicides'  => (int) $data['totalSuicides'] + (int) $dataArchive['totalSuicides'],
-                    'headshots'  => (int) $data['totalHeadshots'] + (int) $dataArchive['totalHeadshots']
-                ]
-            ];
+            if (! $data || ! $dataArchive) {
+                $sums = [];
+                foreach ($metrics as $metric) {
+                    foreach ($factions as $faction) {
+                        $dbMetric = $metric . strtoupper($faction); // e.g. killsVS
+                        $dataMetric = $metric . strtoupper($faction); // e.g. killsVS
 
-            $totals['all'] = [
-                'kills' => [
-                    'vs' => $totals['all']['kills']['vs'] + $mergedArray['kills']['vs'],
-                    'nc' => $totals['all']['kills']['nc'] + $mergedArray['kills']['nc'],
-                    'tr' => $totals['all']['kills']['tr'] + $mergedArray['kills']['tr']
-                ],
-                'deaths' => [
-                    'vs' => $totals['all']['deaths']['vs'] + $mergedArray['deaths']['vs'],
-                    'nc' => $totals['all']['deaths']['nc'] + $mergedArray['deaths']['nc'],
-                    'tr' => $totals['all']['deaths']['tr'] + $mergedArray['deaths']['tr']
-                ],
-                'teamkills' => [
-                    'vs' => $totals['all']['teamkills']['vs'] + $mergedArray['teamkills']['vs'],
-                    'nc' => $totals['all']['teamkills']['nc'] + $mergedArray['teamkills']['nc'],
-                    'tr' => $totals['all']['teamkills']['tr'] + $mergedArray['teamkills']['tr']
-                ],
-                'suicides' => [
-                    'vs' => $totals['all']['suicides']['vs'] + $mergedArray['suicides']['vs'],
-                    'nc' => $totals['all']['suicides']['nc'] + $mergedArray['suicides']['nc'],
-                    'tr' => $totals['all']['suicides']['tr'] + $mergedArray['suicides']['tr']
-                ],
-                'headshots' => [
-                    'vs' => $totals['all']['headshots']['vs'] + $mergedArray['headshots']['vs'],
-                    'nc' => $totals['all']['headshots']['nc'] + $mergedArray['headshots']['nc'],
-                    'tr' => $totals['all']['headshots']['tr'] + $mergedArray['headshots']['tr']
-                ],
-                'totals' => [
-                    'kills'     => $totals['all']['totals']['kills'] + $mergedArray['totals']['kills'],
-                    'deaths'    => $totals['all']['totals']['deaths'] + $mergedArray['totals']['deaths'],
-                    'teamkills' => $totals['all']['totals']['teamkills'] + $mergedArray['totals']['teamkills'],
-                    'suicides'  => $totals['all']['totals']['suicides'] + $mergedArray['totals']['suicides'],
-                    'headshots'  => $totals['all']['totals']['headshots'] + $mergedArray['totals']['headshots']
-                ]
-            ];
+                        // Handle teamkills inconsistency
+                        if ($metric === 'teamkills') {
+                            $dbMetric = 'teamKills' . strtoupper($faction);
+                        }
+                        $sums[] = "SUM(factions.{$dbMetric}) AS $dataMetric";
+                    }
 
-            $totals[$server] = $mergedArray;
+                    // Totals
+                    $dbMetric = 'total' . ucfirst($metric); // e.g. killsVS
+                    $dataMetric = 'total' . ucfirst($metric); // e.g. killsVS
+
+                    // Handle teamkills inconsistency
+                    if ($metric === 'teamkills') {
+                        $dbMetric = 'totalTKs'; // Christ knows why
+                    }
+                    $sums[] = "SUM(factions.{$dbMetric}) AS $dataMetric";
+                }
+
+                $query = $this->combatRepository->newQuery('single', true);
+                $query->cols($sums);
+                $query->from('ws_factions AS factions');
+                $query->join(
+                    'INNER',
+                    'ws_results AS results',
+                    "factions.resultID = results.ResultID"
+                );
+                $query->where('results.ResultServer = ?', $server);
+                $query->where("results.ResultAlertCont IN {$zonesIn}");
+                $query->where('results.Valid = ?', 1);
+
+                $data = $this->combatRepository->fireStatementAndReturn($query, true);
+                $dataArchive = $this->combatRepository->fireStatementAndReturn($query, true, false, true);
+
+                // Store the results in Redis
+                $this->storeInRedis('api', 'combatTotals', "{$server}-data", $data, 3600);
+                $this->storeInRedis('api', 'combatTotals', "{$server}-dataArchive", $dataArchive, 3600);
+            }
+
+            $metrics = ['kills', 'deaths', 'teamkills', 'suicides', 'headshots'];
+            $factions = ['vs', 'nc', 'tr'];
+
+            // Merge the two arrays together
+            foreach ($metrics as $metric) {
+                // Tot up totals
+                $dbMetric = 'total' . ucfirst($metric);
+                $mergedArray['totals'][$metric] = (int) $data[$dbMetric] + (int) $dataArchive[$dbMetric];
+                $results['all']['totals'][$metric] += $mergedArray['totals'][$metric];
+
+                foreach ($factions as $faction) {
+                    $dbMetric = $metric . strtoupper($faction);
+                    $mergedArray[$metric][$faction] = (int) $data[$dbMetric] + (int) $dataArchive[$dbMetric];
+                    $results['all'][$metric][$faction] += $mergedArray[$metric][$faction];
+                }
+            }
+
+            $results[$server] = $mergedArray;
         }
 
-        var_dump($totals);die;
+        return $this->respondWithArray($results);
+    }
+
+    public function getClassTotals(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        try {
+            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
+            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
+        } catch (InvalidArgumentException $e) {
+            return $this->errorWrongArgs($e->getMessage());
+        }
+
+        $serversExploded = explode(',', $servers);
+        $zonesExploded = explode(',', $zones);
+        $zonesIn = $this->combatRepository->generateWhereInString($zonesExploded);
+        $classes = $this->getConfig()['classes'];
+
+        // Build classes array
+        foreach ($classes as $class) {
+            $results['totals'][$class] = [
+                'kills'     => 0,
+                'deaths'    => 0,
+                'teamkills' => 0,
+                'suicides'  => 0,
+                'kdr'       => 0
+            ];
+        }
+
+        foreach ($serversExploded as $server) {
+            // Check if we have an entry in Redis
+            $data = $this->checkRedis('api', 'classCombat', "{$server}-data", 'object');
+            $dataArchive = $this->checkRedis('api', 'classCombat', "{$server}-dataArchive", 'object');
+
+            // If data needs a pull
+            if (! $data || ! $dataArchive) {
+                $query = $this->combatRepository->newQuery('single', true);
+                $query->cols([
+                        'classID',
+                        'results.ResultServer AS server',
+                        'SUM(kills) AS kills',
+                        'SUM(deaths) AS deaths',
+                        'SUM(teamkills) AS teamkills',
+                        'SUM(suicides) AS suicides'
+                ]);
+                $query->from('ws_classes AS classes');
+                $query->join(
+                    'INNER',
+                    'ws_results AS results',
+                    "classes.resultID = results.ResultID"
+                );
+                $query->where('results.ResultServer = ?', $server);
+                $query->where("results.ResultAlertCont IN {$zonesIn}");
+                $query->where('results.Valid = ?', 1);
+                $query->where('classID != ?', 0);
+                $query->groupBy(['classID, server']);
+
+                $data = $this->classRepository->fireStatementAndReturn($query, false, true);
+                $dataArchive = $this->classRepository->fireStatementAndReturn($query, false, true, true);
+
+                // Store the results in Redis
+                $this->storeInRedis('api', 'classCombat', "{$server}-data", $data, 3600);
+                $this->storeInRedis('api', 'classCombat', "{$server}-dataArchive", $dataArchive, 3600);
+            }
+
+            // Typecase into ints and increase totals
+            $metrics = ['kills', 'deaths', 'teamkills', 'suicides'];
+            foreach ($data as $row) {
+                $row->classID   = (int) $row->classID;
+                $row->server   = (int) $row->server;
+                $classGroup = $this->findClassGrouping($row->classID);
+                $faction = $this->findClassFaction($row->classID);
+
+                foreach ($metrics as $metric) {
+                    $row->$metric = (int) $row->$metric;
+                    $results[$row->server][$row->classID][$metric] += $row->$metric;
+                    $results['totals'][$row->classID][$metric] += $row->$metric;
+                    $results['byMetric'][$metric][$row->classID] += $row->$metric;
+                    $results['byMetric'][$metric]['total'] += $row->$metric;
+
+                    // Assign to class group
+                    $results['classGroups']['totals'][$classGroup][$metric] += $row->$metric;
+                    $results['classGroups'][$row->server][$classGroup][$metric] += $row->$metric;
+                    $results['classGroupFactionMetric'][$classGroup][$faction][$metric] += $row->$metric;
+                }
+            }
+
+            foreach ($dataArchive as $row) {
+                $row->classID   = (int) $row->classID;
+                $row->server   = (int) $row->server;
+
+                foreach ($metrics as $metric) {
+                    $row->$metric = (int) $row->$metric;
+                    $results[$row->server][$row->classID][$metric] += $row->$metric;
+                    $results['totals'][$row->classID][$metric] += $row->$metric;
+                    $results['byMetric'][$metric][$row->classID] += $row->$metric;
+                    $results['byMetric'][$metric]['total'] += $row->$metric;
+
+                    // Assign to class group
+                    $classGroup = $this->findClassGrouping($row->classID);
+                    $results['classGroups']['totals'][$classGroup][$metric] += $row->$metric;
+                    $results['classGroups'][$row->server][$classGroup][$metric] += $row->$metric;
+
+                    $faction = $this->findClassFaction($row->classID);
+                    $results['classGroupFactionMetric'][$classGroup][$faction][$metric] += $row->$metric;
+                }
+            }
+
+            // Calculate KDRs
+            foreach ($results['byMetric']['kills'] as $class => $kills) {
+                $results['byMetric']['kdr'][$class] = $kills / $results['byMetric']['deaths'][$class];
+
+                if (empty($results['byMetric']['kdr']['max'])) {
+                    $results['byMetric']['kdr']['max'] = $results['byMetric']['kdr'][$class];
+                }
+
+                if ($results['byMetric']['kdr'][$class] > $results['byMetric']['kdr']['max']) {
+                    $results['byMetric']['kdr']['max'] = $results['byMetric']['kdr'][$class];
+                }
+            }
+
+            foreach ($results['classGroups'] as $server => $classArray) {
+                foreach ($classArray as $class => $metrics) {
+                    $results['classGroups'][$server][$class]['kdr'] = $metrics['kills'] / $metrics['deaths'];
+                }
+            }
+
+            foreach ($results['classGroupFactionMetric'] as $class => $factions) {
+                foreach ($factions as $faction => $metrics) {
+                    $results['classGroupFactionMetric'][$class][$faction]['kdr'] = $metrics['kills'] / $metrics['deaths'];
+                }
+            }
+        }
+
+        return $this->respondWithArray($results);
+    }
+
+    private function findClassGrouping($classID)
+    {
+        $classGroups = $this->getConfig()['classesGroups'];
+
+        foreach ($classGroups as $group => $ids) {
+            foreach ($ids as $id) {
+                if ($classID === $id) {
+                    return $group;
+                }
+            }
+        }
+
+        return false;
+    }
+
+    private function findClassFaction($classID)
+    {
+        $classesFactions = $this->getConfig()['classesFactions'];
+
+        foreach ($classesFactions as $faction => $ids) {
+            foreach ($ids as $id) {
+                if ($classID === $id) {
+                    return $faction;
+                }
+            }
+        }
+
+        return false;
     }
 }

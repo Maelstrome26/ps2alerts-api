@@ -36,8 +36,7 @@ $container->inflector('Ps2alerts\Api\Contract\HttpMessageAwareInterface')
 $container->inflector('Ps2alerts\Api\Contract\TemplateAwareInterface')
           ->invokeMethod('setTemplateDriver', ['Twig_Environment']);
 $container->inflector('Ps2alerts\Api\Contract\RedisAwareInterface')
-          ->invokeMethod('setRedisDriver', ['redis'])
-          ->invokeMethod('setRedisCacheDriver', ['redisCache']);
+          ->invokeMethod('setRedisDriver', ['redis']);
 $container->inflector('Ps2alerts\Api\Contract\UuidAwareInterface')
           ->invokeMethod('setUuidDriver', ['Ramsey\Uuid\Uuid']);
 

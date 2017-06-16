@@ -3,8 +3,6 @@
 namespace Ps2alerts\Api\Controller\Endpoint\Leaderboards;
 
 use League\Fractal\Manager;
-use Ps2alerts\Api\Contract\RedisAwareInterface;
-use Ps2alerts\Api\Contract\RedisAwareTrait;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
@@ -17,11 +15,8 @@ use Ps2alerts\Api\Transformer\Leaderboards\LeaderboardUpdatedTransformer;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class LeaderboardEndpointController extends AbstractEndpointController implements
-    RedisAwareInterface
+class LeaderboardEndpointController extends AbstractEndpointController
 {
-    use RedisAwareTrait;
-
     /**
      * Construct
      *

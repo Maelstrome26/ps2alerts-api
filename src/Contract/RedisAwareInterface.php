@@ -19,18 +19,4 @@ interface RedisAwareInterface
      * @return \Predis\Client
      */
     public function getRedisDriver();
-
-    /**
-     * Set the Redis Cache driver
-     *
-     * @param \Predis\Client
-     */
-    public function setRedisCacheDriver(Redis $redis);
-
-    /**
-     * Get the Redis Cache driver
-     *
-     * @return \Predis\Client
-     */
-    public function getRedisCacheDriver();
 }

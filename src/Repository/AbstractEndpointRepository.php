@@ -316,4 +316,18 @@ abstract class AbstractEndpointRepository implements
                 return $key;
         }
     }
+
+    /**
+     * Generates a quoted string which is appropiate for WHERE IN statements
+     *
+     * @param  array  $array
+     *
+     * @return string
+     */
+    public function generateWhereInString(array $array)
+    {
+        $pdo = $this->getDbDriver();
+        $string = "({$pdo->quote($array)})";
+        return $string;
+    }
 }

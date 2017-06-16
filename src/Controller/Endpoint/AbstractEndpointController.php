@@ -10,6 +10,8 @@ use Ps2alerts\Api\Contract\DatabaseAwareInterface;
 use Ps2alerts\Api\Contract\DatabaseAwareTrait;
 use Ps2alerts\Api\Contract\HttpMessageAwareInterface;
 use Ps2alerts\Api\Contract\HttpMessageAwareTrait;
+use Ps2alerts\Api\Contract\RedisAwareInterface;
+use Ps2alerts\Api\Contract\RedisAwareTrait;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -17,11 +19,13 @@ use Psr\Http\Message\ResponseInterface;
 abstract class AbstractEndpointController implements
     ConfigAwareInterface,
     DatabaseAwareInterface,
-    HttpMessageAwareInterface
+    HttpMessageAwareInterface,
+    RedisAwareInterface
 {
     use ConfigAwareTrait;
     use DatabaseAwareTrait;
     use HttpMessageAwareTrait;
+    use RedisAwareTrait;
 
     /**
      * Contains the repository used for interfacing with the database
@@ -36,6 +40,13 @@ abstract class AbstractEndpointController implements
      * @var integer
      */
     protected $statusCode = 200;
+
+    /**
+     * Flag whether to send back a "is cached" header
+     *
+     * @var boolean
+     */
+    protected $sendCachedHeader = false;
 
     /**
      * Holds Fractal
@@ -184,6 +195,12 @@ abstract class AbstractEndpointController implements
         $response = $response->withStatus($this->getStatusCode());
         $response = $response->withHeader('Content-Type', 'application/json');
 
+        if ($this->sendCachedHeader) {
+            $response = $response->withHeader('X-Redis-Cache-Hit', 'Hit');
+        } else {
+            $response = $response->withHeader('X-Redis-Cache-Hit', 'Miss');
+        }
+
         // This is the end of the road. FIRE ZE RESPONSE!
         return $response;
     }
@@ -312,5 +329,68 @@ abstract class AbstractEndpointController implements
         if (! empty($_GET['embed'])) {
             $this->fractal->parseIncludes($_GET['embed']);
         }
+    }
+
+    public function setAsCached()
+    {
+        $this->sendCachedHeader = true;
+    }
+
+    /**
+     * Checks redis for a entry and returns it decoded if exists
+     *
+     * @param  string $type player|outfit
+     * @param  string $id   ID of player or outfit
+     *
+     * @return string|boolean
+     */
+    public function checkRedis($store = 'api', $type, $id, $encodeType = 'array')
+    {
+        $redis = $this->getRedisDriver();
+        $key = "ps2alerts:{$store}:{$type}:{$id}";
+
+        if ($redis->exists($key)) {
+            if ($encodeType === 'object') {
+                $data = json_decode($redis->get($key));
+            } else if ($encodeType === 'array') {
+                $data = json_decode($redis->get($key), true);
+            }
+
+            $this->setAsCached();
+
+            return $data;
+        }
+
+        return false;
+    }
+
+    /**
+     * Stores the complete information in Redis
+     *
+     * @param  string  $namespace Split between cache and API
+     * @param  string  $type
+     * @param  string  $id
+     * @param  string  $data
+     * @param  string  $time Time in seconds to store data
+     *
+     * @return boolean
+     */
+    public function storeInRedis($namespace = 'api', $type, $id, $data, $time = false)
+    {
+        $redis = $this->getRedisDriver();
+        $key = "ps2alerts:{$namespace}:{$type}:{$id}";
+
+        $data = json_encode($data);
+
+        // Check for errors #BRINGJSONEXCEPTIONS!
+        if (json_last_error() !== JSON_ERROR_NONE) {
+            throw new \Exception();
+        }
+
+        if (! $time) {
+            $time = 3600 * 24; // 1 day
+        }
+
+        return $redis->setEx($key, $time, $data);
     }
 }
