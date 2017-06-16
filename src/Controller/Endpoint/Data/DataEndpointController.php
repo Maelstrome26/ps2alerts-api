@@ -9,8 +9,6 @@ use Ps2alerts\Api\Transformer\Data\CharacterTransformer;
 use Ps2alerts\Api\Transformer\Data\OutfitTransformer;
 use Ps2alerts\Api\Contract\HttpClientAwareInterface;
 use Ps2alerts\Api\Contract\HttpClientAwareTrait;
-use Ps2alerts\Api\Contract\RedisAwareInterface;
-use Ps2alerts\Api\Contract\RedisAwareTrait;
 use Ps2alerts\Api\Exception\CensusErrorException;
 use Ps2alerts\Api\Exception\CensusEmptyException;
 use Ps2alerts\Api\Exception\RedisStoreException;
@@ -18,11 +16,9 @@ use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class DataEndpointController extends AbstractEndpointController implements
-    HttpClientAwareInterface,
-    RedisAwareInterface
+    HttpClientAwareInterface
 {
     use HttpClientAwareTrait;
-    use RedisAwareTrait;
 
     protected $dataTransformer;
 
@@ -70,7 +66,7 @@ class DataEndpointController extends AbstractEndpointController implements
     public function character(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         // First, check if we have the character in Redis
-        $character = $this->checkRedis('character', $args['id']);
+        $character['data'] = $this->checkRedis('cache', 'character', $args['id']);
 
         // If not, pull it from Census and store it
         if (empty($character)) {
@@ -168,7 +164,7 @@ class DataEndpointController extends AbstractEndpointController implements
 
         // First store the player without an outfit so we're not storing duplicated data
         try {
-            $this->storeInRedis('character', $id, $character['data']);
+            $this->storeInRedis('cache', 'character', $id, $character['data']);
         } catch (\Exception $e) {
             $this->setStatusCode(500);
             return $this->respondWithError('Redis store failed!', 'INTERNAL_ERROR');
@@ -188,7 +184,7 @@ class DataEndpointController extends AbstractEndpointController implements
     public function getOutfit($id)
     {
         // First, check if we have the outfit in Redis
-        $redisCheck = $this->checkRedis('outfit', $id);
+        $redisCheck['data'] = $this->checkRedis('cache', 'outfit', $id);
 
         if (! empty($redisCheck)) {
             return $redisCheck;
@@ -216,7 +212,7 @@ class DataEndpointController extends AbstractEndpointController implements
         $outfit = $this->createItem($outfit, new OutfitTransformer);
 
         try {
-            $this->storeInRedis('outfit', $id, $outfit['data']);
+            $this->storeInRedis('cache', 'outfit', $id, $outfit['data']);
         } catch (\Exception $e) {
             throw new RedisStoreException();
         }
@@ -264,54 +260,5 @@ class DataEndpointController extends AbstractEndpointController implements
         }
     }
 
-    /**
-     * Checks redis for a entry and returns it decoded if exists
-     *
-     * @param  string $type player|outfit
-     * @param  string $id   ID of player or outfit
-     *
-     * @return string|boolean
-     */
-    public function checkRedis($type, $id)
-    {
-        $redis = $this->getRedisCacheDriver();
 
-        $key = "ps2alerts:cache:{$type}:{$id}";
-
-        if ($redis->exists($key)) {
-            $data = json_decode($redis->get($key), true);
-
-            $return['data'] = $data; // Format it like the rest of the endpoints
-            return $return;
-        }
-
-        return false;
-    }
-
-    /**
-     * Stores the complete information in Redis
-     *
-     * @param  string  $type
-     * @param  string  $id
-     * @param  string  $data
-     *
-     * @return boolean
-     */
-    public function storeInRedis($type, $id, $data)
-    {
-        $redis = $this->getRedisCacheDriver();
-
-        $key = "ps2alerts:cache:{$type}:{$id}";
-
-        $data = json_encode($data);
-
-        // Check for errors #BRINGJSONEXCEPTIONS!
-        if (json_last_error() !== JSON_ERROR_NONE) {
-            throw new \Exception();
-        }
-
-        $cacheTime = 3600 * 24;
-
-        return $redis->setEx($key, $cacheTime, $data);
-    }
 }

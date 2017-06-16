@@ -35,24 +35,4 @@ trait RedisAwareTrait
     {
         return $this->redis;
     }
-
-    /**
-     * Set the Redis Cache driver
-     *
-     * @param \Predis\Client
-     */
-    public function setRedisCacheDriver(Redis $redis)
-    {
-        $this->redisCache = $redis;
-    }
-
-    /**
-     * Get the Redis Cache driver
-     *
-     * @return \Predis\Client
-     */
-    public function getRedisCacheDriver()
-    {
-        return $this->redisCache;
-    }
 }

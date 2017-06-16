@@ -52,7 +52,6 @@ class ConfigServiceProvider extends AbstractServiceProvider
                     'host'     => $_ENV['REDIS_HOST'],
                     'port'     => $_ENV['REDIS_PORT'],
                     'db'       => $_ENV['REDIS_DB'],
-                    'db_cache' => $_ENV['REDIS_DB_CACHE']
                 ],
                 'servers'           => [1, 10, 13, 17, 25, 1000, 2000],
                 'zones'             => [2, 4, 6, 8],
@@ -64,6 +63,11 @@ class ConfigServiceProvider extends AbstractServiceProvider
                     'engineer'    => [5, 12, 19],
                     'ha'          => [6, 13, 20],
                     'max'         => [7, 14, 21]
+                ],
+                'classesFactions' => [
+                    'nc' => [1, 3, 4, 5, 6, 7],
+                    'tr' => [8, 10, 11, 12, 13, 14],
+                    'vs' => [15, 17, 18, 19, 20, 21]
                 ],
                 'factions'          => ['vs', 'nc', 'tr', 'draw'],
                 'brackets'          => ['MOR', 'AFT', 'PRI'],

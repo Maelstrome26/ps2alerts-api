@@ -3,19 +3,14 @@
 namespace Ps2alerts\Api\Controller\Endpoint\Leaderboards;
 
 use League\Fractal\Manager;
-use Ps2alerts\Api\Contract\RedisAwareInterface;
-use Ps2alerts\Api\Contract\RedisAwareTrait;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
-class LeaderboardLadderEndpointController extends AbstractEndpointController implements
-    RedisAwareInterface
+class LeaderboardLadderEndpointController extends AbstractEndpointController
 {
-    use RedisAwareTrait;
-
     public function playerLadder(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         $redis = $this->getRedisDriver();

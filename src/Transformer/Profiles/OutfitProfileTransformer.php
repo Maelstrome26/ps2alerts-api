@@ -17,8 +17,10 @@ use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Transformer\Profiles\OutfitInvolvementTransformer;
 use Ps2alerts\Api\Transformer\Profiles\OutfitPlayersTransformer;
 
-class OutfitProfileTransformer extends TransformerAbstract
-    implements DatabaseAwareInterface, HttpClientAwareInterface, RedisAwareInterface
+class OutfitProfileTransformer extends TransformerAbstract implements
+    DatabaseAwareInterface,
+    HttpClientAwareInterface,
+    RedisAwareInterface
 {
     use DatabaseAwareTrait;
     use HttpClientAwareTrait;
