@@ -33,6 +33,9 @@ class DeleteAlertCommand extends BaseCommand
     {
         $id = $input->getArgument('alert');
 
+        $output->writeln("Processing Alert deletion for: {$id}");
+
+
         // If we're requesting a range
         if (strpos('->', $id)) {
 
