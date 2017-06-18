@@ -35,21 +35,17 @@ class DeleteAlertCommand extends BaseCommand
 
         $output->writeln("Processing Alert deletion for: {$id}");
 
-        var_dump(strpos($id, ','));
-
         // If we're requesting a range
         if (strpos($id, ',') !== false) {
             $split = explode(',', $id);
             $ids = range($split[0], $split[1]);
             $output->writeln("DELETING ALERTS BETWEEN #{$split[0]} AND #{$split[1]}");
 
-            var_dump($ids);
-
             foreach ($ids as $id) {
-                #$this->processAlert($id, $output);
+                $this->processAlert($id, $output);
             }
         } else {
-            #$this->processAlert($id, $output);
+            $this->processAlert($id, $output);
         }
     }
 
