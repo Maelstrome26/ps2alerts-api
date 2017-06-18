@@ -41,7 +41,9 @@ class DeleteAlertCommand extends BaseCommand
         if (strpos($id, ',') !== false) {
             $split = explode(',', $id);
             $ids = range($split[0], $split[1]);
-            $output->writeln("DELETING ALERTS BETWEEN #{$split[0]} AND {$split[1]}");
+            $output->writeln("DELETING ALERTS BETWEEN #{$split[0]} AND #{$split[1]}");
+
+            var_dump($ids);
 
             foreach ($ids as $id) {
                 #$this->processAlert($id, $output);
