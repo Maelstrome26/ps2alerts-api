@@ -47,13 +47,13 @@ class DeleteMissingAlertsCommand extends BaseCommand
 
             $output->writeln("{$count} / {$max} - {$per}%");
 
-            $alertPDO = $this->auraFactory->newSelect();
-            $alertPDO->from('ws_results');
-            $alertPDO->cols(['ResultID']);
-            $alertPDO->where('ResultID = ?', $count);
+            $pdo = $this->auraFactory->newSelect();
+            $pdo->from('ws_results');
+            $pdo->cols(['ResultID']);
+            $pdo->where('ResultID = ?', $count);
 
-            $alertQuery = $this->db->prepare($alertPDO->getStatement());
-            $alertQuery->execute($alertPDO->getBindValues());
+            $alertQuery = $this->db->prepare($pdo->getStatement());
+            $alertQuery->execute($pdo->getBindValues());
 
             $alert = $alertQuery->fetch(\PDO::FETCH_OBJ);
 

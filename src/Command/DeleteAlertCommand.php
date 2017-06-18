@@ -33,7 +33,19 @@ class DeleteAlertCommand extends BaseCommand
     {
         $id = $input->getArgument('alert');
 
-        $this->processAlert($id, $output);
+        // If we're requesting a range
+        if (strpos('->', $id)) {
+
+            $split = explode('->', $id);
+            $ids = range($split[0], $split[1]);
+            $output->writeln("DELETING ALERTS BETWEEN #{$split[0]} AND {$split[1]}");
+
+            foreach ($ids as $id) {
+                $this->processAlert($id, $output);
+            }
+        } else {
+            $this->processAlert($id, $output);
+        }
     }
 
     public function processAlert($id, $output, $force = null)
