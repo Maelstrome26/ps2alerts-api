@@ -10,6 +10,10 @@ josegonzalez\Dotenv\Loader::load([
     'toEnv'    => true
 ]);
 
+// Bugsnag
+$bugsnag = Bugsnag\Client::make($_ENV['BUGSNAG']);
+Bugsnag\Handler::register($bugsnag);
+
 // Container
 $container = include __DIR__ . '/../src/container.php';
 
