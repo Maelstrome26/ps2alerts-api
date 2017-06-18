@@ -36,7 +36,7 @@ class DeleteAlertCommand extends BaseCommand
         $output->writeln("Processing Alert deletion for: {$id}");
 
         // If we're requesting a range
-        if (strpos(',', $id)) {
+        if (strpos(',', $id) !== false) {
 
             $split = explode(',', $id);
             $ids = range($split[0], $split[1]);
