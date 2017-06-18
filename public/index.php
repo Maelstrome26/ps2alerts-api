@@ -14,6 +14,10 @@ josegonzalez\Dotenv\Loader::load([
 $bugsnag = Bugsnag\Client::make($_ENV['BUGSNAG']);
 Bugsnag\Handler::register($bugsnag);
 
+if ($_ENV['ENVIRONMENT'] === 'staging') {
+    $bugsnag->setReleaseStage('staging');
+}
+
 // Container
 $container = include __DIR__ . '/../src/container.php';
 
