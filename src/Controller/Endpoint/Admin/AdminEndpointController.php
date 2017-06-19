@@ -32,5 +32,6 @@ class AdminEndpointController extends AbstractEndpointController
     public function errorTest(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         throw new \Exception('Test');
+        trigger_error('Test');
     }
 }
