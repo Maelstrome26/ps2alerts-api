@@ -15,7 +15,7 @@ if ($_ENV['ENV'] !== 'development') {
     $bugsnag = Bugsnag\Client::make($_ENV['BUGSNAG']);
     Bugsnag\Handler::register($bugsnag);
 
-    if ($_ENV['ENVIRONMENT'] === 'staging') {
+    if ($_ENV['ENV'] === 'staging') {
         $bugsnag->setReleaseStage('staging');
     }
 }
