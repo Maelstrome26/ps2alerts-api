@@ -106,9 +106,10 @@ class SearchEndpointController extends AbstractEndpointController
     {
         $query = $this->playerRepository->newQuery();
         $query->cols(['*']);
-        $query->where("playerName LIKE '%{$term}%'");
+        $query->where('playerName LIKE :term');
+        $query->bindValue('term', "%{$term}%");
 
-        return $this->playerRepository->readRaw($query->getStatement());
+        return $this->playerRepository->fireStatementAndReturn($query);
     }
 
     /**

@@ -204,10 +204,13 @@ class AlertCountsEndpointController extends AlertEndpointController
     public function generateFactionCaseSql($server = null, $zones = null, $mode = null)
     {
         $sql = '';
+        $pdo = $this->getDatabaseDriver();
 
         foreach ($this->getConfigItem('factions') as $faction) {
             $factionAbv = strtoupper($faction);
-            $sql .= "SUM(CASE WHEN `ResultWinner`='{$factionAbv}' ";
+            $factionAbv = $pdo->quote($factionAbv);
+
+            $sql .= "SUM(CASE WHEN `ResultWinner`={$factionAbv} ";
             if (! empty($server)) {
                 $sql .= "AND `ResultServer` IN ({$server}) ";
             }
@@ -219,6 +222,8 @@ class AlertCountsEndpointController extends AlertEndpointController
             if ($mode === 'dominations') {
                 $sql .= "AND `ResultDomination` = 1 ";
             }
+
+            $faction = $pdo->quote($faction);
 
             $sql .= "THEN 1 ELSE 0 END) {$faction}";
 
