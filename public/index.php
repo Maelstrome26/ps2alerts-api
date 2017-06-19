@@ -11,11 +11,13 @@ josegonzalez\Dotenv\Loader::load([
 ]);
 
 // Bugsnag
-$bugsnag = Bugsnag\Client::make($_ENV['BUGSNAG']);
-Bugsnag\Handler::register($bugsnag);
+if ($_ENV['ENV'] !== 'development') {
+    $bugsnag = Bugsnag\Client::make($_ENV['BUGSNAG']);
+    Bugsnag\Handler::register($bugsnag);
 
-if ($_ENV['ENVIRONMENT'] === 'staging') {
-    $bugsnag->setReleaseStage('staging');
+    if ($_ENV['ENVIRONMENT'] === 'staging') {
+        $bugsnag->setReleaseStage('staging');
+    }
 }
 
 // Container
