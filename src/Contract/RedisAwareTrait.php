@@ -12,11 +12,6 @@ trait RedisAwareTrait
     protected $redis;
 
     /**
-     * @var \Predis\Client
-     */
-    protected $redisCache;
-
-    /**
      * Set the Redis driver
      *
      * @param \Predis\Client $redis

@@ -15,8 +15,7 @@ class RedisServiceProvider extends AbstractServiceProvider implements
      * @var array
      */
     protected $provides = [
-        'redis',
-        'redisCache'
+        'redis'
     ];
 
     /**
