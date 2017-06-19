@@ -4,16 +4,19 @@ namespace Ps2alerts\Api\Controller\Endpoint\Leaderboards;
 
 use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
+use Ps2alerts\Api\Controller\Endpoint\Data\DataEndpointController;
+use Ps2alerts\Api\Exception\CensusEmptyException;
+use Ps2alerts\Api\Exception\CensusErrorException;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\WeaponTotalRepository;
+use Ps2alerts\Api\Transformer\Leaderboards\LeaderboardUpdatedTransformer;
 use Ps2alerts\Api\Transformer\Leaderboards\OutfitLeaderboardTransformer;
 use Ps2alerts\Api\Transformer\Leaderboards\PlayerLeaderboardTransformer;
 use Ps2alerts\Api\Transformer\Leaderboards\WeaponLeaderboardTransformer;
-use Ps2alerts\Api\Transformer\Leaderboards\LeaderboardUpdatedTransformer;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class LeaderboardEndpointController extends AbstractEndpointController
 {
@@ -23,16 +26,18 @@ class LeaderboardEndpointController extends AbstractEndpointController
      * @param League\Fractal\Manager $fractal
      */
     public function __construct(
-        Manager               $fractal,
-        PlayerTotalRepository $playerTotalRepository,
-        OutfitTotalRepository $outfitTotalRepository,
-        WeaponTotalRepository $weaponTotalRepository
+        Manager                $fractal,
+        PlayerTotalRepository  $playerTotalRepository,
+        OutfitTotalRepository  $outfitTotalRepository,
+        WeaponTotalRepository  $weaponTotalRepository,
+        DataEndpointController $dataEndpoint
     ) {
 
         $this->fractal = $fractal;
         $this->playerTotalRepository = $playerTotalRepository;
         $this->outfitTotalRepository = $outfitTotalRepository;
         $this->weaponTotalRepository = $weaponTotalRepository;
+        $this->dataEndpoint          = $dataEndpoint;
     }
 
     /**
@@ -52,20 +57,14 @@ class LeaderboardEndpointController extends AbstractEndpointController
             return $this->errorWrongArgs($valid->getMessage());
         }
 
-        $field  = $_GET['field'];
         $server = $_GET['server'];
         $limit  = $_GET['limit'];
         $offset = $_GET['offset'];
 
         // Translate field into table specific columns
 
-        // Default
-        if (! isset($field)) {
-            $field = 'playerKills';
-        }
-
-        if (isset($field)) {
-            switch ($field) {
+        if (isset($_GET['field'])) {
+            switch ($_GET['field']) {
                 case 'kills':
                     $field = 'playerKills';
                     break;
@@ -82,6 +81,10 @@ class LeaderboardEndpointController extends AbstractEndpointController
                     $field = 'headshots';
                     break;
             }
+        }
+
+        if (! isset($field)) {
+            return $this->errorWrongArgs('Field wasn\'t provided and is required.');
         }
 
         // Perform Query
@@ -107,21 +110,16 @@ class LeaderboardEndpointController extends AbstractEndpointController
 
         $count = count($players);
 
-        // Get's outfit details
+        // Gets outfit details
         for ($i = 0; $i < $count; $i++) {
             if (! empty($players[$i]['playerOutfit'])) {
                 // Gets outfit details
-                $data = $this->getPlayerOutfit($players[$i]['playerOutfit']);
-
-                if (! isset($data) || empty($data)) {
+                try {
+                    $outfit = $this->dataEndpoint->getOutfit($players[$i]['playerOutfit']);
+                } catch (CensusErrorException $e) {
                     $outfit = null;
-                } else {
-                    $outfit = [
-                        'id'     => $data['outfitID'],
-                        'name'   => $data['outfitName'],
-                        'tag'    => $data['outfitTag'],
-                        'server' => (int) $data['outfitServer']
-                    ];
+                } catch (CensusEmptyException $e) {
+                    $outfit = null;
                 }
 
                 $players[$i]['playerOutfit'] = $outfit;
@@ -152,20 +150,14 @@ class LeaderboardEndpointController extends AbstractEndpointController
             return $this->errorWrongArgs($valid->getMessage());
         }
 
-        $field  = $_GET['field'];
         $server = $_GET['server'];
         $limit  = $_GET['limit'];
         $offset = $_GET['offset'];
 
         // Translate field into table specific columns
 
-        // Default
-        if (! isset($field)) {
-            $field = 'outfitKills';
-        }
-
-        if (isset($field)) {
-            switch ($field) {
+        if (isset($_GET['field'])) {
+            switch ($_GET['field']) {
                 case 'kills':
                     $field = 'outfitKills';
                     break;
@@ -178,13 +170,14 @@ class LeaderboardEndpointController extends AbstractEndpointController
                 case 'suicides':
                     $field = 'outfitSuicides';
                     break;
-                case 'headshots':
-                    $field = 'headshots';
-                    break;
                 case 'captures':
                     $field = 'outfitCaptures';
                     break;
             }
+        }
+
+        if (! isset($field)) {
+            return $this->errorWrongArgs('Field wasn\'t provided and is required.');
         }
 
         // Perform Query
@@ -231,17 +224,9 @@ class LeaderboardEndpointController extends AbstractEndpointController
             return $this->errorWrongArgs($valid->getMessage());
         }
 
-        $field  = $_GET['field'];
-
         // Translate field into table specific columns
-
-        // Default
-        if (! isset($field)) {
-            $field = 'killCount';
-        }
-
-        if (isset($field)) {
-            switch ($field) {
+        if (isset($_GET['field'])) {
+            switch ($_GET['field']) {
                 case 'kills':
                     $field = 'killCount';
                     break;
@@ -254,13 +239,14 @@ class LeaderboardEndpointController extends AbstractEndpointController
             }
         }
 
-        $redis = $this->getRedisDriver();
-        $key = "ps2alerts:api:leaderboards:weapons:{$field}";
+        if (! isset($field)) {
+            return $this->errorWrongArgs('Field wasn\'t provided and is required.');
+        }
+
+        $weapons = $this->checkRedis('api', 'leaderboards', "weapons:{$field}");
 
         // If we have this cached already
-        if (! empty($redis->exists($key))) {
-            $weapons = json_decode($redis->get($key), true);
-        } else {
+        if (empty($weapons)) {
             // Perform Query
             $query = $this->weaponTotalRepository->newQuery();
             $query->cols([
@@ -276,7 +262,7 @@ class LeaderboardEndpointController extends AbstractEndpointController
             $weapons = $this->weaponTotalRepository->fireStatementAndReturn($query);
 
             // Cache results in redis
-            $redis->setEx($key, 7200, json_encode($weapons));
+            $this->storeInRedis('api', 'leaderboards', "weapons:{$field}", $weapons);
         }
 
         return $this->respond(
@@ -284,31 +270,6 @@ class LeaderboardEndpointController extends AbstractEndpointController
             $weapons,
             new WeaponLeaderboardTransformer
         );
-    }
-
-    /**
-     * Gets a players outfit either from DB or Redis
-     *
-     * @param  string $outfitID
-     *
-     * @return array
-     */
-    public function getPlayerOutfit($outfitID)
-    {
-        $redis = $this->getRedisDriver();
-        $key = "ps2alerts:api:outfits:{$outfitID}";
-
-        // If we have this cached already
-        if (! empty($redis->exists($key))) {
-            return json_decode($redis->get($key), true);
-        }
-
-        $outfit = $this->outfitTotalRepository->readSingleById($outfitID, 'outfitID');
-
-        // Cache results in redis
-        $redis->setEx($key, 86400, json_encode($outfit));
-
-        return $outfit;
     }
 
     /**
