@@ -69,7 +69,7 @@ class DataEndpointController extends AbstractEndpointController implements
         $character['data'] = $this->checkRedis('cache', 'character', $args['id']);
 
         // If not, pull it from Census and store it
-        if (empty($character)) {
+        if (empty($character['data'])) {
             try {
                 $character = $this->getCharacter($args['id']);
             } catch (CensusErrorException $e) {
@@ -141,8 +141,15 @@ class DataEndpointController extends AbstractEndpointController implements
      */
     public function getCharacter($id)
     {
+        // First, check if we have the character in Redis
+        $redisCheck['data'] = $this->checkRedis('cache', 'character', $id);
+
+        if (! empty($redisCheck['data'])) {
+            return $redisCheck;
+        }
+
         // Since we don't have any data, let's grab it from Census.
-        $endpoint = "character?character_id={$id}&c:resolve=outfit";
+        $endpoint = "character?character_id={$id}&c:resolve=outfit,world";
 
         try {
             $json = $this->sendCensusQuery($endpoint);
@@ -186,7 +193,7 @@ class DataEndpointController extends AbstractEndpointController implements
         // First, check if we have the outfit in Redis
         $redisCheck['data'] = $this->checkRedis('cache', 'outfit', $id);
 
-        if (! empty($redisCheck)) {
+        if (! empty($redisCheck['data'])) {
             return $redisCheck;
         }
 
@@ -208,6 +215,10 @@ class DataEndpointController extends AbstractEndpointController implements
         $env = $json->environment;
         $outfit = $json->outfit_list[0];
         $outfit->environment = $env; // Re-inject the ENV to store
+
+        // Now to get the outfit's world, we need to get leader details
+        $leader = $this->getCharacter($outfit->leader_character_id);
+        $outfit->server = $leader['data']['server'];
 
         $outfit = $this->createItem($outfit, new OutfitTransformer);
 
@@ -259,6 +270,4 @@ class DataEndpointController extends AbstractEndpointController implements
             }
         }
     }
-
-
 }

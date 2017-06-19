@@ -22,6 +22,7 @@ class OutfitTransformer extends TransformerAbstract
             'faction'     => (int) $data->leader->faction_id,
             'count'       => (int) $data->member_count,
             'leader'      => (string) $data->leader_character_id,
+            'server'      => (int) $data->server,
             'environment' => (string) $data->environment,
             'entered'     => (int) date('U')
         ];

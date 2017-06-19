@@ -195,7 +195,9 @@ abstract class AbstractEndpointController implements
         $response = $response->withStatus($this->getStatusCode());
         $response = $response->withHeader('Content-Type', 'application/json');
 
-        if ($this->sendCachedHeader) {
+        if ($this->sendCachedHeader === 'partial') {
+            $response = $response->withHeader('X-Redis-Cache-Hit', 'Partial-Hit');
+        } else if ($this->sendCachedHeader === true) {
             $response = $response->withHeader('X-Redis-Cache-Hit', 'Hit');
         } else {
             $response = $response->withHeader('X-Redis-Cache-Hit', 'Miss');
@@ -331,9 +333,28 @@ abstract class AbstractEndpointController implements
         }
     }
 
-    public function setAsCached()
+    /**
+     * Sets the internal flag for redis caching so X-Redis-Cache-Hit headers can be set
+     *
+     * @param string $mode string
+     */
+    public function setAsCached($mode = 'check')
     {
-        $this->sendCachedHeader = true;
+        /*
+        If all keys are missing: Miss
+        If one key is found: Partial-Hit
+        If ALL keys are found: Hit
+        */
+
+        if ($mode === 'store') {
+            if ($this->sendCachedHeader === true) {
+                $this->sendCachedHeader = 'partial';
+            }
+        } else if ($mode === 'check') {
+            if ($this->sendCachedHeader === false) {
+                $this->sendCachedHeader = true;
+            }
+        }
     }
 
     /**
@@ -356,7 +377,7 @@ abstract class AbstractEndpointController implements
                 $data = json_decode($redis->get($key), true);
             }
 
-            $this->setAsCached();
+            $this->setAsCached('check');
 
             return $data;
         }
@@ -390,6 +411,8 @@ abstract class AbstractEndpointController implements
         if (! $time) {
             $time = 3600 * 24; // 1 day
         }
+
+        $this->setAsCached('store');
 
         return $redis->setEx($key, $time, $data);
     }

@@ -21,6 +21,7 @@ class CharacterTransformer extends TransformerAbstract
             'faction'     => (int) $data->faction_id,
             'br'          => (int) $data->battle_rank->value,
             'outfit'      => null,
+            'server'      => (int) $data->world_id,
             'environment' => (string) $data->environment,
             'entered'     => (int) date('U')
         ];
