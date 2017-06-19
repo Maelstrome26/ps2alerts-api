@@ -217,7 +217,7 @@ class DataEndpointController extends AbstractEndpointController implements
         $outfit = $this->createItem($outfit, new OutfitTransformer);
 
         try {
-            $this->storeInRedis('cache', 'outfit', $id, $outfit['data']);
+            $this->storeInRedis('cache', 'outfit', $id, $outfit['data'], 604800); // 1 week
         } catch (\Exception $e) {
             throw new RedisStoreException('Unable to store in Redis!');
         }
