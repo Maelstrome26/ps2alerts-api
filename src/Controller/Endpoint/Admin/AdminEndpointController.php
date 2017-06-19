@@ -28,4 +28,9 @@ class AdminEndpointController extends AbstractEndpointController
         var_dump($zone);
         var_dump($headers);
     }
+
+    public function errorTest(ServerRequestInterface $request, ResponseInterface $response, array $args)
+    {
+        throw new \Exception('Test');
+    }
 }

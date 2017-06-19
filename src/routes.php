@@ -148,6 +148,11 @@ $route->group('/admin', function ($route) {
         '/v2/admin/createAlert',
         'Ps2alerts\Api\Controller\Endpoint\Admin\AdminEndpointController::createAlert'
     );
+
+    $route->get(
+        '/v2/admin/errorTest',
+        'Ps2alerts\Api\Controller\Endpoint\Admin\AdminEndpointController::errorTest'
+    );
 });
 
 
