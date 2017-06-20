@@ -51,6 +51,7 @@ class ConfigServiceProvider extends AbstractServiceProvider
                     'enabled'  => $_ENV['REDIS_ENABLED'],
                     'host'     => $_ENV['REDIS_HOST'],
                     'port'     => $_ENV['REDIS_PORT'],
+                    'pass'     => $_ENV['REDIS_PASS'],
                     'db'       => $_ENV['REDIS_DB'],
                 ],
                 'servers'           => [1, 10, 13, 17, 25, 1000, 2000],

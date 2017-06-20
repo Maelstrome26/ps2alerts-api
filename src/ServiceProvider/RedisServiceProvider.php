@@ -30,7 +30,8 @@ class RedisServiceProvider extends AbstractServiceProvider implements
                 'host'     => $redisConfig['host'],
                 'port'     => $redisConfig['port'],
                 'database' => intval($redisConfig['db']),
-                'scheme'   => 'tcp'
+                'scheme'   => 'tcp',
+                'password' => $redisConfig['pass']
             ]);
 
             return $client;
