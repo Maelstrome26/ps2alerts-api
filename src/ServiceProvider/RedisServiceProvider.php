@@ -26,13 +26,18 @@ class RedisServiceProvider extends AbstractServiceProvider implements
         $this->getContainer()->add('redis', function () {
             $redisConfig = $this->getContainer()->get('config')['redis'];
 
-            $client = new Client([
+            $args = [
                 'host'     => $redisConfig['host'],
                 'port'     => $redisConfig['port'],
                 'database' => intval($redisConfig['db']),
                 'scheme'   => 'tcp',
-                'password' => $redisConfig['pass']
-            ]);
+            ];
+
+            if (! empty($redisConfig['pass'])) {
+                $args['password'] = $redisConfig['pass'];
+            }
+
+            $client = new Client($args);
 
             return $client;
         });
