@@ -103,12 +103,12 @@ class AlertEndpointController extends AbstractEndpointController
         $limit    = (int) $_GET['limit'];
 
         // Set defaults if not supplied
-        if ($offset === null || ! is_numeric($offset)) {
+        if (empty($offset) || ! is_numeric($offset)) {
             $offset = 0;
         }
 
-        if ($limit === null || ! is_numeric($limit)) {
-            $limit = 25;
+        if (empty($limit) || ! is_numeric($limit)) {
+            $limit = 50;
         }
 
         if ($dateFrom === null) {
@@ -132,6 +132,62 @@ class AlertEndpointController extends AbstractEndpointController
         $query->where("ResultAlertCont IN ({$zones})");
         $query->where('ResultDateTime > ?', $dateFrom);
         $query->where('ResultDateTime < ?', $dateTo);
+        $query->where("ResultWinner IN ({$factions})");
+        $query->where("ResultTimeType IN ({$brackets})");
+
+        $query->orderBy(["ResultEndTime DESC"]);
+        $query->limit($limit);
+        $query->offset($offset);
+
+        $history = $this->repository->fireStatementAndReturn($query);
+
+        return $this->respond(
+            'collection',
+            $history,
+            $this->transformer,
+            $request,
+            $response
+        );
+    }
+
+    /**
+     * Returns all alerts by latest
+     *
+     * @param  Psr\Http\Message\ServerRequestInterface  $request
+     * @param  Psr\Http\Message\ResponseInterface $response
+     *
+     * @return \League\Fractal\TransformerAbstract
+     */
+    public function getLatest(ServerRequestInterface $request, ResponseInterface $response)
+    {
+        try {
+            $servers  = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
+            $zones    = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
+            $factions = $this->getFiltersFromQueryString($_GET['factions'], 'factions', $response);
+            $brackets = $this->getFiltersFromQueryString($_GET['brackets'], 'brackets', $response);
+        } catch (InvalidArgumentException $e) {
+            return $this->errorWrongArgs($e->getMessage());
+        }
+
+        $offset = (int) $_GET['offset'];
+        $limit  = (int) $_GET['limit'];
+
+        // Set defaults if not supplied
+        if (empty($offset) || ! is_numeric($offset)) {
+            $offset = 0;
+        }
+
+        if (empty($limit) || ! is_numeric($limit)) {
+            $limit = 25;
+        }
+
+        $query = $this->repository->newQuery();
+
+        // @todo Look into doing bind properly
+        // @too Look into doing WHERE IN statements with binds
+        $query->cols(['*']);
+        $query->where("ResultServer IN ({$servers})");
+        $query->where("ResultAlertCont IN ({$zones})");
         $query->where("ResultWinner IN ({$factions})");
         $query->where("ResultTimeType IN ({$brackets})");
 
