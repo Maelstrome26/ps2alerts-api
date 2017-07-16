@@ -7,14 +7,14 @@ use Predis\Client as Redis;
 interface RedisAwareInterface
 {
     /**
-     * Set the Redis driver
+     * Sets the Redis driver
      *
      * @param \Predis\Client
      */
     public function setRedisDriver(Redis $redis);
 
     /**
-     * Get the Redis driver
+     * Gets the Redis driver
      *
      * @return \Predis\Client
      */

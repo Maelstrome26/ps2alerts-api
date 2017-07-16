@@ -98,8 +98,6 @@ abstract class AbstractEndpointController implements
      * @param  string                                     $kind     The kind of data we wish to return
      * @param  array                                      $data     The data itself
      * @param  \League\Fractal\TransformerAbstract        $callback The transformer class to call
-     * @param  \Psr\Http\Message\ServerRequestInterface  $request  The request itself
-     * @param  \Psr\Http\Message\ResponseInterface $response The response object to eventually call
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
@@ -122,9 +120,8 @@ abstract class AbstractEndpointController implements
      *
      * @param  array                                      $item        The item to transform
      * @param  \League\Fractal\TransformerAbstract        $transformer The Transformer to pass through to Fractal
-     * @param  \Psr\Http\Message\ResponseInterface $response    The client's response
      *
-     * @return array
+     * @return ResponseInterface
      */
     protected function respondWithItem($item, $transformer)
     {
@@ -152,9 +149,8 @@ abstract class AbstractEndpointController implements
      *
      * @param  array                                      $collection  The collection to transform
      * @param  \League\Fractal\TransformerAbstract        $transformer The Transformer to pass through to Fractal
-     * @param  \Psr\Http\Message\ResponseInterface $response    The client's response
      *
-     * @return array
+     * @return ResponseInterface
      */
     protected function respondWithCollection($collection, $transformer)
     {
@@ -180,7 +176,6 @@ abstract class AbstractEndpointController implements
     /**
      * The final step where the formatted array is now sent back as a response in JSON form
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  array                                      $array
      *
      * @return \Psr\Http\Message\ResponseInterface
@@ -210,11 +205,10 @@ abstract class AbstractEndpointController implements
     /**
      * Responds gracefully with an error.
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message   Response message to put in the error
      * @param  int                                        $errorCode Error code to set
      *
-     * @return array
+     * @return ResponseInterface
      */
     protected function respondWithError($message, $errorCode)
     {
@@ -238,10 +232,9 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a response with a 404 HTTP error and a given message.
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
-     * @return void
+     * @return ResponseInterface
      */
     public function errorEmpty($message = 'No data / Empty')
     {
@@ -252,10 +245,9 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 403 HTTP header and a given message.
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
-     * @return void
+     * @return ResponseInterface
      */
     public function errorForbidden($message = 'Forbidden')
     {
@@ -266,10 +258,9 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 500 HTTP header and a given message.
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
-     * @return void
+     * @return ResponseInterface
      */
     public function errorInternalError($message = 'Internal Error')
     {
@@ -280,10 +271,9 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 404 HTTP header and a given message.
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
-     * @return void
+     * @return ResponseInterface
      */
     public function errorNotFound($message = 'Resource Not Found')
     {
@@ -294,10 +284,9 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 401 HTTP header and a given message.
      *
-     * @param  \Psr\Http\Message\ResponseInterface $response
      * @param  string                                     $message
      *
-     * @return void
+     * @return ResponseInterface
      */
     public function errorUnauthorized($message = 'Unauthorized')
     {
@@ -308,7 +297,6 @@ abstract class AbstractEndpointController implements
     /**
      * Generates a Response with a 400 HTTP header and a given message.
      *
-     * @param \Psr\Http\Message\ResponseInterface $response
      * @param string                                     $message
      *
      * @return \Psr\Http\Message\ResponseInterface
@@ -322,13 +310,12 @@ abstract class AbstractEndpointController implements
     /**
      * Reads any requested includes and adds them to the item / collection
      *
-     * @param  Psr\Http\Message\ServerRequestInterface $request
      *
      * @return void
      */
     public function getIncludesFromRequest()
     {
-        if (! empty($_GET['embed'])) {
+        if (!empty($_GET['embed'])) {
             $this->fractal->parseIncludes($_GET['embed']);
         }
     }
@@ -408,7 +395,7 @@ abstract class AbstractEndpointController implements
             throw new \Exception();
         }
 
-        if (! $time) {
+        if (!$time) {
             $time = 3600 * 24; // 1 day
         }
 
@@ -432,14 +419,14 @@ abstract class AbstractEndpointController implements
         $numericals = ['servers', 'zones'];
         $strings = ['factions', 'brackets'];
 
-        if (! empty($queryString)) {
+        if (!empty($queryString)) {
             $check = explode(',', $queryString);
 
             // Run a check on the IDs provided to make sure they're valid and no naughty things are being passed
             foreach ($check as $id) {
                 // If the query string should contain only numbers
                 if (in_array($mode, $numericals)) {
-                    if (! is_numeric($id)) {
+                    if (!is_numeric($id)) {
                         throw new InvalidArgumentException("Non numerical ID detected. Only numerical IDs are accepted with this request.");
                     }
                 }
@@ -449,14 +436,14 @@ abstract class AbstractEndpointController implements
                     }
                 }
 
-                if (! in_array($id, $filters)) {
+                if (!in_array($id, $filters)) {
                     throw new InvalidArgumentException("Unrecognized {$mode}. Please check the IDs you sent.");
                 }
             }
 
             // Format into strings comma seperated for SQL
             if (in_array($mode, $strings)) {
-                $queryString = "'" . implode("','", $check) . "'";
+                $queryString = "'".implode("','", $check)."'";
             }
 
             return $queryString;
@@ -465,7 +452,7 @@ abstract class AbstractEndpointController implements
         $return = implode(',', $filters);
 
         if (in_array($mode, $strings)) {
-            $return = "'" . implode("','", $filters) . "'";
+            $return = "'".implode("','", $filters)."'";
         }
 
         // If no string was provided, returns all data encoded as a comma seperated string

@@ -17,9 +17,10 @@ class DeleteAlertCommand extends BaseCommand
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
-        $this->setName('DeleteAlert')
-             ->setDescription('Deletes an alert and corrects totals')
-             ->addArgument(
+        $this
+            ->setName('DeleteAlert')
+            ->setDescription('Deletes an alert and corrects totals')
+            ->addArgument(
                 'alert',
                 InputArgument::REQUIRED,
                 'Alert ID to process'
@@ -48,7 +49,14 @@ class DeleteAlertCommand extends BaseCommand
         }
     }
 
-    public function processAlert($id, $output, $force = null)
+    /**
+     * Processes an alert
+     * @param  string          $id
+     * @param  OutputInterface $output
+     * @param  boolean         $force
+     * @return boolean
+     */
+    public function processAlert($id, OutputInterface $output, $force = null)
     {
         $alert = $this->alertRepo->readSingleById($id, 'primary', true);
 
@@ -104,6 +112,11 @@ class DeleteAlertCommand extends BaseCommand
         return true;
     }
 
+    /**
+     * Processes players for alert
+     * @param  string $id Alert ID
+     * @return void
+     */
     protected function processPlayers($id)
     {
         $cols = [
@@ -133,6 +146,11 @@ class DeleteAlertCommand extends BaseCommand
         );
     }
 
+    /**
+     * Processes outfits for alert
+     * @param  string $id Alert ID
+     * @return void
+     */
     protected function processOutfits($id)
     {
         $cols = [
@@ -160,6 +178,11 @@ class DeleteAlertCommand extends BaseCommand
         );
     }
 
+    /**
+     * Processes XPs for alert
+     * @param  string $id Alert ID
+     * @return void
+     */
     protected function processXP($id)
     {
         $cols = [
@@ -182,6 +205,17 @@ class DeleteAlertCommand extends BaseCommand
         );
     }
 
+    /**
+     * Executes the process based on inputs
+     * @param  string $id          Alert ID
+     * @param  array  $cols        Columns to look for
+     * @param  string $table       Table to look for
+     * @param  string $totalsTable Table total to update if applicable
+     * @param  string $filter      Column to filter on
+     * @param  array  $fields      Fields to summarize
+     * @param  array  $groupBy     Fields to group by
+     * @return int
+     */
     protected function runProcess(
         $id,
         array $cols,
@@ -193,7 +227,7 @@ class DeleteAlertCommand extends BaseCommand
     ) {
         // Check each cols to make sure we handle SUM(BLAH) AS BLAH issues
 
-        foreach($cols as $key => $col) {
+        foreach ($cols as $key => $col) {
             if (strpos($col, 'AS ') !== false) {
                 $pos = strrpos($col, 'AS ') + 3; # Plus 3 for "AS "
                 $len = strlen($col);
@@ -209,7 +243,7 @@ class DeleteAlertCommand extends BaseCommand
         $query->from($table);
         $query->where('resultID = ?', $id);
 
-        if (! empty($groupBy)) {
+        if (!empty($groupBy)) {
             $query->groupBy($groupBy);
         }
 
@@ -225,7 +259,7 @@ class DeleteAlertCommand extends BaseCommand
             $update->table($totalsTable);
             $update->where("{$filter} = ?", $row->$filter);
 
-            foreach($fields as $field) {
+            foreach ($fields as $field) {
                 $update->set($field, "{$field} - {$row->$field}");
             }
 
@@ -238,7 +272,7 @@ class DeleteAlertCommand extends BaseCommand
 
     protected function deleteAllFromTables(array $tables, $id, OutputInterface $output)
     {
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $delete = $this->auraFactory->newDelete();
             $delete->from($table);
             $delete->where('resultID = ?', $id);

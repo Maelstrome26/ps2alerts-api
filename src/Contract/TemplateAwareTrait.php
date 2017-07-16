@@ -12,9 +12,7 @@ trait TemplateAwareTrait
     protected $twig;
 
     /**
-     * Set template Driver
-     *
-     * @param \Twig_Environment $twig
+     * Sets template Driver
      */
     public function setTemplateDriver(Twig $twig)
     {
@@ -22,9 +20,7 @@ trait TemplateAwareTrait
     }
 
     /**
-     * Get the template driver
-     *
-     * @return \Twig_Environment
+     * Gets the template driver
      */
     public function getTemplateDriver()
     {

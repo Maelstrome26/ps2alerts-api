@@ -9,5 +9,5 @@ cache:
         - vendor
 install:
     - composer install
-#script:
-#    - phpunit --verbose --testdox
+script:
+    - phpunit tests --verbose --testdox

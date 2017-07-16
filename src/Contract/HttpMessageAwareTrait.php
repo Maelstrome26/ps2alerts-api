@@ -8,7 +8,7 @@ use Zend\Diactoros\Response;
 trait HttpMessageAwareTrait
 {
     /**
-     * @var \Zend\Diactoros\ServerRequest
+     * @var \Zend\Diactoros\ServerRequestFactory
      */
     protected $request;
 
@@ -18,9 +18,9 @@ trait HttpMessageAwareTrait
     protected $response;
 
     /**
-     * Set the http message request
+     * Sets the http request object
      *
-     * @param \Zend\Diactoros\ServerRequest $obj
+     * @param ServerRequest $obj
      */
     public function setRequest(ServerRequest $obj)
     {
@@ -28,9 +28,9 @@ trait HttpMessageAwareTrait
     }
 
     /**
-     * Get the http message request
+     * Gets the http request object
      *
-     * @param \Zend\Diactoros\ServerRequest
+     * @return ServerRequest $obj
      */
     public function getRequest()
     {
@@ -40,7 +40,7 @@ trait HttpMessageAwareTrait
     /**
      * Sets the http response object
      *
-     * @param \Zend\Diactoros\Response
+     * @param Zend\Diactoros\Response
      */
     public function setResponse(Response $obj)
     {
@@ -50,7 +50,7 @@ trait HttpMessageAwareTrait
     /**
      * Gets the http response object
      *
-     * @return \Zend\Diactoros\Response
+     * @return Zend\Diactoros\Response
      */
     public function getResponse()
     {

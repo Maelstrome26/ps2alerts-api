@@ -25,12 +25,12 @@ class TestCommand extends BaseCommand
                 'Who do you want to greet?'
             )
             ->addOption(
-               'yell',
-               null,
-               InputOption::VALUE_NONE,
-               'If set, the task will yell in uppercase letters'
-            )
-        ;
+                'yell',
+                null,
+                InputOption::VALUE_NONE,
+                'If set, the task will yell in uppercase letters'
+            );
+
         $this->config = $this->container->get('config');
     }
 

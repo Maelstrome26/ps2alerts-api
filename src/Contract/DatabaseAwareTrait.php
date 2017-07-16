@@ -22,7 +22,7 @@ trait DatabaseAwareTrait
     protected $dbArchive;
 
     /**
-     * Set the Database driver
+     * Sets the Database driver
      *
      * @param \Aura\Sql\ExtendedPdo $db
      */
@@ -32,7 +32,7 @@ trait DatabaseAwareTrait
     }
 
     /**
-     * Get the Database driver
+     * Gets the Database driver
      *
      * @return \Aura\Sql\ExtendedPdo
      */
@@ -42,7 +42,7 @@ trait DatabaseAwareTrait
     }
 
     /**
-     * Set the Database Data driver
+     * Sets the Database Data driver
      *
      * @param \Aura\Sql\ExtendedPdo $db
      */
@@ -52,7 +52,7 @@ trait DatabaseAwareTrait
     }
 
     /**
-     * Get the Database Data driver
+     * Gets the Database Data driver
      *
      * @return \Aura\Sql\ExtendedPdo
      */
@@ -62,7 +62,7 @@ trait DatabaseAwareTrait
     }
 
     /**
-     * Set the Database Data driver
+     * Sets the Database Data driver
      *
      * @param \Aura\Sql\ExtendedPdo $db
      */
@@ -72,7 +72,7 @@ trait DatabaseAwareTrait
     }
 
     /**
-     * Get the Database Data driver
+     * Gets the Database Data driver
      *
      * @return \Aura\Sql\ExtendedPdo
      */

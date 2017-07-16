@@ -12,7 +12,7 @@ trait UuidAwareTrait
     protected $uuid;
 
     /**
-     * Set the Uuid driver
+     * Sets the Uuid driver
      *
      * @param \Ramsey\Uuid\Uuid $uuid
      */
@@ -22,7 +22,7 @@ trait UuidAwareTrait
     }
 
     /**
-     * Get the Uuid driver
+     * Gets the Uuid driver
      *
      * @return \Ramsey\Uuid\Uuid
      */
