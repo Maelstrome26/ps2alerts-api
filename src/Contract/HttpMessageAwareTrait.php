@@ -20,7 +20,7 @@ trait HttpMessageAwareTrait
     /**
      * Sets the http request object
      *
-     * @param \Zend\Diactoros\ServerRequestFactory $obj
+     * @param ServerRequest $obj
      */
     public function setRequest(ServerRequest $obj)
     {

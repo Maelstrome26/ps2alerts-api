@@ -3,7 +3,6 @@
 namespace Ps2alerts\Api\Command;
 
 use Ps2alerts\Api\Command\BaseCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -29,7 +28,7 @@ class LeaderboardOutfitsCommand extends BaseCommand
         $this->playerLeaderboards($output);
 
         $end = microtime(true);
-        $output->writeln("Processing took " . gmdate("H:i:s", ($end - $start)));
+        $output->writeln("Processing took ".gmdate("H:i:s", ($end - $start)));
     }
 
     public function playerLeaderboards(OutputInterface $output)
@@ -41,16 +40,16 @@ class LeaderboardOutfitsCommand extends BaseCommand
             'playerSuicides',
             'headshots'
         ];
-        $servers = [0,1,10,13,17,25,1000,2000];
+        $servers = [0, 1, 10, 13, 17, 25, 1000, 2000];
 
-        foreach($servers as $server) {
-            foreach($metrics as $metric) {
+        foreach ($servers as $server) {
+            foreach ($metrics as $metric) {
                 $this->markAsBeingUpdated($metric, $server);
             }
         }
 
-        foreach($servers as $server) {
-            foreach($metrics as $metric) {
+        foreach ($servers as $server) {
+            foreach ($metrics as $metric) {
                 $count = 0;
                 $limit = 10000;
                 $ladderLimit = 10000;
@@ -93,7 +92,7 @@ class LeaderboardOutfitsCommand extends BaseCommand
                         $playerPosKey = "ps2alerts:api:leaderboards:players:pos:{$player->playerID}";
 
                         // If player record doesn't exist
-                        if (! $this->redis->exists($playerPosKey)) {
+                        if (!$this->redis->exists($playerPosKey)) {
                             $data = [
                                 'id'      => $player->playerID,
                                 'updated' => date('U', strtotime('now'))
@@ -103,7 +102,7 @@ class LeaderboardOutfitsCommand extends BaseCommand
                         }
 
                         // For first time running
-                        if (! empty($data[$server][$metric])) {
+                        if (!empty($data[$server][$metric])) {
                             $data[$server][$metric]['old'] = $data[$server][$metric]['new'];
                         } else {
                             $data[$server][$metric]['old'] = 0;
@@ -124,12 +123,16 @@ class LeaderboardOutfitsCommand extends BaseCommand
         }
     }
 
+    /**
+     * @param string $metric
+     * @param integer $server
+     */
     public function markAsBeingUpdated($metric, $server)
     {
         $key = "ps2alerts:api:leaderboards:status:{$metric}:{$server}";
 
         // Create the key if it doesn't exist for some reason (1st runs)
-        if (! $this->redis->exists($key)) {
+        if (!$this->redis->exists($key)) {
             $data = [
                 'beingUpdated' => 1,
                 'lastUpdated'  => 'never'
@@ -143,6 +146,10 @@ class LeaderboardOutfitsCommand extends BaseCommand
         $this->redis->set($key, json_encode($data));
     }
 
+    /**
+     * @param string $metric
+     * @param integer $server
+     */
     public function markAsComplete($metric, $server)
     {
         $key = "ps2alerts:api:leaderboards:status:{$metric}:{$server}";

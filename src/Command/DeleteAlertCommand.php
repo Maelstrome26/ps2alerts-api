@@ -227,7 +227,7 @@ class DeleteAlertCommand extends BaseCommand
     ) {
         // Check each cols to make sure we handle SUM(BLAH) AS BLAH issues
 
-        foreach($cols as $key => $col) {
+        foreach ($cols as $key => $col) {
             if (strpos($col, 'AS ') !== false) {
                 $pos = strrpos($col, 'AS ') + 3; // Plus 3 for "AS "
                 $len = strlen($col);
@@ -243,7 +243,7 @@ class DeleteAlertCommand extends BaseCommand
         $query->from($table);
         $query->where('resultID = ?', $id);
 
-        if (! empty($groupBy)) {
+        if (!empty($groupBy)) {
             $query->groupBy($groupBy);
         }
 
@@ -259,7 +259,7 @@ class DeleteAlertCommand extends BaseCommand
             $update->table($totalsTable);
             $update->where("{$filter} = ?", $row->$filter);
 
-            foreach($fields as $field) {
+            foreach ($fields as $field) {
                 $update->set($field, "{$field} - {$row->$field}");
             }
 
@@ -272,7 +272,7 @@ class DeleteAlertCommand extends BaseCommand
 
     protected function deleteAllFromTables(array $tables, $id, OutputInterface $output)
     {
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $delete = $this->auraFactory->newDelete();
             $delete->from($table);
             $delete->where('resultID = ?', $id);
