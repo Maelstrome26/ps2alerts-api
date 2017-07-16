@@ -12,7 +12,7 @@ trait RedisAwareTrait
     protected $redis;
 
     /**
-     * Set the Redis driver
+     * Sets the Redis driver
      *
      * @param \Predis\Client $redis
      */
@@ -22,7 +22,7 @@ trait RedisAwareTrait
     }
 
     /**
-     * Get the Redis driver
+     * Gets the Redis driver
      *
      * @return \Predis\Client
      */
