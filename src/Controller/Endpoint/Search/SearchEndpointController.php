@@ -49,7 +49,7 @@ class SearchEndpointController extends AbstractEndpointController
     public function getPlayersByTerm(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         // If a valid player name we're searching on
-        if ($this->parsePlayerName($args['term'], $response)) {
+        if ($this->parsePlayerName($args['term'])) {
             $players = $this->searchForPlayer($args['term']);
 
             if (! empty($players)) {
@@ -60,7 +60,7 @@ class SearchEndpointController extends AbstractEndpointController
                 );
             }
 
-            return $this->errorEmpty($response);
+            return $this->errorEmpty('Player could not be found');
         }
     }
 
@@ -78,7 +78,7 @@ class SearchEndpointController extends AbstractEndpointController
         $name = urldecode($args['term']); // Spaces will have to URL encoded
 
         // If a valid outfit name we're searching on
-        if ($this->parseOutfitName($name, $response)) {
+        if ($this->parseOutfitName($name)) {
             $outfits = $this->searchForOutfit($name);
 
             if (! empty($outfits)) {
@@ -89,7 +89,7 @@ class SearchEndpointController extends AbstractEndpointController
                 );
             }
 
-            return $this->errorEmpty($response);
+            return $this->errorEmpty('Outfit could not be found');
         }
     }
 
