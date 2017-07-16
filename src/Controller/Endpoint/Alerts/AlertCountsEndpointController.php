@@ -33,12 +33,9 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Returns the victories of each faction and the totals
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     *
      * @return array
      */
-    public function getVictories(ServerRequestInterface $request, ResponseInterface $response)
+    public function getVictories()
     {
         return $this->getCountData('victories');
     }
@@ -46,12 +43,9 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Returns the dominations of each faction and the totals
      *
-     * @param  \Psr\Http\Message\ServerRequestInterface  $request
-     * @param  \Psr\Http\Message\ResponseInterface $response
-     *
      * @return array
      */
-    public function getDominations(ServerRequestInterface $request, ResponseInterface $response)
+    public function getDominations()
     {
         return $this->getCountData('dominations');
     }
@@ -59,19 +53,17 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Gets the required count data and returns
      *
-     * @param  \Psr\Http\Message\ServerRequestInterface  $request
-     * @param  \Psr\Http\Message\ResponseInterface $response
-     * @param  string                                     $mode     The type of data we're getting (victory / domination)
+     * @param  string $mode The type of data we're getting (victory / domination)
      *
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function getCountData($mode)
     {
         try {
-            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
-            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
+            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
+            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($response, $e->getMessage());
+            return $this->errorWrongArgs($e->getMessage());
         }
 
         $counts = [];
@@ -102,18 +94,15 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Get Daily totals over a range of dates
      *
-     * @param  \Psr\Http\Message\ServerRequestInterface  $request
-     * @param  \Psr\Http\Message\ResponseInterface $response
-     *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getDailyTotals(ServerRequestInterface $request, ResponseInterface $response)
+    public function getDailyTotals()
     {
         try {
-            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
-            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
+            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
+            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($response, $e->getMessage());
+            return $this->errorWrongArgs($e->getMessage());
         }
 
         $data = [];
@@ -136,18 +125,15 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Get Daily totals over a range of dates broken down by server
      *
-     * @param  \Psr\Http\Message\ServerRequestInterface  $request
-     * @param  \Psr\Http\Message\ResponseInterface $response
-     *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    public function getDailyTotalsByServer(ServerRequestInterface $request, ResponseInterface $response)
+    public function getDailyTotalsByServer()
     {
         try {
-            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
-            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
+            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
+            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($response, $e->getMessage());
+            return $this->errorWrongArgs($e->getMessage());
         }
 
         $data = [];
