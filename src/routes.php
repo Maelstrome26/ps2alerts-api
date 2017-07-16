@@ -104,17 +104,17 @@ $route->get(
  */
 $route->get(
     '/v2/leaderboards/players',
-    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::players'
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardPlayerEndpointController::players'
 );
 
 $route->get(
     '/v2/leaderboards/outfits',
-    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::outfits'
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardOutfitEndpointController::outfits'
 );
 
 $route->get(
     '/v2/leaderboards/weapons',
-    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::weapons'
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardWeaponEndpointController::weapons'
 );
 
 $route->get(
