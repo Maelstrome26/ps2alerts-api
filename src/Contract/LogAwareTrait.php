@@ -12,7 +12,7 @@ trait LogAwareTrait
     protected $logger;
 
     /**
-     * Set the Log driver
+     * Sets the Log driver
      *
      * @param \Monolog\Logger $logger
      */
@@ -22,7 +22,7 @@ trait LogAwareTrait
     }
 
     /**
-     * Get the Log driver
+     * Gets the Log driver
      *
      * @return \Monolog\Logger
      */

@@ -12,7 +12,7 @@ trait TemplateAwareTrait
     protected $twig;
 
     /**
-     * Set template Driver
+     * Sets template Driver
      */
     public function setTemplateDriver(Twig $twig)
     {
@@ -20,7 +20,7 @@ trait TemplateAwareTrait
     }
 
     /**
-     * Get the template driver
+     * Gets the template driver
      */
     public function getTemplateDriver()
     {

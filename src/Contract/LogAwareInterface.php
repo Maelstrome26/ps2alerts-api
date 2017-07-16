@@ -7,14 +7,14 @@ use Monolog\Logger;
 interface LogAwareInterface
 {
     /**
-     * Sets the Log
+     * Sets the Log Driver
      *
      * @param \Monolog\Logger
      */
     public function setLogDriver(Logger $logger);
 
     /**
-     * Gets the Log
+     * Gets the Log Driver
      *
      * @return \Monolog\Logger
      */
