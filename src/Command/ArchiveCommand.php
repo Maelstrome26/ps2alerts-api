@@ -12,9 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ArchiveCommand extends BaseCommand
 {
-    public $dbArchive;
-    public $alertRepo;
-    public $guzzle;
+    protected $dbArchive;
+    protected $alertRepo;
+    protected $guzzle;
     protected $recordsArchived = 0;
     protected $alertsArchived = 0;
 
@@ -169,7 +169,6 @@ class ArchiveCommand extends BaseCommand
         } catch (\Exception $e) {
             $this->dbArchive->rollBack();
             throw new \Exception($e->getMessage());
-            die;
         }
 
         $records = 0;

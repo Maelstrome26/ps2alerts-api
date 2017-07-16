@@ -4,10 +4,11 @@ namespace Ps2alerts\Api\Command;
 
 use Symfony\Component\Console\Command\Command;
 
-class BaseCommand extends Command
+abstract class BaseCommand extends Command
 {
     protected $db;
     protected $auraFactory;
+    protected $container;
 
     protected function configure()
     {

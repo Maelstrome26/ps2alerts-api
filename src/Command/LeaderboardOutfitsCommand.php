@@ -9,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LeaderboardOutfitsCommand extends BaseCommand
 {
+    protected $redis;
+
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
@@ -82,8 +84,6 @@ class LeaderboardOutfitsCommand extends BaseCommand
 
                     $count = $count + $statement->rowCount();
 
-                    //$output->writeln("MEMORY: " . convert(memory_get_usage(true)));
-
                     while ($player = $statement->fetch(\PDO::FETCH_OBJ)) {
                         $playerPosKey = "ps2alerts:api:leaderboards:players:pos:{$player->playerID}";
 
@@ -131,7 +131,6 @@ class LeaderboardOutfitsCommand extends BaseCommand
             ];
         } else {
             $data = $this->redis->get($key);
-            $newData = $data;
             $data['beingUpdated'] = 1;
         }
 

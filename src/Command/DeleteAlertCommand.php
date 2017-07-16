@@ -52,7 +52,7 @@ class DeleteAlertCommand extends BaseCommand
     {
         $alert = $this->alertRepo->readSingleById($id, 'primary', true);
 
-        if (empty($force) && empty($id)) {
+        if (empty($force) && empty($alert)) {
             $output->writeln("ALERT {$id} DOES NOT EXIST!");
             return false;
         }
@@ -195,7 +195,7 @@ class DeleteAlertCommand extends BaseCommand
 
         foreach($cols as $key => $col) {
             if (strpos($col, 'AS ') !== false) {
-                $pos = strrpos($col, 'AS ') + 3; // Plus 3 for "AS "
+                $pos = strrpos($col, 'AS ') + 3; # Plus 3 for "AS "
                 $len = strlen($col);
                 $diff = $len - $pos;
                 $field = substr($col, $pos, $diff);

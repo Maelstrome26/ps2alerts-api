@@ -11,6 +11,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class TestCommand extends BaseCommand
 {
+    protected $config;
+
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
@@ -47,6 +49,7 @@ class TestCommand extends BaseCommand
 
         $output->writeln($text);
 
+        // Should echo #logs unless it's been changed
         $output->writeln($this->config['slack_channel']);
     }
 }

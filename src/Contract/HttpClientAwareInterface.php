@@ -9,14 +9,14 @@ interface HttpClientAwareInterface
     /**
      * Sets the http client
      *
-     * @param GuzzleHttp\Client
+     * @param \GuzzleHttp\Client
      */
     public function setHttpClientDriver(Client $client);
 
     /**
      * Gets the http client
      *
-     * @return GuzzleHttp\Client
+     * @return \GuzzleHttp\Client
      */
     public function getHttpClientDriver();
 }

@@ -9,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LeaderboardPlayersCommand extends BaseCommand
 {
+    protected $redis;
+
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
@@ -196,7 +198,6 @@ class LeaderboardPlayersCommand extends BaseCommand
             ];
         } else {
             $data = json_decode($this->redis->get($key), true);
-            $newData = $data;
             $data['beingUpdated'] = 1;
             $data[$metric]        = date('U');
         }
