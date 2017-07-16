@@ -9,14 +9,17 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LeaderboardCheckCommand extends BaseCommand
 {
+    protected $config;
+    protected $redis;
+
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
         $this->setName('Leaderboards:Check')
              ->setDescription('Checks all leaderboards for updates');
 
-        $this->redis = $this->container->get('redis');
         $this->config = $this->container->get('config');
+        $this->redis = $this->container->get('redis');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

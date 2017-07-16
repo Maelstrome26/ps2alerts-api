@@ -9,6 +9,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class LeaderboardOutfitsCommand extends BaseCommand
 {
+    protected $redis;
+
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php

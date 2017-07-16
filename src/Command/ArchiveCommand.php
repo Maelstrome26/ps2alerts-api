@@ -169,7 +169,6 @@ class ArchiveCommand extends BaseCommand
         } catch (\Exception $e) {
             $this->dbArchive->rollBack();
             throw new \Exception($e->getMessage());
-            die;
         }
 
         $records = 0;
