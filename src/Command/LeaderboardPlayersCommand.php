@@ -33,7 +33,7 @@ class LeaderboardPlayersCommand extends BaseCommand
         $this->playerLeaderboards($input, $output);
 
         $end = microtime(true);
-        $output->writeln("Processing took " . gmdate("H:i:s", ($end - $start)));
+        $output->writeln("Processing took ".gmdate("H:i:s", ($end - $start)));
     }
 
     public function playerLeaderboards(InputInterface $input, OutputInterface $output)
@@ -49,19 +49,19 @@ class LeaderboardPlayersCommand extends BaseCommand
 
         // Allows server 0, meaning all servers but not to process every server
         if ($serverArg === 'all') {
-            $servers = [0,1,10,13,17,25,1000,2000];
+            $servers = [0, 1, 10, 13, 17, 25, 1000, 2000];
         } else {
             $servers = [$serverArg];
         }
 
-        foreach($servers as $server) {
-            foreach($metrics as $metric) {
+        foreach ($servers as $server) {
+            foreach ($metrics as $metric) {
                 $this->markAsBeingUpdated($metric, $server);
             }
         }
 
-        foreach($servers as $server) {
-            foreach($metrics as $metric) {
+        foreach ($servers as $server) {
+            foreach ($metrics as $metric) {
                 $count = 0;
                 $limit = 10000;
                 $ladderLimit = 10000;
@@ -91,7 +91,7 @@ class LeaderboardPlayersCommand extends BaseCommand
                     if ($server != 0) {
                          $query->where("playerServer = ?", $server);
                     }
-                    $query->orderBy([$metric . ' DESC']);
+                    $query->orderBy([$metric.' DESC']);
                     $query->limit($limit);
                     $query->offset($count);
 
@@ -106,7 +106,7 @@ class LeaderboardPlayersCommand extends BaseCommand
                         $playerPosKey = "ps2alerts:api:leaderboards:players:pos:{$player->playerID}";
 
                         // If player record doesn't exist
-                        if (! $this->redis->exists($playerPosKey)) {
+                        if (!$this->redis->exists($playerPosKey)) {
                             $data = [
                                 'updated' => [
                                     'daily'   => date('U'),
@@ -124,7 +124,7 @@ class LeaderboardPlayersCommand extends BaseCommand
                             'monthly'
                         ];
 
-                        foreach($deadlines as $deadline) {
+                        foreach ($deadlines as $deadline) {
                             // Create the array if empty
                             if (empty($data[$server][$metric][$deadline])) {
                                 $data[$server][$metric][$deadline] = [];
@@ -140,7 +140,7 @@ class LeaderboardPlayersCommand extends BaseCommand
                             }
 
                             // Flip new to old
-                            if (! empty($row)) {
+                            if (!empty($row)) {
                                 $row['old']['pos'] = $row['new']['pos'];
                                 $row['old']['val'] = $row['new']['val'];
                             }
@@ -191,7 +191,7 @@ class LeaderboardPlayersCommand extends BaseCommand
         $key = "ps2alerts:api:leaderboards:status:{$server}";
 
         // Create the key if it doesn't exist for some reason (1st runs)
-        if (! $this->redis->exists($key)) {
+        if (!$this->redis->exists($key)) {
             $data = [
                 'beingUpdated' => 1,
                 'lastUpdated'  => date('U'),

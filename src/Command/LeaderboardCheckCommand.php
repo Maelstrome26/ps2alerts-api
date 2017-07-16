@@ -3,7 +3,6 @@
 namespace Ps2alerts\Api\Command;
 
 use Ps2alerts\Api\Command\BaseCommand;
-use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
@@ -37,13 +36,13 @@ class LeaderboardCheckCommand extends BaseCommand
         $servers = $this->config['servers'];
         $servers[] = 0;
 
-        foreach($servers as $server) {
+        foreach ($servers as $server) {
             $output->writeln("Checking Server {$server}");
 
             $key = "ps2alerts:api:leaderboards:status:{$server}";
             $resultKey = "ps2alerts:api:leaderboards:lastResult:{$server}";
 
-            if (! $this->redis->exists($key)) {
+            if (!$this->redis->exists($key)) {
                 $output->writeln("Key doesn't exist for server {$server}! Forcing!");
                 $this->update($server, $output);
                 continue;
@@ -72,7 +71,7 @@ class LeaderboardCheckCommand extends BaseCommand
             $row = $statement->fetch(\PDO::FETCH_OBJ);
             $force = false;
 
-            if (! $this->redis->exists($resultKey)) {
+            if (!$this->redis->exists($resultKey)) {
                 $force = true;
             } else {
                 $lastResult = $this->redis->get($resultKey);
@@ -92,6 +91,10 @@ class LeaderboardCheckCommand extends BaseCommand
         }
     }
 
+    /**
+     * @param integer $server
+     * @param OutputInterface $output
+     */
     public function update($server, $output) {
         $output->writeln("Executing update for server: {$server}");
 

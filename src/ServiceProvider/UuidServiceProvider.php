@@ -19,7 +19,7 @@ class UuidServiceProvider extends AbstractServiceProvider
      */
     public function register()
     {
-        $this->getContainer()->add('Ramsey\Uuid\Uuid', function () {
+        $this->getContainer()->add('Ramsey\Uuid\Uuid', function() {
             $uuid = Uuid::Uuid4();
             return $uuid;
         });
