@@ -15,9 +15,8 @@ class LeaderboardCheckCommand extends BaseCommand
         $this->setName('Leaderboards:Check')
              ->setDescription('Checks all leaderboards for updates');
 
-        global $container;
-        $this->redis = $container->get('redis');
-        $this->config = $container->get('config');
+        $this->redis = $this->container->get('redis');
+        $this->config = $this->container->get('config');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

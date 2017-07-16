@@ -19,8 +19,7 @@ class DeleteMissingAlertsCommand extends BaseCommand
         $this->setName('DeleteMissingAlerts')
              ->setDescription('Deletes all missing alerts');
 
-        global $container;
-        $this->alertRepo = $container->get('Ps2alerts\Api\Repository\AlertRepository');
+        $this->alertRepo = $this->container->get('Ps2alerts\Api\Repository\AlertRepository');
         $this->alertProcessor = new DeleteAlertCommand();
     }
 

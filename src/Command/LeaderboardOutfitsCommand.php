@@ -15,8 +15,7 @@ class LeaderboardOutfitsCommand extends BaseCommand
         $this->setName('Leaderboards:Outfits')
              ->setDescription('Processes all outfit leaderboards');
 
-        global $container;
-        $this->redis = $container->get('redis');
+        $this->redis = $this->container->get('redis');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

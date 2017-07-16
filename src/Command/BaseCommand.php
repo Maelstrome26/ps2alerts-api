@@ -11,8 +11,9 @@ class BaseCommand extends Command
 
     protected function configure()
     {
-        global $container; // Inject Container
+        $container = include __DIR__ . '/../container.php';
 
+        $this->container   = $container;
         $this->auraFactory = $container->get('Ps2alerts\Api\Factory\AuraFactory');
         $this->db          = $container->get('Database');
     }
