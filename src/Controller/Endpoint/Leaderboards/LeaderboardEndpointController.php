@@ -20,6 +20,11 @@ use Psr\Http\Message\ServerRequestInterface;
 
 class LeaderboardEndpointController extends AbstractEndpointController
 {
+    protected $playerTotalRepository;
+    protected $outfitTotalRepository;
+    protected $weaponTotalRepository;
+    protected $dataEndpoint;
+
     /**
      * Construct
      *
@@ -43,14 +48,11 @@ class LeaderboardEndpointController extends AbstractEndpointController
     /**
      * Get Player Leaderboard
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     *
-     * @return League\Fractal\Manager
+     * @return \League\Fractal\Manager
      */
-    public function players(ServerRequestInterface $request, ResponseInterface $response)
+    public function players()
     {
-        $valid = $this->validateRequestVars($request);
+        $valid = $this->validateRequestVars();
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
@@ -62,7 +64,6 @@ class LeaderboardEndpointController extends AbstractEndpointController
         $offset = $_GET['offset'];
 
         // Translate field into table specific columns
-
         if (isset($_GET['field'])) {
             switch ($_GET['field']) {
                 case 'kills':
@@ -136,14 +137,11 @@ class LeaderboardEndpointController extends AbstractEndpointController
     /**
      * Get Outfit Leaderboard
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     *
-     * @return League\Fractal\Manager
+     * @return \League\Fractal\Manager
      */
-    public function outfits(ServerRequestInterface $request, ResponseInterface $response)
+    public function outfits()
     {
-        $valid = $this->validateRequestVars($request);
+        $valid = $this->validateRequestVars();
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
@@ -210,14 +208,11 @@ class LeaderboardEndpointController extends AbstractEndpointController
     /**
      * Get Weapon Leaderboard
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     *
-     * @return League\Fractal\Manager
+     * @return \League\Fractal\Manager
      */
-    public function weapons(ServerRequestInterface $request, ResponseInterface $response)
+    public function weapons()
     {
-        $valid = $this->validateRequestVars($request);
+        $valid = $this->validateRequestVars();
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
@@ -275,11 +270,10 @@ class LeaderboardEndpointController extends AbstractEndpointController
     /**
      * Validates the request variables
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     *
-     * @return boolean|InvalidArgumentException
+     * @throws InvalidArgumentException
+     * @return boolean
      */
-    public function validateRequestVars($request)
+    public function validateRequestVars()
     {
         try {
             if (! empty($_GET['field'])) {
