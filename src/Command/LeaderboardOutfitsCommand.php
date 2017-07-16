@@ -14,8 +14,9 @@ class LeaderboardOutfitsCommand extends BaseCommand
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
-        $this->setName('Leaderboards:Outfits')
-             ->setDescription('Processes all outfit leaderboards');
+        $this
+            ->setName('Leaderboards:Outfits')
+            ->setDescription('Processes all outfit leaderboards');
 
         $this->redis = $this->container->get('redis');
     }
@@ -72,9 +73,11 @@ class LeaderboardOutfitsCommand extends BaseCommand
                     $query = $this->auraFactory->newSelect();
                     $query->cols(['*']);
                     $query->from('ws_players_total');
+
                     if ($server !== 0) {
-                         $query->where('playerServer', $server);
+                        $query->where('playerServer', $server);
                     }
+
                     $query->orderBy([$metric . ' DESC']);
                     $query->limit($limit);
                     $query->offset($count);

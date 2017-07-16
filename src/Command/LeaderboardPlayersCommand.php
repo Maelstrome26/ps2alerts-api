@@ -14,12 +14,13 @@ class LeaderboardPlayersCommand extends BaseCommand
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
-        $this->setName('Leaderboards:Players')
-             ->setDescription('Processes player leaderboards')
-             ->addArgument(
+        $this
+            ->setName('Leaderboards:Players')
+            ->setDescription('Processes player leaderboards')
+            ->addArgument(
                 'server',
                 InputArgument::REQUIRED
-             );
+            );
 
         $this->redis = $this->container->get('redis');
     }

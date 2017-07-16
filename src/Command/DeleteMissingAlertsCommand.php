@@ -16,8 +16,9 @@ class DeleteMissingAlertsCommand extends BaseCommand
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
-        $this->setName('DeleteMissingAlerts')
-             ->setDescription('Deletes all missing alerts');
+        $this
+            ->setName('DeleteMissingAlerts')
+            ->setDescription('Deletes all missing alerts');
 
         $this->alertRepo = $this->container->get('Ps2alerts\Api\Repository\AlertRepository');
         $this->alertProcessor = new DeleteAlertCommand();

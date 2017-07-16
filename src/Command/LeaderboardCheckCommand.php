@@ -15,8 +15,9 @@ class LeaderboardCheckCommand extends BaseCommand
     protected function configure()
     {
         parent::configure(); // See BaseCommand.php
-        $this->setName('Leaderboards:Check')
-             ->setDescription('Checks all leaderboards for updates');
+        $this
+            ->setName('Leaderboards:Check')
+            ->setDescription('Checks all leaderboards for updates');
 
         $this->config = $this->container->get('config');
         $this->redis = $this->container->get('redis');
