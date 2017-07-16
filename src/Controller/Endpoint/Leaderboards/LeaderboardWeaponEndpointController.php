@@ -89,19 +89,13 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
         $field = null;
         switch ($input) {
             case 'kills':
-                $field = 'outfitKills';
+                $field = 'killCount';
                 break;
-            case 'deaths':
-                $field = 'outfitDeaths';
+            case 'headshots':
+                $field = 'headshots';
                 break;
             case 'teamkills':
-                $field = 'outfitTKs';
-                break;
-            case 'suicides':
-                $field = 'outfitSuicides';
-                break;
-            case 'captures':
-                $field = 'outfitCaptures';
+                $field = 'teamkills';
                 break;
         }
 
