@@ -1,0 +1,13 @@
+language: php
+php:
+    - '7.0'
+    - '7.1'
+    - nightly
+dist: trusty
+cache:
+    directories:
+        - vendor
+install:
+    - composer install
+script:
+    - phpunit tests --verbose --testdox
