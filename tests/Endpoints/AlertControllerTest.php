@@ -1,8 +1,6 @@
 <?php
 
 use GuzzleHttp\Client;
-use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 
 class AlertControllerTest extends \PHPUnit_Framework_TestCase
 {
