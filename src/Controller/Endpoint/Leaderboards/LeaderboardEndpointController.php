@@ -65,23 +65,7 @@ class LeaderboardEndpointController extends AbstractEndpointController
 
         // Translate field into table specific columns
         if (isset($_GET['field'])) {
-            switch ($_GET['field']) {
-                case 'kills':
-                    $field = 'playerKills';
-                    break;
-                case 'deaths':
-                    $field = 'playerDeaths';
-                    break;
-                case 'teamkills':
-                    $field = 'playerTeamKills';
-                    break;
-                case 'suicides':
-                    $field = 'playerSuicides';
-                    break;
-                case 'headshots':
-                    $field = 'headshots';
-                    break;
-            }
+            $field = $this->getField('players', $_GET['field']);
         }
 
         if (! isset($field)) {
@@ -155,23 +139,7 @@ class LeaderboardEndpointController extends AbstractEndpointController
         // Translate field into table specific columns
 
         if (isset($_GET['field'])) {
-            switch ($_GET['field']) {
-                case 'kills':
-                    $field = 'outfitKills';
-                    break;
-                case 'deaths':
-                    $field = 'outfitDeaths';
-                    break;
-                case 'teamkills':
-                    $field = 'outfitTKs';
-                    break;
-                case 'suicides':
-                    $field = 'outfitSuicides';
-                    break;
-                case 'captures':
-                    $field = 'outfitCaptures';
-                    break;
-            }
+            $field = $this->getField('outfits', $_GET['field']);
         }
 
         if (! isset($field)) {
@@ -221,17 +189,7 @@ class LeaderboardEndpointController extends AbstractEndpointController
 
         // Translate field into table specific columns
         if (isset($_GET['field'])) {
-            switch ($_GET['field']) {
-                case 'kills':
-                    $field = 'killCount';
-                    break;
-                case 'headshots':
-                    $field = 'headshots';
-                    break;
-                case 'teamkills':
-                    $field = 'teamkills';
-                    break;
-            }
+            $field = $this->getField('weapons', $_GET['field']);
         }
 
         if (! isset($field)) {
@@ -366,5 +324,56 @@ class LeaderboardEndpointController extends AbstractEndpointController
         }
 
         return $offset;
+    }
+
+    /**
+     * Gets the appropiate field for the table and handles some table naming oddities
+     * @param  string $mode  Where it's coming from
+     * @param  string $input Field to look at
+     * @return string
+     */
+    public function getField($mode, $input) {
+        $field = null;
+
+        // Handle headshots case
+        if (($mode === 'players' || $mode === 'weapons') && $input === 'headshots') {
+            return 'headshots';
+        }
+
+        if ($mode === 'players') {
+            $prefix = 'player';
+
+            if ($input === 'teamkills') {
+                return 'playerTeamKills'; # Deal with discrepency
+            }
+
+            return $prefix . ucfirst($input);
+        }
+
+        if ($mode === 'outfits') {
+            $prefix = 'outfit';
+
+            if ($input === 'teamkills') {
+                return 'outfitTKs'; # Deal with discrepency
+            }
+
+            return $prefix . ucfirst($input);
+        }
+
+        if ($mode === 'weapons') {
+            switch ($input) {
+                case 'kills':
+                    $field = 'killCount';
+                    break;
+                case 'headshots':
+                    $field = 'headshots';
+                    break;
+                case 'teamkills':
+                    $field = 'teamkills';
+                    break;
+            }
+        }
+
+        return $field;
     }
 }
