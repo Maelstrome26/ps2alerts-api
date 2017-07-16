@@ -12,6 +12,9 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 class ArchiveCommand extends BaseCommand
 {
+    public $dbArchive;
+    public $alertRepo;
+    public $guzzle;
     protected $recordsArchived = 0;
     protected $alertsArchived = 0;
 
@@ -23,10 +26,9 @@ class ArchiveCommand extends BaseCommand
             ->setDescription('Archives old alerts')
             ->addArgument('start', InputArgument::OPTIONAL, 'ResultID to start from')
             ->addArgument('process', InputArgument::OPTIONAL, 'Number of results to process');
-        global $container; // Inject container
-        $this->dbArchive = $container->get('Database\Archive');
-        $this->alertRepo = $container->get('Ps2alerts\Api\Repository\AlertRepository');
-        $this->guzzle = $container->get('GuzzleHttp\Client');
+        $this->dbArchive = $this->container->get('Database\Archive');
+        $this->alertRepo = $this->container->get('Ps2alerts\Api\Repository\AlertRepository');
+        $this->guzzle = $this->container->get('GuzzleHttp\Client');
     }
 
     /**
@@ -165,8 +167,8 @@ class ArchiveCommand extends BaseCommand
             $output->writeln('Committing...');
             $this->dbArchive->commit();
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
             $this->dbArchive->rollBack();
+            throw new \Exception($e->getMessage());
             die;
         }
 

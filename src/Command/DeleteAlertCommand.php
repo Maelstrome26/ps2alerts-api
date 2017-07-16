@@ -25,8 +25,7 @@ class DeleteAlertCommand extends BaseCommand
                 'Alert ID to process'
             );
 
-        global $container; // Inject Container
-        $this->alertRepo = $container->get('Ps2alerts\Api\Repository\AlertRepository');
+        $this->alertRepo = $this->container->get('Ps2alerts\Api\Repository\AlertRepository');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

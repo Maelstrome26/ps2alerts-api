@@ -19,8 +19,7 @@ class LeaderboardPlayersCommand extends BaseCommand
                 InputArgument::REQUIRED
              );
 
-        global $container;
-        $this->redis = $container->get('redis');
+        $this->redis = $this->container->get('redis');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)

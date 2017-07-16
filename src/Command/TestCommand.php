@@ -2,16 +2,18 @@
 
 namespace Ps2alerts\Api\Command;
 
+use Ps2alerts\Api\Command\BaseCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
-class TestCommand extends Command
+class TestCommand extends BaseCommand
 {
     protected function configure()
     {
+        parent::configure(); // See BaseCommand.php
         $this
             ->setName('testCommand')
             ->setDescription('Greet someone')
@@ -27,12 +29,11 @@ class TestCommand extends Command
                'If set, the task will yell in uppercase letters'
             )
         ;
+        $this->config = $this->container->get('config');
     }
 
     protected function execute(InputInterface $input, OutputInterface $output)
     {
-        global $container; // Inject container
-        var_dump($container->get('config'));die;
         $name = $input->getArgument('name');
         if ($name) {
             $text = 'Hello '.$name;
@@ -45,5 +46,7 @@ class TestCommand extends Command
         }
 
         $output->writeln($text);
+
+        $output->writeln($this->config['slack_channel']);
     }
 }
