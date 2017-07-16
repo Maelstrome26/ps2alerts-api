@@ -49,7 +49,7 @@ class LeaderboardOutfitEndpointController extends AbstractLeaderboardEndpointCon
         // Translate field into table specific columns
 
         if (isset($_GET['field'])) {
-            $field = $this->getField('outfits', $_GET['field']);
+            $field = $this->getField($_GET['field']);
         }
 
         if (! isset($field)) {
@@ -57,7 +57,7 @@ class LeaderboardOutfitEndpointController extends AbstractLeaderboardEndpointCon
         }
 
         // Perform Query
-        $query = $this->outfitTotalRepository->newQuery();
+        $query = $this->repository->newQuery();
         $query->cols(['*']);
         $query->orderBy(["{$field} desc"]);
         $query->where('outfitID > 0');
@@ -78,7 +78,7 @@ class LeaderboardOutfitEndpointController extends AbstractLeaderboardEndpointCon
 
         return $this->respond(
             'collection',
-            $this->outfitTotalRepository->fireStatementAndReturn($query),
+            $this->repository->fireStatementAndReturn($query),
             new OutfitLeaderboardTransformer
         );
     }

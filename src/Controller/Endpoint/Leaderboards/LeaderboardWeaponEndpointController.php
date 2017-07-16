@@ -44,7 +44,7 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
 
         // Translate field into table specific columns
         if (isset($_GET['field'])) {
-            $field = $this->getField('weapons', $_GET['field']);
+            $field = $this->getField($_GET['field']);
         }
 
         if (! isset($field)) {
@@ -56,7 +56,7 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
         // If we have this cached already
         if (empty($weapons)) {
             // Perform Query
-            $query = $this->weaponTotalRepository->newQuery();
+            $query = $this->repository->newQuery();
             $query->cols([
                 'weaponID',
                 'SUM(killCount) as killCount',
@@ -67,7 +67,7 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
             $query->orderBy(["{$field} desc"]);
             $query->groupBy(['weaponID']);
 
-            $weapons = $this->weaponTotalRepository->fireStatementAndReturn($query);
+            $weapons = $this->repository->fireStatementAndReturn($query);
 
             // Cache results in redis
             $this->storeInRedis('api', 'leaderboards', "weapons:{$field}", $weapons);

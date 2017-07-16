@@ -9,7 +9,7 @@ use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
-class LeaderboardEndpointController extends AbstractEndpointController
+abstract class AbstractLeaderboardEndpointController extends AbstractEndpointController
 {
     /**
      * Validates the request variables

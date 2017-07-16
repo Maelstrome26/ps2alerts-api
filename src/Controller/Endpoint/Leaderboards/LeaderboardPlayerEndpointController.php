@@ -9,9 +9,11 @@ use Ps2alerts\Api\Exception\CensusEmptyException;
 use Ps2alerts\Api\Exception\CensusErrorException;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Transformer\Leaderboards\PlayerLeaderboardTransformer;
+use Ps2alerts\Api\Controller\Endpoint\Data\DataEndpointController;
 
 class LeaderboardPlayerEndpointController extends AbstractLeaderboardEndpointController
 {
+    protected $dataEndpoint;
     protected $repository;
 
     /**
@@ -20,12 +22,13 @@ class LeaderboardPlayerEndpointController extends AbstractLeaderboardEndpointCon
      * @param League\Fractal\Manager $fractal
      */
     public function __construct(
+        DataEndpointController $dataEndpoint,
         Manager                $fractal,
         PlayerTotalRepository  $repository
     ) {
-
         $this->fractal = $fractal;
         $this->repository = $repository;
+        $this->dataEndpoint = $dataEndpoint;
     }
 
     /**
@@ -48,7 +51,7 @@ class LeaderboardPlayerEndpointController extends AbstractLeaderboardEndpointCon
 
         // Translate field into table specific columns
         if (isset($_GET['field'])) {
-            $field = $this->getField('players', $_GET['field']);
+            $field = $this->getField($_GET['field']);
         }
 
         if (! isset($field)) {
@@ -56,7 +59,7 @@ class LeaderboardPlayerEndpointController extends AbstractLeaderboardEndpointCon
         }
 
         // Perform Query
-        $query = $this->playerTotalRepository->newQuery();
+        $query = $this->repository->newQuery();
         $query->cols(['*']);
         $query->orderBy(["{$field} desc"]);
 
@@ -74,7 +77,7 @@ class LeaderboardPlayerEndpointController extends AbstractLeaderboardEndpointCon
             $query->offset($offset);
         }
 
-        $players = $this->playerTotalRepository->fireStatementAndReturn($query);
+        $players = $this->repository->fireStatementAndReturn($query);
 
         $count = count($players);
 
