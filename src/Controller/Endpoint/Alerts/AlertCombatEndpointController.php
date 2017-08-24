@@ -2,8 +2,6 @@
 
 namespace Ps2alerts\Api\Controller\Endpoint\Alerts;
 
-use League\Fractal\Manager;
-use Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Ps2alerts\Api\Repository\Metrics\CombatRepository;
 use Ps2alerts\Api\Repository\Metrics\ClassRepository;
@@ -24,15 +22,15 @@ class AlertCombatEndpointController extends AlertEndpointController
      * Retrieves combat totals on a global and per-server basis
      * @param  ServerRequestInterface $request
      * @param  ResponseInterface      $response
-     * @return array
+     * @return ResponseInterface
      */
     public function getCombatTotals(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
-            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
-            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
+            $servers = $this->validateQueryStringArguments($_GET['servers'], 'servers');
+            $zones   = $this->validateQueryStringArguments($_GET['zones'], 'zones');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($e->getMessage());
+            return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         $serversExploded = explode(',', $servers);
@@ -46,8 +44,10 @@ class AlertCombatEndpointController extends AlertEndpointController
             $factions = ['vs', 'nc', 'tr'];
 
             // Check if we have an entry in Redis
-            $data = $this->checkRedis('api', 'combatTotals', "{$server}-data");
-            $dataArchive = $this->checkRedis('api', 'combatTotals', "{$server}-dataArchive");
+            $data = $this->getRedisUtility()->checkRedis('api', 'combatTotals', "{$server}-data");
+            $dataArchive = $this->getRedisUtility()->checkRedis('api', 'combatTotals', "{$server}-dataArchive");
+
+            $mergedArray = [];
 
             if (! $data || ! $dataArchive) {
                 $sums = [];
@@ -90,8 +90,8 @@ class AlertCombatEndpointController extends AlertEndpointController
                 $dataArchive = $this->combatRepository->fireStatementAndReturn($query, true, false, true);
 
                 // Store the results in Redis
-                $this->storeInRedis('api', 'combatTotals', "{$server}-data", $data, 3600);
-                $this->storeInRedis('api', 'combatTotals', "{$server}-dataArchive", $dataArchive, 3600);
+                $this->getRedisUtility()->storeInRedis('api', 'combatTotals', "{$server}-data", $data, 3600);
+                $this->getRedisUtility()->storeInRedis('api', 'combatTotals', "{$server}-dataArchive", $dataArchive, 3600);
             }
 
             $metrics = ['kills', 'deaths', 'teamkills', 'suicides', 'headshots'];
@@ -114,16 +114,16 @@ class AlertCombatEndpointController extends AlertEndpointController
             $results[$server] = $mergedArray;
         }
 
-        return $this->respondWithArray($results);
+        return $this->respondWithData($results);
     }
 
     public function getClassTotals(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
-            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
-            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
+            $servers = $this->validateQueryStringArguments($_GET['servers'], 'servers');
+            $zones   = $this->validateQueryStringArguments($_GET['zones'], 'zones');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($e->getMessage());
+            return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         $serversExploded = explode(',', $servers);
@@ -144,8 +144,8 @@ class AlertCombatEndpointController extends AlertEndpointController
 
         foreach ($serversExploded as $server) {
             // Check if we have an entry in Redis
-            $data = $this->checkRedis('api', 'classCombat', "{$server}-data", 'object');
-            $dataArchive = $this->checkRedis('api', 'classCombat', "{$server}-dataArchive", 'object');
+            $data = $this->getRedisUtility()->checkRedis('api', 'classCombat', "{$server}-data", 'object');
+            $dataArchive = $this->getRedisUtility()->checkRedis('api', 'classCombat', "{$server}-dataArchive", 'object');
 
             // If data needs a pull
             if (! $data || ! $dataArchive) {
@@ -174,8 +174,8 @@ class AlertCombatEndpointController extends AlertEndpointController
                 $dataArchive = $this->classRepository->fireStatementAndReturn($query, false, true, true);
 
                 // Store the results in Redis
-                $this->storeInRedis('api', 'classCombat', "{$server}-data", $data, 3600);
-                $this->storeInRedis('api', 'classCombat', "{$server}-dataArchive", $dataArchive, 3600);
+                $this->getRedisUtility()->storeInRedis('api', 'classCombat', "{$server}-data", $data, 3600);
+                $this->getRedisUtility()->storeInRedis('api', 'classCombat', "{$server}-dataArchive", $dataArchive, 3600);
             }
 
             // Typecase into ints and increase totals
@@ -247,7 +247,7 @@ class AlertCombatEndpointController extends AlertEndpointController
             }
         }
 
-        return $this->respondWithArray($results);
+        return $this->respondWithData($results);
     }
 
     private function findClassGrouping($classID)

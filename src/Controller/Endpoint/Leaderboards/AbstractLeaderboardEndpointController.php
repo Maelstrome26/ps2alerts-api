@@ -1,13 +1,11 @@
 <?php
 
+// @todo Go over this ENTIRE file again as there's been major refactors since and it's likely broken!
+
 namespace Ps2alerts\Api\Controller\Endpoint\Leaderboards;
 
-use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
-use Ps2alerts\Api\Controller\Endpoint\Data\DataEndpointController;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Message\ServerRequestInterface;
 
 abstract class AbstractLeaderboardEndpointController extends AbstractEndpointController
 {

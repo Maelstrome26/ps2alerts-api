@@ -44,12 +44,12 @@ $route->get(
 
 $route->get(
     '/v2/alerts/history',
-    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getHistoryByDate'
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getByDate'
 );
 
 $route->get(
     '/v2/alerts/history/latest',
-    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getLatest'
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getByDate'
 );
 
 $route->get(

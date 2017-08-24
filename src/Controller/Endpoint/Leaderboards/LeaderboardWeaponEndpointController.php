@@ -1,37 +1,30 @@
 <?php
 
+// @todo Go over this ENTIRE file again as there's been major refactors since and it's likely broken!
+
 namespace Ps2alerts\Api\Controller\Endpoint\Leaderboards;
 
-use League\Fractal\Manager;
-use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
-use Ps2alerts\Api\Controller\Endpoint\Leaderboards\AbstractLeaderboardEndpointController;
-use Ps2alerts\Api\Exception\CensusEmptyException;
-use Ps2alerts\Api\Exception\CensusErrorException;
 use Ps2alerts\Api\Repository\Metrics\WeaponTotalRepository;
 use Ps2alerts\Api\Transformer\Leaderboards\WeaponLeaderboardTransformer;
+use Psr\Http\Message\ResponseInterface;
 
 class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointController
 {
-    protected $repository;
-
     /**
      * Construct
      *
-     * @param League\Fractal\Manager $fractal
+     * @param WeaponTotalRepository $repository
      */
     public function __construct(
-        Manager                $fractal,
         WeaponTotalRepository  $repository
     ) {
-
-        $this->fractal = $fractal;
         $this->repository = $repository;
     }
 
     /**
      * Get Weapon Leaderboard
      *
-     * @return \League\Fractal\Manager
+     * @return ResponseInterface
      */
     public function weapons()
     {
@@ -39,7 +32,7 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
-            return $this->errorWrongArgs($valid->getMessage());
+            return $this->respondWithError($valid->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         // Translate field into table specific columns
@@ -48,10 +41,10 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
         }
 
         if (! isset($field)) {
-            return $this->errorWrongArgs('Field wasn\'t provided and is required.');
+            return $this->respondWithError('Field wasn\'t provided and is required.', self::CODE_WRONG_ARGS);
         }
 
-        $weapons = $this->checkRedis('api', 'leaderboards', "weapons:{$field}");
+        $weapons = $this->getRedisUtility()->checkRedis('api', 'leaderboards', "weapons:{$field}");
 
         // If we have this cached already
         if (empty($weapons)) {
@@ -70,7 +63,7 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
             $weapons = $this->repository->fireStatementAndReturn($query);
 
             // Cache results in redis
-            $this->storeInRedis('api', 'leaderboards', "weapons:{$field}", $weapons);
+            $this->getRedisUtility()->storeInRedis('api', 'leaderboards', "weapons:{$field}", $weapons);
         }
 
         return $this->respond(
@@ -81,7 +74,8 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
     }
 
     /**
-     * Gets the appropiate field for the table and handles some table naming oddities
+     * Gets the appropriate field for the table and handles some table naming oddities
+     *
      * @param  string $input Field to look at
      * @return string
      */

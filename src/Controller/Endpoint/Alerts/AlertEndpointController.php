@@ -2,10 +2,9 @@
 
 namespace Ps2alerts\Api\Controller\Endpoint\Alerts;
 
-use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
+use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Ps2alerts\Api\Repository\AlertRepository;
-use Ps2alerts\Api\Transformer\AlertTotalTransformer;
 use Ps2alerts\Api\Transformer\AlertTransformer;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
@@ -15,35 +14,33 @@ class AlertEndpointController extends AbstractEndpointController
     /**
      * Construct
      *
-     * @param Ps2alerts\Api\Repository\AlertRepository   $repository
-     * @param Ps2alerts\Api\Transformer\AlertTransformer $transformer
-     * @param League\Fractal\Manager                     $fractal
+     * @param AlertRepository  $repository
+     * @param AlertTransformer $transformer
      */
     public function __construct(
         AlertRepository  $repository,
-        AlertTransformer $transformer,
-        Manager          $fractal
+        AlertTransformer $transformer
     ) {
+
         $this->repository  = $repository;
         $this->transformer = $transformer;
-        $this->fractal     = $fractal;
     }
 
     /**
      * Returns a single alert's information
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface  $response
-     * @param  array                                     $args
+     * @param  ServerRequestInterface  $request
+     * @param  ResponseInterface       $response
+     * @param  array                   $args
      *
-     * @return \League\Fractal\TransformerAbstract
+     * @return ResponseInterface
      */
     public function getSingle(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         $alert = $this->repository->readSingleById($args['id']);
 
         if (empty($alert)) {
-            return $this->errorEmpty($response);
+            return $this->respondWithError('Alert not found', self::CODE_NOT_FOUND);
         }
 
         return $this->respond(
@@ -56,117 +53,40 @@ class AlertEndpointController extends AbstractEndpointController
     /**
      * Returns all currently running alerts
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
+     * @param  ServerRequestInterface  $request
+     * @param  ResponseInterface       $response
      *
-     * @return \League\Fractal\TransformerAbstract
+     * @return ResponseInterface
      */
     public function getActives(ServerRequestInterface $request, ResponseInterface $response)
     {
         $actives = $this->repository->readAllByFields(['InProgress' => 1]);
 
-        if (empty($actives)) {
-            return $this->errorEmpty($response);
-        }
-
         return $this->respond(
             'collection',
             $actives,
-            $this->transformer,
-            $request,
-            $response
+            $this->transformer
         );
     }
 
     /**
-     * Returns all alerts in historial order
+     * Returns all alerts in historical order
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
+     * @param  ServerRequestInterface  $request
+     * @param  ResponseInterface $response
      *
-     * @return \League\Fractal\TransformerAbstract
+     * @return ResponseInterface
      */
-    public function getHistoryByDate(ServerRequestInterface $request, ResponseInterface $response)
+    public function getByDate(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
-            $servers  = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
-            $zones    = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
-            $factions = $this->getFiltersFromQueryString($_GET['factions'], 'factions', $response);
-            $brackets = $this->getFiltersFromQueryString($_GET['brackets'], 'brackets', $response);
+            $servers  = $this->validateQueryStringArguments($_GET['servers'], 'servers');
+            $zones    = $this->validateQueryStringArguments($_GET['zones'], 'zones');
+            $factions = $this->validateQueryStringArguments($_GET['factions'], 'factions');
+            $brackets = $this->validateQueryStringArguments($_GET['brackets'], 'brackets');
+            $dates    = $this->validateQueryStringArguments($_GET['dates'], 'dates');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($e->getMessage());
-        }
-
-        $dateFrom = $_GET['dateFrom'];
-        $dateTo   = $_GET['dateTo'];
-        $offset   = (int) $_GET['offset'];
-        $limit    = (int) $_GET['limit'];
-
-        // Set defaults if not supplied
-        if (empty($offset) || ! is_numeric($offset)) {
-            $offset = 0;
-        }
-
-        if (empty($limit) || ! is_numeric($limit)) {
-            $limit = 50;
-        }
-
-        if ($dateFrom === null) {
-            $dateFrom = date('Y-m-d H:i:s', strtotime('-48 hours'));
-        }
-
-        if ($dateTo === null) {
-            $dateTo = date('Y-m-d H:i:s', strtotime('now'));
-        }
-
-        // Format the dates into UNIX timestamp for use with the DB
-        $dateFrom = date('Y-m-d H:i:s', strtotime($dateFrom));
-        $dateTo   = date('Y-m-d H:i:s', strtotime($dateTo));
-
-        $query = $this->repository->newQuery();
-
-        // @todo Look into doing bind properly
-        // @too Look into doing WHERE IN statements with binds
-        $query->cols(['*']);
-        $query->where("ResultServer IN ({$servers})");
-        $query->where("ResultAlertCont IN ({$zones})");
-        $query->where('ResultDateTime > ?', $dateFrom);
-        $query->where('ResultDateTime < ?', $dateTo);
-        $query->where("ResultWinner IN ({$factions})");
-        $query->where("ResultTimeType IN ({$brackets})");
-
-        $query->orderBy(["ResultEndTime DESC"]);
-        $query->limit($limit);
-        $query->offset($offset);
-
-        $history = $this->repository->fireStatementAndReturn($query);
-
-        return $this->respond(
-            'collection',
-            $history,
-            $this->transformer,
-            $request,
-            $response
-        );
-    }
-
-    /**
-     * Returns all alerts by latest
-     *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     *
-     * @return \League\Fractal\TransformerAbstract
-     */
-    public function getLatest(ServerRequestInterface $request, ResponseInterface $response)
-    {
-        try {
-            $servers  = $this->getFiltersFromQueryString($_GET['servers'], 'servers', $response);
-            $zones    = $this->getFiltersFromQueryString($_GET['zones'], 'zones', $response);
-            $factions = $this->getFiltersFromQueryString($_GET['factions'], 'factions', $response);
-            $brackets = $this->getFiltersFromQueryString($_GET['brackets'], 'brackets', $response);
-        } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($e->getMessage());
+            return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         $offset = (int) $_GET['offset'];
@@ -181,18 +101,36 @@ class AlertEndpointController extends AbstractEndpointController
             $limit = 50;
         }
 
+        // Check the date difference between two dates. we don't want to run queries for ALL OF ZE ALERTS NOW do we?!
+        if (! empty($dates)) {
+            try {
+                $this->getDateValidationUtility()->validateTimeDifference($dates, 180); // Allow half a year
+            } catch (InvalidArgumentException $e) {
+                return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
+            }
+
+            $limit = null;
+        }
+
         $query = $this->repository->newQuery();
 
-        // @todo Look into doing bind properly
-        // @too Look into doing WHERE IN statements with binds
+        $brackets = $this->convertStringToArrayForAuraBinds($brackets);
+        $brackets[] = 'UNK';
+
         $query->cols(['*']);
-        $query->where("ResultServer IN ({$servers})");
-        $query->where("ResultAlertCont IN ({$zones})");
-        $query->where("ResultWinner IN ({$factions})");
-        $query->where("ResultTimeType IN ({$brackets})");
+        $query->where('ResultServer IN (?)', $servers);
+        $query->where('ResultAlertCont IN (?)', $zones);
+        $query->where('ResultWinner IN (?)', $this->convertStringToArrayForAuraBinds($factions));
+        $query->where('ResultTimeType IN (?)', $brackets);
+
+        if (! empty($dates)) {
+            $this->addDateRangeWhereClause($dates, $query);
+        }
 
         $query->orderBy(["ResultEndTime DESC"]);
-        $query->limit($limit);
+        if ($limit) {
+            $query->limit($limit);
+        }
         $query->offset($offset);
 
         $history = $this->repository->fireStatementAndReturn($query);
@@ -200,9 +138,7 @@ class AlertEndpointController extends AbstractEndpointController
         return $this->respond(
             'collection',
             $history,
-            $this->transformer,
-            $request,
-            $response
+            $this->transformer
         );
     }
 }

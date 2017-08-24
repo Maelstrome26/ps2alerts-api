@@ -1,11 +1,10 @@
 <?php
 
+// @todo Go over this ENTIRE file again as there's been major refactors since and it's likely broken!
+
 namespace Ps2alerts\Api\Controller\Endpoint\Leaderboards;
 
-use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
-use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
-use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
@@ -29,10 +28,10 @@ class LeaderboardLadderEndpointController extends AbstractEndpointController
     /**
      * Prompts the Leaderboard:Check command to resync the leaderboards
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
+     * @param  ServerRequestInterface  $request
+     * @param  ResponseInterface $response
      *
-     * @return Symfony\Component\HttpFoundation\Response
+     * @return ResponseInterface
      */
     public function update(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -71,10 +70,10 @@ class LeaderboardLadderEndpointController extends AbstractEndpointController
     /**
      * Returns a list of times that a server leaderboard has been updated
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
+     * @param  ServerRequestInterface  $request
+     * @param  ResponseInterface $response
      *
-     * @return Symfony\Component\HttpFoundation\Response
+     * @return ResponseInterface
      */
     public function lastUpdate(ServerRequestInterface $request, ResponseInterface $response)
     {
@@ -92,6 +91,6 @@ class LeaderboardLadderEndpointController extends AbstractEndpointController
             }
         }
 
-        return $this->respondWithArray($data);
+        return $this->respondWithData($data);
     }
 }

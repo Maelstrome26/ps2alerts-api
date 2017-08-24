@@ -1,14 +1,12 @@
 <?php
 
+// @todo Go over this ENTIRE file again as there's been major refactors since and it's likely broken!
+
 namespace Ps2alerts\Api\Controller\Endpoint\Leaderboards;
 
-use League\Fractal\Manager;
-use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
-use Ps2alerts\Api\Controller\Endpoint\Leaderboards\AbstractLeaderboardEndpointController;
-use Ps2alerts\Api\Exception\CensusEmptyException;
-use Ps2alerts\Api\Exception\CensusErrorException;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Transformer\Leaderboards\OutfitLeaderboardTransformer;
+use Psr\Http\Message\ResponseInterface;
 
 class LeaderboardOutfitEndpointController extends AbstractLeaderboardEndpointController
 {
@@ -20,18 +18,15 @@ class LeaderboardOutfitEndpointController extends AbstractLeaderboardEndpointCon
      * @param League\Fractal\Manager $fractal
      */
     public function __construct(
-        Manager                $fractal,
         OutfitTotalRepository  $repository
     ) {
-
-        $this->fractal = $fractal;
         $this->repository = $repository;
     }
 
     /**
      * Get Outfit Leaderboard
      *
-     * @return \League\Fractal\Manager
+     * @return ResponseInterface
      */
     public function outfits()
     {
@@ -39,7 +34,7 @@ class LeaderboardOutfitEndpointController extends AbstractLeaderboardEndpointCon
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
-            return $this->errorWrongArgs($valid->getMessage());
+            return $this->respondWithError($valid->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         $server = $_GET['server'];
@@ -53,7 +48,7 @@ class LeaderboardOutfitEndpointController extends AbstractLeaderboardEndpointCon
         }
 
         if (! isset($field)) {
-            return $this->errorWrongArgs('Field wasn\'t provided and is required.');
+            return $this->respondWithError('Field wasn\'t provided and is required.', self::CODE_WRONG_ARGS);
         }
 
         // Perform Query

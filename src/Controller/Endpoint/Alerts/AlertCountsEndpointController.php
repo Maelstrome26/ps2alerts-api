@@ -2,13 +2,10 @@
 
 namespace Ps2alerts\Api\Controller\Endpoint\Alerts;
 
-use League\Fractal\Manager;
-use Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController;
 use Ps2alerts\Api\Repository\AlertRepository;
 use Ps2alerts\Api\Transformer\AlertTotalTransformer;
 use Ps2alerts\Api\Transformer\AlertTransformer;
 use Ps2alerts\Api\Exception\InvalidArgumentException;
-use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Message\ResponseInterface;
 
 class AlertCountsEndpointController extends AlertEndpointController
@@ -16,24 +13,21 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Construct
      *
-     * @param Ps2alerts\Api\Repository\AlertRepository   $repository
-     * @param Ps2alerts\Api\Transformer\AlertTransformer $transformer
-     * @param League\Fractal\Manager                     $fractal
+     * @param AlertRepository   $repository
+     * @param AlertTransformer $transformer
      */
     public function __construct(
         AlertRepository  $repository,
-        AlertTransformer $transformer,
-        Manager          $fractal
+        AlertTransformer $transformer
     ) {
         $this->repository  = $repository;
         $this->transformer = $transformer;
-        $this->fractal     = $fractal;
     }
 
     /**
      * Returns the victories of each faction and the totals
      *
-     * @return array
+     * @return ResponseInterface
      */
     public function getVictories()
     {
@@ -43,7 +37,7 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Returns the dominations of each faction and the totals
      *
-     * @return array
+     * @return ResponseInterface
      */
     public function getDominations()
     {
@@ -60,14 +54,16 @@ class AlertCountsEndpointController extends AlertEndpointController
     public function getCountData($mode)
     {
         try {
-            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
-            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
+            $servers = $this->validateQueryStringArguments($_GET['servers'], 'servers');
+            $zones   = $this->validateQueryStringArguments($_GET['zones'], 'zones');
+            $dates   = $this->validateQueryStringArguments($_GET['dates'], 'dates');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($e->getMessage());
+            return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         $counts = [];
         $serversExploded = explode(',', $servers);
+        $fractal = $this->getContainer()->get('FractalUtility');
 
         foreach ($serversExploded as $server) {
             $query = $this->repository->newQuery();
@@ -75,6 +71,10 @@ class AlertCountsEndpointController extends AlertEndpointController
             $sql = $this->generateFactionCaseSql($server, $zones, $mode);
 
             $query->cols([$sql]);
+
+            if (! empty($dates)) {
+                $this->addDateRangeWhereClause($dates, $query, true);
+            }
 
             $data = $this->repository->readRaw($query->getStatement(), true);
             $data['total'] = array_sum($data);
@@ -84,11 +84,11 @@ class AlertCountsEndpointController extends AlertEndpointController
             }
 
             // Build each section of the final response using the transformer
-            $counts['data'][$server] = $this->createItem($data, new AlertTotalTransformer);
+            $counts['data'][$server] = $fractal->createItem($data, new AlertTotalTransformer);
         }
 
         // Return the now formatted array to the response
-        return $this->respondWithArray($counts);
+        return $this->respondWithData($counts);
     }
 
     /**
@@ -99,15 +99,17 @@ class AlertCountsEndpointController extends AlertEndpointController
     public function getDailyTotals()
     {
         try {
-            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
-            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
+            $servers = $this->validateQueryStringArguments($_GET['servers'], 'servers');
+            $zones   = $this->validateQueryStringArguments($_GET['zones'], 'zones');
+            $dates   = $this->validateQueryStringArguments($_GET['dates'], 'dates');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($e->getMessage());
+            return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         $data = [];
 
-        $metrics = $this->getDailyMetrics($servers, $zones);
+        $metrics = $this->getDailyMetrics($servers, $zones, $dates);
+        $fractal = $this->getContainer()->get('FractalUtility');
 
         foreach ($metrics as $row) {
             $date = $row['dateIndex'];
@@ -115,11 +117,11 @@ class AlertCountsEndpointController extends AlertEndpointController
             $row['total'] = array_sum($row);
 
             // Build each section of the final response using the transformer
-            $data['data'][$date] = $this->createItem($row, new AlertTotalTransformer);
+            $data['data'][$date] = $fractal->createItem($row, new AlertTotalTransformer);
         }
 
         // Return the now formatted array to the response
-        return $this->respondWithArray($data);
+        return $this->respondWithData($data);
     }
 
     /**
@@ -130,17 +132,19 @@ class AlertCountsEndpointController extends AlertEndpointController
     public function getDailyTotalsByServer()
     {
         try {
-            $servers = $this->getFiltersFromQueryString($_GET['servers'], 'servers');
-            $zones   = $this->getFiltersFromQueryString($_GET['zones'], 'zones');
+            $servers = $this->validateQueryStringArguments($_GET['servers'], 'servers');
+            $zones   = $this->validateQueryStringArguments($_GET['zones'], 'zones');
+            $dates   = $this->validateQueryStringArguments($_GET['dates'], 'dates');
         } catch (InvalidArgumentException $e) {
-            return $this->errorWrongArgs($e->getMessage());
+            return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         $data = [];
         $serversExploded = explode(',', $servers);
+        $fractal = $this->getContainer()->get('FractalUtility');
 
         foreach ($serversExploded as $server) {
-            $metrics = $this->getDailyMetrics($server, $zones);
+            $metrics = $this->getDailyMetrics($server, $zones, $dates);
 
             foreach ($metrics as $row) {
                 $date = $row['dateIndex'];
@@ -148,12 +152,12 @@ class AlertCountsEndpointController extends AlertEndpointController
                 $row['total'] = array_sum($row);
 
                 // Build each section of the final response using the transformer
-                $data['data'][$server][$date] = $this->createItem($row, new AlertTotalTransformer);
+                $data['data'][$server][$date] = $fractal->createItem($row, new AlertTotalTransformer);
             }
         }
 
         // Return the now formatted array to the response
-        return $this->respondWithArray($data);
+        return $this->respondWithData($data);
     }
 
     /**
@@ -161,10 +165,11 @@ class AlertCountsEndpointController extends AlertEndpointController
      *
      * @param  string $server
      * @param  string $zones
+     * @param  string $dates
      *
      * @return array
      */
-    public function getDailyMetrics($server, $zones)
+    public function getDailyMetrics($server, $zones, $dates)
     {
         $query = $this->repository->newQuery();
 
@@ -173,6 +178,9 @@ class AlertCountsEndpointController extends AlertEndpointController
         $query->cols([$sql]);
 
         $query->where('ResultDateTime IS NOT NULL');
+        if (! empty($dates)) {
+            $this->addDateRangeWhereClause($dates, $query, true);
+        }
         $query->groupBy(['dateIndex']);
 
         return $metrics = $this->repository->readRaw($query->getStatement());

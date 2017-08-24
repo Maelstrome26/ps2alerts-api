@@ -1,10 +1,9 @@
 <?php
 
+// @todo Go over this ENTIRE file again as there's been major refactors since and it's likely broken!
+
 namespace Ps2alerts\Api\Controller\Endpoint\Leaderboards;
 
-use League\Fractal\Manager;
-use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
-use Ps2alerts\Api\Controller\Endpoint\Leaderboards\AbstractLeaderboardEndpointController;
 use Ps2alerts\Api\Exception\CensusEmptyException;
 use Ps2alerts\Api\Exception\CensusErrorException;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
@@ -19,14 +18,13 @@ class LeaderboardPlayerEndpointController extends AbstractLeaderboardEndpointCon
     /**
      * Construct
      *
-     * @param League\Fractal\Manager $fractal
+     * @param DataEndpointController
+     * @param PlayerTotalRepository
      */
     public function __construct(
         DataEndpointController $dataEndpoint,
-        Manager                $fractal,
         PlayerTotalRepository  $repository
     ) {
-        $this->fractal = $fractal;
         $this->repository = $repository;
         $this->dataEndpoint = $dataEndpoint;
     }
@@ -42,7 +40,7 @@ class LeaderboardPlayerEndpointController extends AbstractLeaderboardEndpointCon
 
         // If validation didn't pass, chuck 'em out
         if ($valid !== true) {
-            return $this->errorWrongArgs($valid->getMessage());
+            return $this->respondWithError($valid->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         $server = $_GET['server'];
@@ -55,7 +53,7 @@ class LeaderboardPlayerEndpointController extends AbstractLeaderboardEndpointCon
         }
 
         if (! isset($field)) {
-            return $this->errorWrongArgs('Field wasn\'t provided and is required.');
+            return $this->respondWithError('Field wasn\'t provided and is required.', self::CODE_WRONG_ARGS);
         }
 
         // Perform Query

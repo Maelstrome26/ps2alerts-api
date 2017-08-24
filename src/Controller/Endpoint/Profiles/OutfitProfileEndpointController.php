@@ -2,7 +2,6 @@
 
 namespace Ps2alerts\Api\Controller\Endpoint\Profiles;
 
-use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Transformer\Profiles\OutfitProfileTransformer;
@@ -14,37 +13,34 @@ class OutfitProfileEndpointController extends AbstractEndpointController
     /**
      * Construct
      *
-     * @param League\Fractal\Manager                                      $fractal
-     * @param Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository      $outfitTotalRepo
-     * @param Ps2alerts\Api\Transformer\Profiles\OutfitProfileTransformer $outfitProfileTransformer
+     * @param OutfitTotalRepository    $outfitTotalRepo
+     * @param OutfitProfileTransformer $outfitProfileTransformer
      */
     public function __construct(
-        Manager                  $fractal,
         OutfitTotalRepository    $outfitTotalRepo,
         OutfitProfileTransformer $outfitProfileTransformer
     ) {
-        $this->fractal                  = $fractal;
-        $this->outfitTotalRepo          = $outfitTotalRepo;
-        $this->outfitProfileTransformer = $outfitProfileTransformer;
+        $this->repository = $outfitTotalRepo;
+        $this->transformer = $outfitProfileTransformer;
     }
 
     /**
      * Gets a outfit
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     * @param  array                                     $args
+     * @param  ServerRequestInterface $request
+     * @param  ResponseInterface      $response
+     * @param  array                  $args
      *
-     * @return array
+     * @return ResponseInterface
      */
     public function getOutfit(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
-        $outfit = $this->outfitTotalRepo->readSinglebyId($args['id']);
+        $outfit = $this->repository->readSinglebyId($args['id']);
 
         return $this->respond(
             'item',
             $outfit,
-            $this->outfitProfileTransformer
+            $this->transformer
         );
     }
 }
