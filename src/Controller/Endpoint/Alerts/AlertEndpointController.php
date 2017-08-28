@@ -118,8 +118,8 @@ class AlertEndpointController extends AbstractEndpointController
         $brackets[] = 'UNK';
 
         $query->cols(['*']);
-        $query->where('ResultServer IN (?)', $servers);
-        $query->where('ResultAlertCont IN (?)', $zones);
+        $query->where('ResultServer IN (?)', $this->convertStringToArrayForAuraBinds($servers));
+        $query->where('ResultAlertCont IN (?)', $this->convertStringToArrayForAuraBinds($zones));
         $query->where('ResultWinner IN (?)', $this->convertStringToArrayForAuraBinds($factions));
         $query->where('ResultTimeType IN (?)', $brackets);
 
@@ -134,6 +134,9 @@ class AlertEndpointController extends AbstractEndpointController
         $query->offset($offset);
 
         $history = $this->repository->fireStatementAndReturn($query);
+
+        var_dump($query);
+        var_dump($history);die;
 
         return $this->respond(
             'collection',
