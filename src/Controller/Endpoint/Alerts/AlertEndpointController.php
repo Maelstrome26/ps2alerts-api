@@ -135,9 +135,6 @@ class AlertEndpointController extends AbstractEndpointController
 
         $history = $this->repository->fireStatementAndReturn($query);
 
-        var_dump($query);
-        var_dump($history);die;
-
         return $this->respond(
             'collection',
             $history,
