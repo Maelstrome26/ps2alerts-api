@@ -69,7 +69,10 @@ abstract class AbstractEndpointRepository implements
     /**
      * Builds a new query factory ready for use with the QueryObjects
      *
-     * @return \Aura\SqlQuery\AbstractQuery
+     * @param string $type    Type of query to use, such as Select, Update etc.
+     * @param bool   $newOnly Whether we're getting a new query or using a raw one
+     *
+     * @return \Aura\SqlQuery\QueryInterface
      */
     public function newQuery($type = 'single', $newOnly = false)
     {
@@ -93,8 +96,10 @@ abstract class AbstractEndpointRepository implements
     /**
      * Executes the statement to the DB and returns the results
      *
-     * @param  \Aura\SqlQuery\AbstractQuery $query
-     * @param  boolean                      $single
+     * @param  \Aura\SqlQuery\AbstractQuery $query   Query object to execute
+     * @param  boolean                      $single  Return a sinlge record or not
+     * @param  boolean                      $object  Return an object or not
+     * @param  boolean                      $archive Flag to force to use the archive database
      *
      * @return array
      */

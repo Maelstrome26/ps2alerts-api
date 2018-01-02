@@ -94,6 +94,7 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Get Daily totals over a range of dates
      *
+     * @throws \Ps2alerts\Api\Exception\InvalidArgumentException
      * @return \Psr\Http\Message\ResponseInterface
      */
     public function getDailyTotals()
@@ -183,7 +184,32 @@ class AlertCountsEndpointController extends AlertEndpointController
         }
         $query->groupBy(['dateIndex']);
 
-        return $metrics = $this->repository->readRaw($query->getStatement());
+        $metrics = $this->repository->readRaw($query->getStatement());
+
+        // Regenerate the data with a date range to add 0s to where there was no data for those dates
+
+        $begin = new \DateTime('2014-10-29');
+        $end = new \DateTime('today');
+        $interval = new \DateInterval('P1D');
+        $daterange = new \DatePeriod($begin, $interval, $end);
+
+        $data = [];
+
+        foreach ($daterange as $date) {
+            $data[$date->format('Y-m-d')] = [
+                'vs' => 0,
+                'nc' => 0,
+                'tr' => 0,
+                'draw' => 0,
+                'dateIndex' => $date->format('Y-m-d')
+            ];
+        }
+
+        foreach ($metrics as $key => $metric) {
+            $data[$metric['dateIndex']] = $metrics[$key];
+        }
+
+        return $data;
     }
 
     /**
