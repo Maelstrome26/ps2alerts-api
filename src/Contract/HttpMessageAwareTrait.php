@@ -18,9 +18,9 @@ trait HttpMessageAwareTrait
     protected $response;
 
     /**
-     * Set the http message request
+     * Sets the http request object
      *
-     * @param \Zend\Diactoros\ServerRequestFactory $obj
+     * @param ServerRequest $obj
      */
     public function setRequest(ServerRequest $obj)
     {
@@ -28,9 +28,9 @@ trait HttpMessageAwareTrait
     }
 
     /**
-     * Getthe http message request
+     * Gets the http request object
      *
-     * @param \Zend\Diactoros\ServerRequestFactory $obj
+     * @return ServerRequest $obj
      */
     public function getRequest()
     {

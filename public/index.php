@@ -42,14 +42,20 @@ try {
         $container->get('Twig_Environment')->render('404.html')
     );
 } catch (\Exception $e) {
-    $response = $container->get('Zend\Diactoros\Response');
-    $response->getBody()->write(
-        'An error occured! ' . $e->getMessage()
-    );
-
     $logger = $container->get('Monolog\Logger');
     $logger->addDebug('Exception: ');
     $logger->addDebug($e->getMessage());
 
-    $container->get('Zend\Diactoros\Response\SapiEmitter')->emit($response);
+    if ($_ENV['ENV'] === 'development') {
+        trigger_error($e->getMessage());
+    } else {
+        $logger->addError(":warning: Exception IN API: \n\n" . $e->getMessage());
+        $response = $container->get('Zend\Diactoros\Response');
+
+        $response->getBody()->write(
+            'An error occurred! This has been logged. If this is occurring frequently, please contact @Maelstromeous.'
+        );
+
+        $container->get('Zend\Diactoros\Response\SapiEmitter')->emit($response);
+    }
 }

@@ -2,27 +2,27 @@
 
 namespace Ps2alerts\Api\Contract;
 
-use Predis\Client as Redis;
+use Predis\Client;
 
 trait RedisAwareTrait
 {
     /**
-     * @var \Predis\Client
+     * @var Client
      */
     protected $redis;
 
     /**
-     * Set the Redis driver
+     * Sets the Redis driver
      *
-     * @param \Predis\Client $redis
+     * @param Client $redis
      */
-    public function setRedisDriver(Redis $redis)
+    public function setRedisDriver(Client $redis)
     {
         $this->redis = $redis;
     }
 
     /**
-     * Get the Redis driver
+     * Gets the Redis driver
      *
      * @return \Predis\Client
      */

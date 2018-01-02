@@ -6,6 +6,7 @@ use League\Container\ServiceProvider\AbstractServiceProvider;
 use Ps2alerts\Api\Contract\ConfigAwareInterface;
 use Ps2alerts\Api\Contract\ConfigAwareTrait;
 use Predis\Client;
+use Ps2alerts\Api\Utility\RedisUtility;
 
 class RedisServiceProvider extends AbstractServiceProvider implements
     ConfigAwareInterface
@@ -15,7 +16,8 @@ class RedisServiceProvider extends AbstractServiceProvider implements
      * @var array
      */
     protected $provides = [
-        'redis'
+        'redis',
+        'RedisUtility'
     ];
 
     /**
@@ -40,6 +42,10 @@ class RedisServiceProvider extends AbstractServiceProvider implements
             $client = new Client($args);
 
             return $client;
+        });
+
+        $this->getContainer()->share('RedisUtility', function() {
+            return new RedisUtility();
         });
     }
 }

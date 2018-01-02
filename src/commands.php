@@ -6,6 +6,7 @@ use Ps2alerts\Api\Command\DeleteMissingAlertsCommand;
 use Ps2alerts\Api\Command\LeaderboardCheckCommand;
 use Ps2alerts\Api\Command\LeaderboardOutfitsCommand;
 use Ps2alerts\Api\Command\LeaderboardPlayersCommand;
+use Ps2alerts\Api\Command\TestCommand;
 use Symfony\Component\Console\Application;
 
 require __DIR__ . '/../vendor/autoload.php';
@@ -15,8 +16,6 @@ josegonzalez\Dotenv\Loader::load([
     'filepath' => __DIR__ . '/../.env',
     'toEnv'    => true
 ]);
-
-$container = include __DIR__ . '/container.php';
 
 include __DIR__ . '/Command/CommandsCommon.php';
 
@@ -28,4 +27,5 @@ $application->add(new DeleteMissingAlertsCommand());
 $application->add(new LeaderboardCheckCommand());
 $application->add(new LeaderboardOutfitsCommand());
 $application->add(new LeaderboardPlayersCommand());
+$application->add(new TestCommand());
 $application->run();

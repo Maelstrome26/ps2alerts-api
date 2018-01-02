@@ -44,12 +44,12 @@ $route->get(
 
 $route->get(
     '/v2/alerts/history',
-    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getHistoryByDate'
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getByDate'
 );
 
 $route->get(
     '/v2/alerts/history/latest',
-    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getLatest'
+    'Ps2alerts\Api\Controller\Endpoint\Alerts\AlertEndpointController::getByDate'
 );
 
 $route->get(
@@ -104,17 +104,17 @@ $route->get(
  */
 $route->get(
     '/v2/leaderboards/players',
-    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::players'
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardPlayerEndpointController::players'
 );
 
 $route->get(
     '/v2/leaderboards/outfits',
-    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::outfits'
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardOutfitEndpointController::outfits'
 );
 
 $route->get(
     '/v2/leaderboards/weapons',
-    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardEndpointController::weapons'
+    'Ps2alerts\Api\Controller\Endpoint\Leaderboards\LeaderboardWeaponEndpointController::weapons'
 );
 
 $route->get(

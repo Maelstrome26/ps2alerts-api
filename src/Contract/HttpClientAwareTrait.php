@@ -12,7 +12,7 @@ trait HttpClientAwareTrait
     protected $httpClient;
 
     /**
-     * Set the http client
+     * Sets the http client
      *
      * @param \GuzzleHttp\Client $httpClient
      */
@@ -22,7 +22,7 @@ trait HttpClientAwareTrait
     }
 
     /**
-     * Get the http client
+     * Gets the http client
      *
      * @return \GuzzleHttp\Client
      */

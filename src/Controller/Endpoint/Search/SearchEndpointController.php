@@ -2,9 +2,7 @@
 
 namespace Ps2alerts\Api\Controller\Endpoint\Search;
 
-use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
-use Ps2alerts\Api\Exception\InvalidArgumentException;
 use Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer;
@@ -17,20 +15,17 @@ class SearchEndpointController extends AbstractEndpointController
     /**
      * Construct
      *
-     * @param League\Fractal\Manager                                   $fractal
-     * @param Ps2alerts\Api\Transformer\Search\OutfitSearchTransformer $outfitSearchTransformer
-     * @param Ps2alerts\Api\Repository\Metrics\OutfitTotalRepository   $outfitTotalRepo
-     * @param Ps2alerts\Api\Transformer\Search\PlayerSearchTransformer $playerSearchTransformer
-     * @param Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository   $playerTotalRepo
+     * @param OutfitSearchTransformer $outfitSearchTransformer
+     * @param OutfitTotalRepository   $outfitTotalRepo
+     * @param PlayerSearchTransformer $playerSearchTransformer
+     * @param PlayerTotalRepository   $playerTotalRepo
      */
     public function __construct(
-        Manager                 $fractal,
         OutfitTotalRepository   $outfitTotalRepo,
         PlayerTotalRepository   $playerTotalRepo,
         OutfitSearchTransformer $outfitSearchTransformer,
         PlayerSearchTransformer $playerSearchTransformer
     ) {
-        $this->fractal                 = $fractal;
         $this->playerRepository        = $playerTotalRepo;
         $this->outfitRepository        = $outfitTotalRepo;
         $this->playerSearchTransformer = $playerSearchTransformer;
@@ -40,65 +35,59 @@ class SearchEndpointController extends AbstractEndpointController
     /**
      * Endpoint to return potential players based on search term
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     * @param  array                                     $args
+     * @param  ServerRequestInterface $request
+     * @param  ResponseInterface      $response
+     * @param  array                  $args
      *
-     * @return \League\Fractal\TransformerAbstract
+     * @return ResponseInterface
      */
     public function getPlayersByTerm(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         // If a valid player name we're searching on
-        if ($this->parsePlayerName($args['term'], $response)) {
-            $players = $this->searchForPlayer($args['term']);
+        $this->parsePlayerName($args['term']);
+        $players = $this->searchForPlayer($args['term']);
 
-            if (! empty($players)) {
-                return $this->respond(
-                    'collection',
-                    $players,
-                    $this->playerSearchTransformer
-                );
-            }
-
-            return $this->errorEmpty($response);
+        if (! empty($players)) {
+            return $this->respond(
+                'collection',
+                $players,
+                $this->playerSearchTransformer
+            );
         }
+
+        return $this->respondWithError('Player could not be found', self::CODE_EMPTY);
     }
 
     /**
      * Endpoint to return potential players based on search term
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     * @param  array                                     $args
+     * @param  ServerRequestInterface $request
+     * @param  ResponseInterface      $response
+     * @param  array                  $args
      *
-     * @return \League\Fractal\TransformerAbstract
+     * @return ResponseInterface
      */
     public function getOutfitsByTerm(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
         $name = urldecode($args['term']); // Spaces will have to URL encoded
 
-        // If a valid outfit name we're searching on
-        if ($this->parseOutfitName($name, $response)) {
-            $outfits = $this->searchForOutfit($name);
+        $this->parseOutfitName($name);
 
-            if (! empty($outfits)) {
-                return $this->respond(
-                    'collection',
-                    $outfits,
-                    $this->outfitSearchTransformer
-                );
-            }
-
-            return $this->errorEmpty($response);
+        if (! empty($outfits)) {
+            return $this->respond(
+                'collection',
+                $outfits,
+                $this->outfitSearchTransformer
+            );
         }
+
+        return $this->respondWithError('Outfit could not be found', self::CODE_EMPTY);
     }
 
     /**
      * Takes a player name and searches for it
      *
      * @param  string $term
-     *
-     * @todo SQL injection prevention
      *
      * @return array
      */
@@ -116,8 +105,6 @@ class SearchEndpointController extends AbstractEndpointController
      * Takes a outfit name and searches for it
      *
      * @param  string $term
-     *
-     * @todo SQL injection prevention
      *
      * @return array
      */
@@ -147,16 +134,16 @@ class SearchEndpointController extends AbstractEndpointController
      *
      * @param  String $name
      *
-     * @return boolean
+     * @return ResponseInterface|boolean
      */
     public function parsePlayerName($name)
     {
         if (empty($name)) {
-            return $this->errorWrongArgs('Player name needs to be present.');
+            return $this->respondWithError('Player name needs to be present.', self::CODE_WRONG_ARGS);
         }
 
         if (strlen($name) > 24) {
-            return $this->errorWrongArgs('Player names cannot be longer than 24 characters.');
+            return $this->respondWithError('Player names cannot be longer than 24 characters.', self::CODE_WRONG_ARGS);
         }
 
         return true;
@@ -167,16 +154,16 @@ class SearchEndpointController extends AbstractEndpointController
      *
      * @param  String $name
      *
-     * @return boolean
+     * @return ResponseInterface|boolean
      */
     public function parseOutfitName($name)
     {
         if (empty($name)) {
-            return $this->errorWrongArgs('Outfit name needs to be present.');
+            return $this->respondWithError('Outfit name needs to be present.', self::CODE_WRONG_ARGS);
         }
 
         if (strlen($name) > 32) {
-            return $this->errorWrongArgs('Outfit names cannot be longer than 32 characters.');
+            return $this->respondWithError('Outfit names cannot be longer than 32 characters.', self::CODE_WRONG_ARGS);
         }
 
         return true;
@@ -187,20 +174,20 @@ class SearchEndpointController extends AbstractEndpointController
      *
      * @param  string $id
      *
-     * @return boolean
+     * @return ResponseInterface|boolean
      */
     public function parsePlayerID($id)
     {
         if (empty($id)) {
-            return $this->errorWrongArgs('Player ID needs to be present.');
+            return $this->respondWithError('Player ID needs to be present.', self::CODE_WRONG_ARGS);
         }
 
         if (strlen($id > 19)) {
-            return $this->errorWrongArgs('Player ID cannot be longer than 19 characters.');
+            return $this->respondWithError('Player ID cannot be longer than 19 characters.', self::CODE_WRONG_ARGS);
         }
 
         if (! is_numeric($id)) {
-            return $this->errorWrongArgs('Player ID must be numeric.');
+            return $this->respondWithError('Player ID must be numeric.', self::CODE_WRONG_ARGS);
         }
 
         return true;

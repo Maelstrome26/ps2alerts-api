@@ -7,11 +7,13 @@ use Ps2alerts\Api\Repository\AlertRepository;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
 use Symfony\Component\Console\Input\InputInterface;
-use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class ArchiveCommand extends BaseCommand
 {
+    protected $dbArchive;
+    protected $alertRepo;
+    protected $guzzle;
     protected $recordsArchived = 0;
     protected $alertsArchived = 0;
 
@@ -23,17 +25,16 @@ class ArchiveCommand extends BaseCommand
             ->setDescription('Archives old alerts')
             ->addArgument('start', InputArgument::OPTIONAL, 'ResultID to start from')
             ->addArgument('process', InputArgument::OPTIONAL, 'Number of results to process');
-        global $container; // Inject container
-        $this->dbArchive = $container->get('Database\Archive');
-        $this->alertRepo = $container->get('Ps2alerts\Api\Repository\AlertRepository');
-        $this->guzzle = $container->get('GuzzleHttp\Client');
+        $this->dbArchive = $this->container->get('Database\Archive');
+        $this->alertRepo = $this->container->get('Ps2alerts\Api\Repository\AlertRepository');
+        $this->guzzle = $this->container->get('GuzzleHttp\Client');
     }
 
     /**
      * Execution
      *
-     * @param  Symfony\Component\Console\Input\InputInterface   $input
-     * @param  Symfony\Component\Console\Output\OutputInterface $output
+     * @param  InputInterface   $input
+     * @param  OutputInterface $output
      *
      * @return void
      */
@@ -47,7 +48,7 @@ class ArchiveCommand extends BaseCommand
     /**
      * Checks for alerts to be archived then runs routing against said alerts
      *
-     * @param  Symfony\Component\Console\Output\OutputInterface $output
+     * @param  OutputInterface $output
      *
      * @return void
      */
@@ -61,11 +62,11 @@ class ArchiveCommand extends BaseCommand
         $query->where('ResultStartTime < ?', $obj->format('U'));
         $query->where('Archived = 0');
 
-        if (! empty($input->getArgument('start'))) {
+        if (!empty($input->getArgument('start'))) {
             $query->where('ResultID >= ?', $input->getArgument('start'));
         }
 
-        if (! empty($input->getArgument('process'))) {
+        if (!empty($input->getArgument('process'))) {
             $query->where('ResultID <= ?', $input->getArgument('process'));
         }
 
@@ -90,7 +91,7 @@ class ArchiveCommand extends BaseCommand
                 'ws_xp'
             ];
 
-            for ($i=0; $i < $count; $i++) {
+            for ($i = 0; $i < $count; $i++) {
                 $this->archive($alerts[$i], $tables, $output);
 
                 $per = ($i / $count) * 100;
@@ -111,7 +112,7 @@ class ArchiveCommand extends BaseCommand
         $this->guzzle->request(
             'POST',
             'https://hooks.slack.com/services/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',
-            ['json' => $payload ]
+            ['json' => $payload]
         );
 
         $output->writeln("Archived {$records} records!");
@@ -133,7 +134,7 @@ class ArchiveCommand extends BaseCommand
         $this->dbArchive->beginTransaction();
 
         // Get all data and insert it into the archive DB
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $output->writeln("Alert #{$alert['ResultID']} - Table: {$table}");
 
             $sql = "SELECT * FROM {$table} WHERE resultID = :result";
@@ -155,7 +156,7 @@ class ArchiveCommand extends BaseCommand
                 }
 
                 $values = rtrim($values, ',');
-                $sql  = "INSERT INTO {$table} ({$cols}) VALUES {$values}";
+                $sql = "INSERT INTO {$table} ({$cols}) VALUES {$values}";
 
                 $this->dbArchive->exec($sql);
             }
@@ -165,9 +166,8 @@ class ArchiveCommand extends BaseCommand
             $output->writeln('Committing...');
             $this->dbArchive->commit();
         } catch (\Exception $e) {
-            var_dump($e->getMessage());
             $this->dbArchive->rollBack();
-            die;
+            throw new \Exception($e->getMessage());
         }
 
         $records = 0;
@@ -175,7 +175,7 @@ class ArchiveCommand extends BaseCommand
         $this->db->beginTransaction();
 
         // Loop through all tables and delete the alert's data from the DB
-        foreach($tables as $table) {
+        foreach ($tables as $table) {
             $sql = "DELETE FROM {$table} WHERE resultID = :result";
             $stm = $this->db->prepare($sql);
             $stm->execute(['result' => $alert['ResultID']]);
@@ -207,7 +207,7 @@ class ArchiveCommand extends BaseCommand
     public function buildCols($row)
     {
         $keys = [];
-        foreach($row as $key => $val) {
+        foreach ($row as $key => $val) {
             $keys[] = (string) $key;
         }
 
@@ -224,7 +224,7 @@ class ArchiveCommand extends BaseCommand
     public function buildValues($row)
     {
         $values = [];
-        foreach($row as $key => $val) {
+        foreach ($row as $key => $val) {
             $val = str_replace("'", '', $val); // Remove any apostophies from char names
             $values[] = $val;
         }

@@ -2,7 +2,6 @@
 
 namespace Ps2alerts\Api\Controller\Endpoint\Profiles;
 
-use League\Fractal\Manager;
 use Ps2alerts\Api\Controller\Endpoint\AbstractEndpointController;
 use Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository;
 use Ps2alerts\Api\Transformer\Profiles\PlayerProfileTransformer;
@@ -14,37 +13,34 @@ class PlayerProfileEndpointController extends AbstractEndpointController
     /**
      * Construct
      *
-     * @param League\Fractal\Manager                                      $fractal
-     * @param Ps2alerts\Api\Repository\Metrics\PlayerTotalRepository      $playerTotalRepo
-     * @param Ps2alerts\Api\Transformer\Profiles\PlayerProfileTransformer $playerProfileTransformer
+     * @param PlayerTotalRepository    $playerTotalRepo
+     * @param PlayerProfileTransformer $playerProfileTransformer
      */
     public function __construct(
-        Manager                  $fractal,
         PlayerTotalRepository    $playerTotalRepo,
         PlayerProfileTransformer $playerProfileTransformer
     ) {
-        $this->fractal                  = $fractal;
-        $this->playerTotalRepo          = $playerTotalRepo;
-        $this->playerProfileTransformer = $playerProfileTransformer;
+        $this->repository = $playerTotalRepo;
+        $this->transformer = $playerProfileTransformer;
     }
 
     /**
      * Gets a player
      *
-     * @param  Psr\Http\Message\ServerRequestInterface  $request
-     * @param  Psr\Http\Message\ResponseInterface $response
-     * @param  array                                     $args
+     * @param  ServerRequestInterface $request
+     * @param  ResponseInterface      $response
+     * @param  array                  $args
      *
-     * @return array
+     * @return ResponseInterface
      */
     public function getPlayer(ServerRequestInterface $request, ResponseInterface $response, array $args)
     {
-        $player = $this->playerTotalRepo->readSinglebyId($args['id']);
+        $player = $this->repository->readSinglebyId($args['id']);
 
         return $this->respond(
             'item',
             $player,
-            $this->playerProfileTransformer
+            $this->transformer
         );
     }
 }
