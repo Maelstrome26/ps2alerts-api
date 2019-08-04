@@ -6,9 +6,8 @@ RUN apt update -y \
     && apt install -y \
         wget \
         git \
+        htop \
     && rm -rf /var/lib/apt/lists/*
-
-COPY files/nginx /etc/nginx/conf.d
 
 USER www-data
 
@@ -18,6 +17,7 @@ RUN mkdir /var/www/.symfony && wget https://get.symfony.com/cli/installer -O - |
 USER root
 
 RUN mv /var/www/.symfony/bin/symfony /usr/local/bin/symfony
+COPY files/nginx /etc/nginx/conf.d
 
 USER www-data
 

@@ -1,0 +1,5 @@
+[[tls]]
+    entryPoints = ["https"]
+    [tls.certificate]
+        certFile = "/certs/dev.api.ps2alerts.com.crt"
+        keyFile = "/certs/dev.api.ps2alerts.com.pem"

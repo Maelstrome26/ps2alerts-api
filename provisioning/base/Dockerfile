@@ -9,6 +9,7 @@ RUN apt update -y \
         libcurl4-gnutls-dev \
         libxml2-dev \
         libmhash-dev \
+        libzip-dev \
     && docker-php-ext-install -j$(nproc) \
         curl \
         fileinfo \
@@ -21,6 +22,7 @@ RUN apt update -y \
         opcache \
         posix \
         xml \
+        zip \
     && rm -rf /var/lib/apt/lists/*
 
 # Change UID & GID to match users
@@ -34,8 +36,9 @@ RUN chown -R www-data: /var/www
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
 
-# Inject NGINX Global config files
-#COPY ./files/nginx /etc/nginx/global
+# Configure NGINX log dir
+RUN mkdir -p /var/log/nginx \
+    && chown www-data: /var/log/nginx
 
 # Add www-data to sudoers
 RUN echo '%sudo ALL=(ALL) NOPASSWD:ALL' >> /etc/sudoers \
@@ -46,8 +49,10 @@ COPY files/runit /etc/service
 COPY files/entrypoint.sh /usr/sbin/
 ENTRYPOINT /usr/sbin/entrypoint.sh
 
+# Inject NGINX Global config files
+COPY ./files/nginx /etc/nginx/global
+
 USER www-data
 
 RUN mkdir /var/www/.composer
-
 WORKDIR /var/www

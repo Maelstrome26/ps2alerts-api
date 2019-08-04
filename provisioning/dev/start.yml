@@ -1,0 +1,69 @@
+---
+- hosts: localhost
+
+  tasks:
+  - name: Set up facts
+    set_fact:
+      certs_dir: "{{ lookup('env', 'HOME') }}/certs"
+      entrypoints_dir: "{{ lookup('env', 'HOME') }}/traefik/entrypoints"
+      cert_hosts:
+        - dev.api.ps2alerts.com
+
+  - name: Create local dev certs certs
+    shell: "mkcert {{ opts }} {{ item }} '*.{{ item }}'"
+    environment:
+      PATH: "{{ lookup('env', 'HOME') }}/.linuxbrew/bin:{{ ansible_env.PATH }}"
+    vars:
+      opts: "-cert-file {{ certs_dir }}/{{ item }}.crt -key-file {{ certs_dir }}/{{ item }}.pem"
+    with_items: "{{ cert_hosts }}"
+
+  - name: Copy Traefik entrypoint config file to common directory
+    copy:
+      src: "{{ playbook_dir }}/files/traefik/"
+      dest: "{{ entrypoints_dir }}"
+
+  - name: Create Docker Network
+    docker_network:
+      name: ps2alerts-dev
+      state: present
+
+  - name: Build base docker image
+    docker_image:
+      name: ps2alerts-api
+      tag: base
+      build:
+        path: "{{ playbook_dir }}/../base"
+        pull: no
+      source: build
+      force_source: yes
+      state: present
+
+  - name: Build DEV docker image
+    docker_image:
+      name: ps2alerts-api
+      tag: dev
+      build:
+        path: "{{ playbook_dir }}"
+        pull: no
+      source: build
+      force_source: yes
+      state: present
+
+  - name: Start dev container
+    docker_container:
+      name: ps2alerts-api
+      image: ps2alerts-api:dev
+      state: started
+      restart: yes
+      volumes:
+        - "{{ playbook_dir }}/../../:/var/www/html:rw"
+        - "{{ certs_dir }}:/ssl"
+      networks:
+        - name: traefik
+        - name: ps2alerts-dev
+      labels:
+        traefik.frontend.rule: "Host:dev.api.ps2alerts.com"
+        traefik.port: "443"
+        traefik.protocol: "https"
+        traefik.enable: "true"
+        traefik.docker.network: "traefik"
