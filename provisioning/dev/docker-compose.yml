@@ -4,7 +4,7 @@ services:
     container_name: ps2alerts-api
     image: ps2alerts-api:dev
     volumes:
-      - ../../app:/var/www/html
+      - ../../:/var/www/html:rw
     networks:
       - traefik
     labels:

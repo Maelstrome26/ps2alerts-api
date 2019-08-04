@@ -27,11 +27,12 @@ RUN apt update -y \
 RUN usermod -u 1000 www-data \
     && groupmod -g 1000 www-data
 
+# Chown user's home dir
+RUN chown -R www-data: /var/www
+
 # Install composer
 RUN curl -sS https://getcomposer.org/installer | php
 RUN mv composer.phar /usr/local/bin/composer
-RUN mkdir /var/www/.composer \
-    && chown -R www-data: /var/www/.composer
 
 # Inject NGINX Global config files
 #COPY ./files/nginx /etc/nginx/global
@@ -46,4 +47,7 @@ COPY files/entrypoint.sh /usr/sbin/
 ENTRYPOINT /usr/sbin/entrypoint.sh
 
 USER www-data
-WORKDIR /var/www/html
+
+RUN mkdir /var/www/.composer
+
+WORKDIR /var/www
