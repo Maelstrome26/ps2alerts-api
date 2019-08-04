@@ -5,3 +5,14 @@ services:
     image: ps2alerts-api:dev
     volumes:
       - ../../app:/var/www/html
+    networks:
+      - traefik
+    labels:
+      traefik.frontend.rule: "Host:dev.api.ps2alerts.com"
+      traefik.docker.network: "traefik"
+      traefik.port: "80"
+      traefik.enable: "true"
+
+networks:
+  traefik:
+    external: true
