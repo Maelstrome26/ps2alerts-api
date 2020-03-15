@@ -4,18 +4,12 @@ include __DIR__ . '/../vendor/autoload.php';
 
 use League\Route\Http\Exception\NotFoundException;
 
-// ENV loading
-josegonzalez\Dotenv\Loader::load([
-    'filepath' => __DIR__ . '/../.env',
-    'toEnv'    => true
-]);
-
 // Bugsnag
-if ($_ENV['ENV'] !== 'development') {
+if ($_ENV['ENVIRONMENT'] !== 'development') {
     $bugsnag = Bugsnag\Client::make($_ENV['BUGSNAG']);
     Bugsnag\Handler::register($bugsnag);
 
-    if ($_ENV['ENV'] === 'staging') {
+    if ($_ENV['ENVIRONMENT'] === 'staging') {
         $bugsnag->setReleaseStage('staging');
     }
 }
@@ -46,7 +40,7 @@ try {
     $logger->addDebug('Exception: ');
     $logger->addDebug($e->getMessage());
 
-    if ($_ENV['ENV'] === 'development') {
+    if ($_ENV['ENVIRONMENT'] === 'development') {
         trigger_error($e->getMessage());
     } else {
         $logger->addError(":warning: Exception IN API: \n\n" . $e->getMessage());

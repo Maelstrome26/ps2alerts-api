@@ -20,13 +20,7 @@ class HttpMessageServiceProvider extends AbstractServiceProvider
     public function register()
     {
         $this->getContainer()->share('Zend\Diactoros\Response', function() {
-            $response = new Response();
-            $response = $response->withHeader('Access-Control-Allow-Origin', '*');
-            $response = $response->withHeader('Access-Control-Allow-Methods', 'GET, POST, OPTIONS');
-            $response = $response->withHeader('Access-Control-Max-Age', '1000');
-            $response = $response->withHeader('Access-Control-Allow-Headers', 'Content-Type, X-Requested-With');
-            $response = $response->withHeader('x-best-faction', 'Vanu Sovereignty');
-            return $response->withStatus(504);
+            return new Response();
         });
 
         $this->getContainer()->share('Zend\Diactoros\Response\SapiEmitter');
