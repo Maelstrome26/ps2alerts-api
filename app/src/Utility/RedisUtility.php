@@ -63,7 +63,7 @@ class RedisUtility implements RedisAwareInterface
      *
      * @return string|boolean
      */
-    public function checkRedis($store = 'api', $type, $id, $encodeType = 'array')
+    public function checkRedis($store, $type, $id, $encodeType = 'array')
     {
         $redis = $this->getRedisDriver();
 
@@ -101,7 +101,7 @@ class RedisUtility implements RedisAwareInterface
      *
      * @return boolean
      */
-    public function storeInRedis($namespace = 'api', $type, $id, $data, $time = 0)
+    public function storeInRedis($namespace, $type, $id, $data, $time = 0)
     {
         $redis = $this->getRedisDriver();
         $key = "ps2alerts:{$namespace}:{$type}:{$id}";

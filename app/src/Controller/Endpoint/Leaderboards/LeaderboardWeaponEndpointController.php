@@ -28,11 +28,10 @@ class LeaderboardWeaponEndpointController extends AbstractLeaderboardEndpointCon
      */
     public function weapons()
     {
-        $valid = $this->validateRequestVars();
-
-        // If validation didn't pass, chuck 'em out
-        if ($valid !== true) {
-            return $this->respondWithError($valid->getMessage(), self::CODE_WRONG_ARGS);
+        try {
+            $this->validateRequestVars();
+        } catch (\Exception $e) {
+            return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
 
         // Translate field into table specific columns

@@ -12,16 +12,25 @@ use Psr\Http\Message\ResponseInterface;
 class AlertEndpointController extends AbstractEndpointController
 {
     /**
-     * Construct
+     * @var AlertRepository
+     */
+    protected $repository;
+
+    /**
+     * @var AlertTransformer
+     */
+    protected $transformer;
+
+    /**
+     * AlertEndpointController constructor.
      *
-     * @param AlertRepository  $repository
+     * @param AlertRepository $repository
      * @param AlertTransformer $transformer
      */
     public function __construct(
         AlertRepository  $repository,
         AlertTransformer $transformer
     ) {
-
         $this->repository  = $repository;
         $this->transformer = $transformer;
     }
@@ -80,11 +89,26 @@ class AlertEndpointController extends AbstractEndpointController
     public function getByDate(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
-            $servers  = $this->validateQueryStringArguments($_GET['servers'], 'servers');
-            $zones    = $this->validateQueryStringArguments($_GET['zones'], 'zones');
-            $factions = $this->validateQueryStringArguments($_GET['factions'], 'factions');
-            $brackets = $this->validateQueryStringArguments($_GET['brackets'], 'brackets');
-            $dates    = $this->validateQueryStringArguments($_GET['dates'], 'dates');
+            $servers = $this->validateQueryStringArguments(
+                (isset($_GET['servers']) ? $_GET['servers'] : null),
+                'servers'
+            );
+            $zones = $this->validateQueryStringArguments(
+                (isset($_GET['zones']) ? $_GET['zones'] : null),
+                'zones'
+            );
+            $dates = $this->validateQueryStringArguments(
+                (isset($_GET['dates']) ? $_GET['dates'] : null),
+                'dates'
+            );
+            $factions = $this->validateQueryStringArguments(
+                (isset($_GET['factions']) ? $_GET['factions'] : null),
+                'factions'
+            );
+            $brackets = $this->validateQueryStringArguments(
+                (isset($_GET['brackets']) ? $_GET['brackets'] : null),
+                'brackets'
+            );
         } catch (InvalidArgumentException $e) {
             return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }

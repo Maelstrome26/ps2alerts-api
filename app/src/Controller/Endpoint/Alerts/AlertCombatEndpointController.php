@@ -10,6 +10,21 @@ use Psr\Http\Message\ResponseInterface;
 
 class AlertCombatEndpointController extends AlertEndpointController
 {
+    /**
+     * @var ClassRepository
+     */
+    protected $classRepository;
+
+    /**
+     * @var CombatRepository
+     */
+    protected $combatRepository;
+
+    /**
+     * AlertCombatEndpointController constructor.
+     * @param ClassRepository $classRepository
+     * @param CombatRepository $combatRepository
+     */
     public function __construct(
         classRepository $classRepository,
         combatRepository $combatRepository
@@ -20,15 +35,22 @@ class AlertCombatEndpointController extends AlertEndpointController
 
     /**
      * Retrieves combat totals on a global and per-server basis
-     * @param  ServerRequestInterface $request
-     * @param  ResponseInterface      $response
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
      * @return ResponseInterface
+     * @throws \Exception
      */
     public function getCombatTotals(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
-            $servers = $this->validateQueryStringArguments($_GET['servers'], 'servers');
-            $zones   = $this->validateQueryStringArguments($_GET['zones'], 'zones');
+            $servers = $this->validateQueryStringArguments(
+                (isset($_GET['servers']) ? $_GET['servers'] : null),
+                'servers'
+            );
+            $zones = $this->validateQueryStringArguments(
+                (isset($_GET['zones']) ? $_GET['zones'] : null),
+                'zones'
+            );
         } catch (InvalidArgumentException $e) {
             return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
@@ -117,6 +139,12 @@ class AlertCombatEndpointController extends AlertEndpointController
         return $this->respondWithData($results);
     }
 
+    /**
+     * @param ServerRequestInterface $request
+     * @param ResponseInterface $response
+     * @return ResponseInterface
+     * @throws \Exception
+     */
     public function getClassTotals(ServerRequestInterface $request, ResponseInterface $response)
     {
         try {
@@ -250,6 +278,10 @@ class AlertCombatEndpointController extends AlertEndpointController
         return $this->respondWithData($results);
     }
 
+    /**
+     * @param $classID
+     * @return bool|int|string
+     */
     private function findClassGrouping($classID)
     {
         $classGroups = $this->getConfig()['classesGroups'];
@@ -265,6 +297,10 @@ class AlertCombatEndpointController extends AlertEndpointController
         return false;
     }
 
+    /**
+     * @param $classID
+     * @return bool|int|string
+     */
     private function findClassFaction($classID)
     {
         $classesFactions = $this->getConfig()['classesFactions'];

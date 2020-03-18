@@ -11,9 +11,19 @@ use Psr\Http\Message\ResponseInterface;
 class AlertCountsEndpointController extends AlertEndpointController
 {
     /**
-     * Construct
+     * @var AlertRepository
+     */
+    protected $repository;
+
+    /**
+     * @var AlertTransformer
+     */
+    protected $transformer;
+
+    /**
+     * AlertCountsEndpointController constructor.
      *
-     * @param AlertRepository   $repository
+     * @param AlertRepository $repository
      * @param AlertTransformer $transformer
      */
     public function __construct(
@@ -49,14 +59,23 @@ class AlertCountsEndpointController extends AlertEndpointController
      *
      * @param  string $mode The type of data we're getting (victory / domination)
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function getCountData($mode)
     {
         try {
-            $servers = $this->validateQueryStringArguments($_GET['servers'], 'servers');
-            $zones   = $this->validateQueryStringArguments($_GET['zones'], 'zones');
-            $dates   = $this->validateQueryStringArguments($_GET['dates'], 'dates');
+            $servers = $this->validateQueryStringArguments(
+                (isset($_GET['servers']) ? $_GET['servers'] : null),
+                'servers'
+            );
+            $zones = $this->validateQueryStringArguments(
+                (isset($_GET['zones']) ? $_GET['zones'] : null),
+                'zones'
+            );
+            $dates = $this->validateQueryStringArguments(
+                (isset($_GET['dates']) ? $_GET['dates'] : null),
+                'dates'
+            );
         } catch (InvalidArgumentException $e) {
             return $this->respondWithError($e->getMessage(), self::CODE_WRONG_ARGS);
         }
@@ -94,8 +113,8 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Get Daily totals over a range of dates
      *
-     * @throws \Ps2alerts\Api\Exception\InvalidArgumentException
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
+     *@throws \Ps2alerts\Api\Exception\InvalidArgumentException
      */
     public function getDailyTotals()
     {
@@ -128,7 +147,7 @@ class AlertCountsEndpointController extends AlertEndpointController
     /**
      * Get Daily totals over a range of dates broken down by server
      *
-     * @return \Psr\Http\Message\ResponseInterface
+     * @return ResponseInterface
      */
     public function getDailyTotalsByServer()
     {

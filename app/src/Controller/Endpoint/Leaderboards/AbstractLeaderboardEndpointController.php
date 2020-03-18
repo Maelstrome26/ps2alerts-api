@@ -44,6 +44,7 @@ abstract class AbstractLeaderboardEndpointController extends AbstractEndpointCon
      * Validate the field requested
      *
      * @return string
+     * @throws InvalidArgumentException
      */
     public function parseField($field)
     {
@@ -67,6 +68,7 @@ abstract class AbstractLeaderboardEndpointController extends AbstractEndpointCon
      * Validate the server requested
      *
      * @return string
+     * @throws InvalidArgumentException
      */
     public function parseServer($server)
     {
@@ -88,6 +90,7 @@ abstract class AbstractLeaderboardEndpointController extends AbstractEndpointCon
      * Parses limit, making sure it's numerical and valid
      *
      * @return boolean
+     * @throws InvalidArgumentException
      */
     public function parseLimit($limit)
     {
@@ -100,6 +103,9 @@ abstract class AbstractLeaderboardEndpointController extends AbstractEndpointCon
 
     /**
      * Parses offset, making sure it's numerical and valid
+     *
+     * @return integer
+     * @throws InvalidArgumentException
      */
     public function parseOffset($offset)
     {

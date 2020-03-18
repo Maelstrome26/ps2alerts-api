@@ -36,22 +36,22 @@ class ConfigServiceProvider extends AbstractServiceProvider
                     'port'      => $_ENV['DB_PORT'],
                     'user'      => $_ENV['DB_USER'],
                     'password'  => $_ENV['DB_PASS'],
-                    'schema'    => $_ENV['DB_NAME_DATA']
+                    'schema'    => (!empty($_ENV['DB_NAME_DATA'])) ? $_ENV['DB_NAME_DATA'] : 'ps2alerts_data'
                 ],
-//                'database_archive' => [
-//                    'host'     => $_ENV['DB_ARCHIVE_HOST'],
-//                    'port'     => $_ENV['DB_ARCHIVE_PORT'],
-//                    'user'     => $_ENV['DB_ARCHIVE_USER'],
-//                    'password' => $_ENV['DB_ARCHIVE_PASS'],
-//                    'schema'   => $_ENV['DB_ARCHIVE_NAME']
-//                ],
-//                'redis'        => [
-//                    'enabled'  => $_ENV['REDIS_ENABLED'],
-//                    'host'     => $_ENV['REDIS_HOST'],
-//                    'port'     => $_ENV['REDIS_PORT'],
-//                    'pass'     => $_ENV['REDIS_PASS'],
-//                    'db'       => $_ENV['REDIS_DB'],
-//                ],
+                'database_archive' => [
+                    'host'     => $_ENV['DB_HOST'],
+                    'port'     => $_ENV['DB_PORT'],
+                    'user'     => $_ENV['DB_USER'],
+                    'password' => $_ENV['DB_PASS'],
+                    'schema'   => (!empty($_ENV['DB_NAME_ARCHIVE'])) ? $_ENV['DB_NAME_ARCHIVE'] : 'ps2alerts_archive'
+                ],
+                'redis'        => [
+                    'enabled'  => (!empty($_ENV['REDIS_ENABLED'])) ? $_ENV['REDIS_ENABLED'] : false,
+                    'host'     => (!empty($_ENV['REDIS_HOST'])) ? $_ENV['REDIS_HOST'] : null,
+                    'port'     => (!empty($_ENV['REDIS_PORT'])) ? $_ENV['REDIS_PORT'] : 6379,
+                    'pass'     => (!empty($_ENV['REDIS_PASS'])) ? $_ENV['REDIS_PASS'] : null,
+                    'db'       => (!empty($_ENV['REDIS_DB']))? $_ENV['REDIS_DB'] : 1,
+                ],
                 'servers' => [1, 10, 13, 17, 25, 1000, 2000],
                 'zones' => [2, 4, 6, 8],
                 'classes' => [1, 3, 4, 5, 6, 7, 8, 10, 11, 12, 13, 14, 15, 17, 18, 19, 20, 21],
