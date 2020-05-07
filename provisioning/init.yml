@@ -21,3 +21,5 @@
         - 'ps2alerts-api-start="ansible-playbook {{ devdir | realpath }}/provisioning/dev/main.yml"'
         - 'ps2alerts-api-stop="ansible-playbook {{ devdir | realpath }}/provisioning/dev/stop.yml"'
         - 'ps2alerts-api-term="docker exec -it ps2alerts-api bash"'
+        - 'ps2alerts-api-deploy-staging="ps2alerts-api && ansible-playbook provisioning/staging/deploy.yml --ask-vault-pass"'
+        - 'ps2alerts-api-deploy-production="ps2alerts-api && ansible-playbook provisioning/poroduction/deploy.yml --ask-vault-pass"'
